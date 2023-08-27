@@ -25,11 +25,11 @@ This project is a web-based Discord clone that replicates some of the key featur
 
 ### Day 1
 
-- [✓] Set up project repository on GitHub.
-- [✓] Create basic folder structure for the project.
-- [✓] Set up React application with necessary dependencies.
+- [x] Set up project repository on GitHub.
+- [x] Create basic folder structure for the project.
+- [x] Set up React application with necessary dependencies.
 - [ ] Design initial UI wireframes for servers and channels.
-- [✓] Set up Node.js backend using Express.js.
+- [x] Set up Node.js backend using Express.js.
 
 
 ## Contributing
