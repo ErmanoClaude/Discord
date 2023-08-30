@@ -12,3 +12,16 @@ body {
     background-size: cover; 
     overflow: hidden;
 }
+
+.login {
+    width: 50vw;
+    margin: auto;
+    background: rgba(53,57,63,255);
+    text-align: left;
+    border-radius: 3px;
+    padding: 40px;
+}
+
+.login .form-control {
+    background-color: rgba(32,34,37,255);
+}
