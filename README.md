@@ -31,6 +31,14 @@ This project is a web-based Discord clone that replicates some of the key featur
 - [ ] Design initial UI wireframes for servers and channels.
 - [x] Set up Node.js backend using Express.js.
 
+### Day 2
+- [x] Create Routes Login and Home
+- [x] Create Login page
+- [x] fix routes of pages
+
+### Day 3
+
+- []
 
 ## Contributing
 
