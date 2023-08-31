@@ -38,7 +38,12 @@ This project is a web-based Discord clone that replicates some of the key featur
 
 ### Day 3
 
-- []
+- [x] Complete styling of login page
+- [x] Fixed form post request to server
+
+### Day 4
+
+-[]
 
 ## Contributing
 

@@ -1,0 +1,76 @@
+body {
+    background: url('../assets/loginBackground.png') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover; 
+    overflow: hidden;
+}
+
+.login {
+    width: 50vw;
+    margin: 10% auto 50% auto;
+    background: rgba(53,57,63,255);
+    text-align: left;
+    border-radius: 3px;
+    padding: 40px;
+}
+
+.login .form-control {
+    background: rgba(32,34,37,255);
+    border-color:rgba(32,34,37,255);
+}
+
+.login-card button {
+    background-color: rgba(87,101,242,255);
+    color: rgba(228,229,252,255);
+    width: 100%
+}
+
+.login-card button:hover {
+    background-color: rgba(67, 81, 221, 1);
+    color: rgba(228,229,252,255);
+}
+
+.welcome {
+    text-align: center;
+    color: rgba(241, 241, 241, 255);
+}
+
+.star {
+    color: rgba(179, 62, 66, 255)
+}
+
+
+.welcome p {
+    color: rgba(170, 173, 176, 1);
+}
+
+.form-label {
+    color: rgba(170, 173, 176, 1);
+}
+
+.login-card a {
+    color: rgba(17,150,207,255);
+    text-decoration: none;
+}
+
+.login-card a:hover {
+    text-decoration: underline;
+}
+
+.remove-control:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: inherit;
+    background-color: inherit; 
+    z-index: inherit;
+}
+
+.account {
+    color: rgba(170, 173, 176, 1);
+}
+
+
+
+  
