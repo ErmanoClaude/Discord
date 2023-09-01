@@ -1,31 +1,8 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { useLayoutEffect } from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
 
-const routeStyles  = {
-    "/": "./pagesCSS/home.css",
-    "/login": "./pagesCSS/login.css"
-}
 
 export default function RootLayout({user}) {
-    const location = useLocation()
 
-    // This will first run on location change
-    useLayoutEffect(()=>{
-
-        // Creating an link element to link to style sheet based on page
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = routeStyles[location.pathname];
-
-        // Appended link element to head
-        document.head.appendChild(link)
-
-        return () => {
-        // Removes elements before leaving to next page
-            document.head.removeChild(link)
-        }
-
-    }, [location])
     return (
         <div className="root-layout">
             <header>

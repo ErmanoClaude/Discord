@@ -2,11 +2,15 @@ import { useState } from 'react'
 
 
 
-function Login() {
+function Register() {
     const [form, setForm] = useState({
         email:'',
-        password: ''
-    })
+        password: '',
+        displayName:'',
+        month:'',
+        day:'',
+        year:''
+    });
 
     const handleChange = (e) => {
         if(e.target.name){
@@ -31,21 +35,20 @@ function Login() {
         })
 
         if (response.ok) {
-            console.log('sent me your info')
+            console.log('sent me your info');
         } else {
-            console.log('incorrect password')
-        }
+            console.log('incorrect password');
+        } 
     }
 
     return (
             <div className="login">
                 <form className="login-card" onSubmit={handleSubmit}>
                     <div className="mb-3 welcome">
-                        <h4>Welcome back!</h4>
-                        <p className="secondary">We're so excited to see you again!</p>
+                        <h4>Create an account</h4>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="email" className="form-label">EMAIL ADDRESS <span className="star">*</span></label>
+                        <label htmlFor="email" className="form-label">EMAIL <span className="star">*</span></label>
                         <input
                             type="email" 
                             className="form-control remove-control" 
@@ -56,6 +59,18 @@ function Login() {
                             name="email"
                         />
                     </div>
+                    <div className='mb-3'>
+                        <label htmlfor="diplay-name" className="form-label">DISPLAY NAME <span className="star">*</span></label>
+                        <input
+                        type="text"
+                        className='form-control'
+                        pattern="[A-Za-z0-9]+"
+                        minLength="2"
+                        maxLength="20"
+                        required 
+                        />
+                    </div>
+
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label">PASSWORD <span className="star">*</span></label>
                         <input 
@@ -67,14 +82,33 @@ function Login() {
                             onChange={handleChange}
                             name="password"
                         />
-                        <a className="forgot" href="/login">Forgot your password?</a>
+                    </div>
+
+                    <div className='mb-3 .row.g-2'>
+                        <div className="col-md">
+                            <select className="form-select">
+                                <option>Month</option>
+                            </select>
+                        </div>
+                        <div className="col-md">
+                            <select className="form-select">
+                                <option>Day</option>
+                            </select>
+                        </div>
+                        <div className="col-md">
+                            <select className="form-select">
+                                <option>Year</option>
+                            </select>
+                        </div>
+                        
+
                     </div>
                     
-                    <button type="submit" className="btn">Log In</button>
-                    <p className="account">Need an account? <span><a href="/register">Register</a></span></p>
+                    <button type="submit" className="btn">Continue</button>
+                    <a href="/login">Already Have an account?</a>
                 </form>
             </div>
     );
 };
 
-export default Login;
+export default Register;
