@@ -28,7 +28,6 @@ This project is a web-based Discord clone that replicates some of the key featur
 - [x] Set up project repository on GitHub.
 - [x] Create basic folder structure for the project.
 - [x] Set up React application with necessary dependencies.
-- [ ] Design initial UI wireframes for servers and channels.
 - [x] Set up Node.js backend using Express.js.
 
 ### Day 2
@@ -43,13 +42,13 @@ This project is a web-based Discord clone that replicates some of the key featur
 
 ### Day 4
 
--[x] Create register route
--[x] Style register route
--[x] Form must send post http request to /register
+- [x] Create register route
+- [x] Style register route
+- [x] Form must send post http request to /register
 
 ### Day 5
 
--[ ] Validate Api request from server to send correct information
+- [ ] Validate Api request from server to send correct information
 
 ## Contributing
 
