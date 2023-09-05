@@ -44,8 +44,12 @@ This project is a web-based Discord clone that replicates some of the key featur
 ### Day 4
 
 -[x] Create register route
--[ ] Style register route
--[ ] Form must send post http request to /register
+-[x] Style register route
+-[x] Form must send post http request to /register
+
+### Day 5
+
+-[ ] Validate Api request from server to send correct information
 
 ## Contributing
 

@@ -1,1 +1,27 @@
-@import url('login.css')
+@import url('login.css');
+
+
+.form-select {
+    background: rgba(32,34,37,255);
+    border-color:rgba(32,34,37,255);
+}
+
+.form-control {
+    background: rgba(32,34,37,255);
+    border-color:rgba(32,34,37,255);
+}
+
+select {
+    background-color: rgba(170, 173, 176, 1);
+}
+
+.password-error {
+    color:red;
+}
+
+
+.login-card button:disabled {
+    background-color: rgba(87, 101, 242, 255);
+    color: rgba(228, 229, 252, 255);
+    border-color: none;
+}
