@@ -49,6 +49,7 @@ This project is a web-based Discord clone that replicates some of the key featur
 ### Day 5
 
 - [ ] Validate Api request from server to send correct information
+- [x] Set up AWS RDS MySQL and connect to database
 
 ## Contributing
 

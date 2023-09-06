@@ -1,15 +1,9 @@
-import React, {useEffect, useState } from 'react';
 import {
-  createBrowserRouter,
-  Routes, 
+  createBrowserRouter, 
   Route, 
-  Link, 
-  NavLink,
   createRoutesFromElements,
   RouterProvider
 } from 'react-router-dom';
-
-
 
 // Routes
 import Home from "./pages/Home";
@@ -33,10 +27,7 @@ const router = createBrowserRouter(
 
 
 
-const App = () => {
-
-  const [backendData, setBackendData] = useState([{}]);
-  
+const App = () => {  
   return (
     <RouterProvider router={router} />
   )

@@ -46,13 +46,9 @@ function Register() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(form)
+        }).then((data) => {
+            console.log(data.json().success);
         })
-
-        if (response.ok) {
-            console.log('sent me your info');
-        } else {
-            console.log('incorrect password');
-        }
     }
 
     // Validate password
