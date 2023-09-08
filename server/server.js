@@ -3,6 +3,8 @@ const validator = require('validator');
 const mysql = require('mysql');
 const app = express();
 
+const  errorChecker  = require('./utils');
+
 // Body parser middleware
 app.use(express.json());
 
@@ -56,18 +58,15 @@ app.post('/register', (req, res) => {
     // console.log data
     console.log(email, password, displayName, day, month, year);
 
-    const options = {
-        allow_utf8_local_part: true
-    };
-    console.log(validator.isEmail(email, options));
-    console.log(validator.isAlphanumeric(displayName) || validator.isAlpha(displayName))
-
-
+    let errors = errorChecker(email, password, displayName, month, year, day)
+    
     // Sending back a success message
     res.send({
         success: `${displayName} This is the response back`
     })
 })
+
+
 
 app.listen(5000, () => console.log("Server started on port 5000"))
 

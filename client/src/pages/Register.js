@@ -68,7 +68,7 @@ function Register() {
 
         // Disables button if password requirements aren't meet
         // Only after first change of password box
-        if(errors.length > 0){
+        if (errors.length > 0) {
             setFormDisabled(true);
         } else {
             setFormDisabled(false);
@@ -110,109 +110,114 @@ function Register() {
     }, [form.month, form.year])
 
     return (
-        <div className="login">
-            <form className="login-card" onSubmit={handleSubmit}>
-                <div className="mb-3 welcome">
-                    <h4>Create an account</h4>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="email" className="form-label">EMAIL <span className="star">*</span></label>
-                    <input
-                        type="email"
-                        className="form-control remove-control"
-                        id="email"
-                        aria-describedby="emailHelp"
-                        required
-                        onChange={handleChange}
-                        name="email"
-                    />
-                </div>
-                <div className='mb-3'>
-                    <label htmlFor="diplay-name" className="form-label">DISPLAY NAME <span className="star">*</span></label>
-                    <input
-                        type="text"
-                        className='form-control'
-                        pattern="[A-Za-z0-9]+"
-                        title="Only alphanumeric characters allowed"
-                        minLength="2"
-                        maxLength="20"
-                        onChange={handleChange}
-                        name="displayName"
-                        required
-                    />
-                </div>
-
-                <div className="mb-3">
-                    <label htmlFor="password" className="form-label">PASSWORD <span className="star">*</span></label>
-                    <input
-                        type="password"
-                        autoComplete='current-password'
-                        className="form-control"
-                        id="password"
-                        onChange={handlePassword}
-                        name="password"
-                        minLength='6'
-                        required
-                    />
-                    {passErrors.map((error) => {
-                        return <p key={error} className='password-error mb-0'>{error}</p>
-                    })}
-                </div>
-
-                <div className='row mb-4'>
-                    <p className="secondary mb-2">DATE OF BIRTH <span className='star'>*</span></p>
-                    <div className="col pe-1">
-                        <select
-                            id="Month"
-                            className="form-select secondary"
-                            defaultValue=""
-                            onChange={handleChange}
-                            name="month"
-                            required
-                        >
-                            <option key='default' value="" disabled selected>Month</option>
-                            {months.map((month) => { return <option key={month} value={month}>{month}</option> })}
-                        </select>
+        <div className='register-page'>
+            <div className="login">
+                <form className="login-card" onSubmit={handleSubmit}>
+                    <div className="mb-3 welcome">
+                        <h4>Create an account</h4>
                     </div>
-                    <div className="col px-2">
-                        <select
-                            className="form-select secondary"
-                            defaultValue=""
-                            name='day'
-                            onChange={handleChange}
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label">EMAIL <span className="star">*</span></label>
+                        <input
+                            type="email"
+                            autoComplete='email'
+                            className="form-control remove-control"
+                            id="email"
+                            aria-describedby="emailHelp"
                             required
-                        >
-                            <option value="" disabled key='default' selected>Day</option>
-                            {days.map((day) => {
-                                return <option value={day} key={day}>{day}</option>
-                            })}
-                        </select>
+                            onChange={handleChange}
+                            name="email"
+                        />
                     </div>
-                    <div className="col ps-1">
-                        <select
-                            className="form-select secondary"
-                            defaultValue=""
-                            name='year'
+                    <div className='mb-3'>
+                        <label htmlFor="diplay-name" className="form-label">DISPLAY NAME <span className="star">*</span></label>
+                        <input
+                            type="text"
+                            className='form-control'
+                            pattern="[A-Za-z0-9]+"
+                            title="Only alphanumeric characters allowed"
+                            minLength="2"
+                            maxLength="20"
                             onChange={handleChange}
+                            name="displayName"
                             required
-                        >
-                            <option key='default' value="" disabled selected>Year</option>
-                            {
-                                // Display valid years
-                                years.map((year) => {
-                                    return <option key={year} value={year}>{year}</option>
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="password" className="form-label">PASSWORD <span className="star">*</span></label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="password"
+                            onChange={handlePassword}
+                            autoComplete='new-password'
+                            name="password"
+                            minLength='6'
+                            required
+                        />
+                        {passErrors.map((error) => {
+                            return <p key={error} className='password-error mb-0'>{error}</p>
+                        })}
+                    </div>
+
+                    <div className='row mb-4'>
+                        <p className="secondary mb-2">DATE OF BIRTH <span className='star'>*</span></p>
+                        <div className="col pe-1">
+                            <select
+                                id="Month"
+                                className="form-select secondary"
+                                defaultValue=""
+                                onChange={handleChange}
+                                autoComplete='bday-month'
+                                name="month"
+                                required
+                            >
+                                <option key='default' value="" disabled selected>Month</option>
+                                {months.map((month) => { return <option key={month} value={month}>{month}</option> })}
+                            </select>
+                        </div>
+                        <div className="col px-2">
+                            <select
+                                className="form-select secondary"
+                                defaultValue=""
+                                name='day'
+                                onChange={handleChange}
+                                autoComplete='bday-day'
+                                required
+                            >
+                                <option value="" disabled key='default' selected>Day</option>
+                                {days.map((day) => {
+                                    return <option value={day} key={day}>{day}</option>
+                                })}
+                            </select>
+                        </div>
+                        <div className="col ps-1">
+                            <select
+                                className="form-select secondary"
+                                defaultValue=""
+                                name='year'
+                                onChange={handleChange}
+                                autoComplete='bday-year'
+                                required
+                            >
+                                <option key='default' value="" disabled selected>Year</option>
+                                {
+                                    // Display valid years
+                                    years.map((year) => {
+                                        return <option key={year} value={year}>{year}</option>
+                                    }
+                                    )
                                 }
-                                )
-                            }
-                        </select>
+                            </select>
+                        </div>
                     </div>
 
-                </div>
-
-                <button
-                    type="submit" className="btn mb-1" disabled={formDisabled}>Continue</button>
-                <a href="/login">Already Have an account?</a>
-            </form>
+                    <button
+                        type="submit" className="btn mb-1" disabled={formDisabled}>Continue</button>
+                    <a href="/login">Already Have an account?</a>
+                </form>
+            </div>
         </div>
     );
 };
