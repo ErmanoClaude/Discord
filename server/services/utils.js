@@ -89,4 +89,7 @@ function errorChecker(email, password, displayName, month, year, day) {
     return errors;
 }
 
-module.exports = errorChecker;
+module.exports = {
+    errorChecker,
+    isEmail
+};

@@ -3,7 +3,7 @@ const validator = require('validator');
 const mysql = require('mysql');
 const app = express();
 
-const  errorChecker  = require('./utils');
+const  { errorChecker, isEmail }  = require('./services/utils');
 
 // Body parser middleware
 app.use(express.json());
@@ -11,44 +11,21 @@ app.use(express.json());
 // dotenv config
 require('dotenv').config();
 
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD
-})
-
-// connect to database first then set server routes.
-
-db.connect((err) => {
-    if (err) {
-        console.log(err.message);
-        return;
-    }
-    console.log("Database connected")
-})
+// connect to DB
+const db = require('./config/databaseConfig');
 
 app.post('/login', (req, res) => {
     // Get data from body
     const { email, password } = req.body;
 
     // Validate credentials
-    if (email && password) {
-        // successfull login
-        console.log({ email, password })
-        res.send({
-            success: true,
-            message: `Welcome ${email}`
-        })
-    } else {
-        // unsccessful login response
-        res.send({
-            success: false,
-            message: `failed to login`
-        })
-
-    }
-
+    // Handle this later
+    let error = ['This is one error', 'This is another Error', 'This is the third error'];
+    console.log(error)
+    res.send({
+        success:false,
+        errors:[error]
+    })
 })
 
 app.post('/register', (req, res) => {
@@ -67,6 +44,22 @@ app.post('/register', (req, res) => {
 })
 
 
+app.get('/sql', async(req, res) => {
+    let sql = "SELECT * FROM users"
+    await db.query(sql, (err, results) => {
+        if (err) throw err;
+        console.log(results[0]);
+    });
+});
 
-app.listen(5000, () => console.log("Server started on port 5000"))
+
+app.listen(5000, function (){
+    console.log("Server started on port 5000");
+
+    // Connect to the data base
+    db.connect(function (err) {
+        if(err) throw err;
+        console.log('Database connected')
+    });
+});
 

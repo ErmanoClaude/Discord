@@ -1,24 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ErrorModal from '../components/ErrorsModal';
 
 function Home() {
-
-    const [modalOpen, setModalOpen] = useState(false);
-
-    const openModal = () => {
-      setModalOpen(true);
-    }
+  const [success, setSuccess] = useState(false); // Change "let" to "const" for best practices
   
-    return (
-      <>
-        <ErrorModal 
-          show={modalOpen}
-          onClose={() => setModalOpen(false)} 
-        />
-  
-        <button onClick={openModal}>Open Modal</button>
-      </>
-    )
+  return (
+    <div className="home">
+      <ErrorModal /> {/* Conditionally render the ErrorModal */}
+    </div>
+  );
 };
 
 export default Home;
