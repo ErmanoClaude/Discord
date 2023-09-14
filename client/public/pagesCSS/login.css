@@ -68,7 +68,7 @@ body {
     outline: none;
     box-shadow: none;
     border-color: inherit;
-    background: rgba(32,34,37,255);
+    background: rgba(32, 34, 37, 255);
     color: rgba(170, 173, 176, 1);
 }
 
@@ -91,7 +91,7 @@ body {
 
 /* Change Autocomplete styles in Chrome*/
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
+input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
@@ -99,8 +99,8 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  border: 1px solid rgba(32, 34, 37, 255);
-  -webkit-text-fill-color: rgba(170, 173, 176, 1);
-  -webkit-box-shadow: 0 0 0px 1000px rgba(32, 34, 37, 255) inset;
-  background: rgba(32, 34, 37, 255);;
+    border: 1px solid rgba(32, 34, 37, 255);
+    -webkit-text-fill-color: rgba(170, 173, 176, 1);
+    -webkit-box-shadow: 0 0 0px 1000px rgba(32, 34, 37, 255) inset;
+    background: rgba(32, 34, 37, 255);
 }

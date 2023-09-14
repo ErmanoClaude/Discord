@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getDaysInMonth } from 'date-fns';
+import ErrorModal from '../components/ErrorsModal';
 
 
 function Register() {
@@ -20,6 +21,12 @@ function Register() {
 
     // Days array with default of 31 days array
     const [days, setDays] = useState([...Array(31).keys()].map(x => x + 1))
+
+    // Show modal true will popup  error modal with errors as P tags
+    const [showModal, setShowModal] = useState(false);
+    const [errors, setErrors] = useState([]);
+
+
 
     const handleChange = (e) => {
         setForm({
@@ -46,9 +53,27 @@ function Register() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(form)
-        }).then((data) => {
-            console.log(data.json().success);
         })
+
+        const data = await response.json();
+
+        // If request is successfully send to /login
+        if (response.ok) {
+            console.log('Sent email password to /register success');
+            console.log(data);
+        } else {
+            setErrors(['Unable to send email and password to /register api']);
+            setShowModal(true);
+        }
+
+        // If user is logged in success:true else success:false
+        if (data.success) {
+            // Redirect to Home with logged in person
+        } else {
+            setErrors(...data.errors);
+            setShowModal(true);
+        }
+
     }
 
     // Validate password
@@ -109,8 +134,15 @@ function Register() {
         }
     }, [form.month, form.year])
 
+
+
     return (
         <div className='register-page'>
+            <ErrorModal
+                show={showModal}
+                errors={errors}
+                handleClose={() => setShowModal(false)}
+            />
             <div className="login">
                 <form className="login-card" onSubmit={handleSubmit}>
                     <div className="mb-3 welcome">
