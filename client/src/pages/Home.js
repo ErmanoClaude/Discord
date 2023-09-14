@@ -17,6 +17,8 @@ function Home() {
       errors={errors}
       handleClose={()=> setShowModal(false)}
       />
+
+      <p></p>
     </div>
   );
 };

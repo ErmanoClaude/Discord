@@ -6,6 +6,35 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
+// express json
+app.use(express.json());
+
+// dotenv config
+require('dotenv').config();
+
+app.use(cors({
+    origin:["http://localhost:3000"],
+    methods:["GET", "POST"],
+    credentials:true // Allows cookie to be enabled
+}))
+
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(session({
+    key:"userId",
+    secret:process.env.SESSION_SECRET,
+    resave:false,
+    saveUninitialized:false,
+    cookie: {
+        expires: 60 * 60 * 24 * 10 // 10 days of logged in
+    },
+}))
+
 const saltRounds = 10;
 
 const { errorChecker, isEmail } = require('./services/utils');
@@ -25,11 +54,6 @@ const months = [
     'December'
 ];
 
-// Body parser middleware
-app.use(express.json());
-
-// dotenv config
-require('dotenv').config();
 
 // connect to DB
 const db = require('./config/databaseConfig');
@@ -45,6 +69,7 @@ app.post('/login', async (req, res) => {
     // isEmail returns empty array if valid email
     // else returns ['Not valid email']
     const error = isEmail(email);
+    console.log(email);
     console.log(error.length, error)
     if (error.length > 0) {
         res.send({
@@ -88,11 +113,22 @@ app.post('/login', async (req, res) => {
                     "userId": data[0]['id']
                 }
 
-                jwt.sign(payload, process.env.MY_SECRET);
+                const user = {
+                    ...payload,
+                    "displayName": data[0]['displayName']
+                }
+
+                // Generate JWT
+                const token = jwt.sign(payload, process.env.JWT_SECRET);
                 
+                req.session.user = user
+
+                console.log(req.session.user);
+
                 res.send({
-                    success:true
-                })
+                    success:true,
+                    token: token
+                });
                 console.log(`${email} You are logged in`)
 
             } else {
@@ -107,6 +143,15 @@ app.post('/login', async (req, res) => {
 
 
 }) // post /login
+
+
+app.get('/login', (req, res) => {
+    if(req.session.user) {
+        res.send({loggedIn: true, user: req.session.user});
+    } else {
+        res.send({loggedIn: false });
+    }
+})
 
 app.post('/register', async (req, res) => {
     // Get data
@@ -168,6 +213,7 @@ app.get('/sql', async (req, res) => {
     await db.query(sql, (err, results) => {
         if (err) throw err;
         console.log(results[0]);
+        console.log("asdfa;dslfjka");
         res.send({
             data: results
         })

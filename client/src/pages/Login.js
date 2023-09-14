@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ErrorModal from '../components/ErrorsModal';
 
 
@@ -45,14 +45,37 @@ function Login() {
         }
 
         // If user is logged in success:true else success:false
-        if (data.success){
-            // Redirect to Home with logged in person
+        if (data.success) {
+            // Store JWT token from server
+            // Redirect to Home with logged in persons
+            window.location.href = '/';
+
         } else {
             setErrors(...data.errors)
             setShowModal(true);
         }
 
     }
+
+    // Use useEffect to sync the input fields with autofilled data
+    useEffect(() => {
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        if (emailInput && emailInput.value !== form.email) {
+            setForm({
+                ...form,
+                email: emailInput.value
+            });
+        }
+
+        if (passwordInput && passwordInput.value !== form.password) {
+            setForm({
+                ...form,
+                password: passwordInput.value
+            });
+        }
+    }, [form.email, form.password]);
 
     return (
         <>
