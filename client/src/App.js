@@ -18,19 +18,6 @@ import RootLayout from './layouts/RootLayout';
 // Api request
 import Axios from "axios";
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/" element={<RootLayout/>}>
-
-      {/* Protect Routes */}
-      <Route index element={<Home />}></Route>
-
-      {/* Public Routes*/}
-      <Route path='login' element={<Login />}></Route>
-      <Route path='register' element={<Register />}></Route>
-    </Route>
-  )
-)
 
 
 
@@ -45,13 +32,33 @@ const App = () => {
     Axios.get('/login').then((response) => {
       if (response.data['loggedIn']) {
         setUser(response.data.user);
+        localStorage.setItem("token", response.data.user.token);
       } else {
         if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+          if( window.location.pathname !== '/register' ) {
+            window.location.href='/login'
+          }
         }
       }
     })
   }, [])
+
+
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/" element={<RootLayout user={user}/>}>
+  
+        {/* Protect Routes */}
+        <Route index element={<Home  user = {user}/>}></Route>
+  
+        {/* Public Routes*/}
+        <Route path='login' element={<Login />}></Route>
+        <Route path='register' element={<Register />}></Route>
+      </Route>
+    )
+  )
+  
 
   return (
     <RouterProvider router={router} />

@@ -8,8 +8,8 @@ export default function RootLayout({user}) {
             <header>
             { user && (
                 <nav>
-                    <h1>Discord</h1>
                     <NavLink to="/">Home</NavLink>
+                    <NavLink to='/'>server</NavLink>
                 </nav>
             )}
             </header>

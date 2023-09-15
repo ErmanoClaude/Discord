@@ -23,11 +23,30 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
 
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
   <!-- page based CSS rendering -->
   <link rel="stylesheet" href="./pagesCSS/home.css" />
   <link rel="stylesheet" href="./pagesCSS/login.css" />
   <link rel="stylesheet" href="./pagesCSS/register.css" />
 
+  <!-- 
+    Choosing which page CSS to load
+    PageCSS is the last CSS file that is running
+   -->
   <script>
     // chose which css to load on initial render
     const sheets = {
@@ -58,21 +77,7 @@
 
   </script>
 
-</head>
 
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
-  <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
 </body>
 
 </html>

@@ -17,19 +17,19 @@ app.use(express.json());
 require('dotenv').config();
 
 app.use(cors({
-    origin:["http://localhost:3000"],
-    methods:["GET", "POST"],
-    credentials:true // Allows cookie to be enabled
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true // Allows cookie to be enabled
 }))
 
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
-    key:"userId",
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:false,
+    key: "userId",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
         expires: 60 * 60 * 24 * 10 // 10 days of logged in
     },
@@ -37,7 +37,7 @@ app.use(session({
 
 const saltRounds = 10;
 
-const { errorChecker, isEmail } = require('./services/utils');
+const { errorChecker, isEmail, verifyJWT } = require('./services/utils');
 
 const months = [
     'January',
@@ -63,7 +63,7 @@ app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     // Validate credentials
-   
+
 
     // Checks if email is valid from req.body
     // isEmail returns empty array if valid email
@@ -80,7 +80,7 @@ app.post('/login', async (req, res) => {
     }
 
     const sqlQuery = `SELECT * FROM users WHERE email='${email}';`;
-    await db.query(sqlQuery, async(err, data) => {
+    await db.query(sqlQuery, async (err, data) => {
         if (err) {
             error.push('Error in /login sqlQuery');
             error.push(err.sqlMessage);
@@ -105,36 +105,40 @@ app.post('/login', async (req, res) => {
 
 
             // compare and see if hashes match
-            const match = await bcrypt.compare(password,dbHash);
+            const match = await bcrypt.compare(password, dbHash);
 
-            if(match) {
+            if (match) {
                 // User successfully is logged in
                 const payload = {
                     "userId": data[0]['id']
                 }
 
-                const user = {
-                    ...payload,
-                    "displayName": data[0]['displayName']
-                }
 
                 // Generate JWT
                 const token = jwt.sign(payload, process.env.JWT_SECRET);
-                
+
+
+                const user = {
+                    ...payload,
+                    "displayName": data[0]['displayName'],
+                    token: token,
+                    expiresIn: 300, // <-- 5 min expiration
+                }
+
                 req.session.user = user
 
                 console.log(req.session.user);
 
                 res.send({
-                    success:true,
+                    success: true,
                     token: token
                 });
                 console.log(`${email} You are logged in`)
 
             } else {
                 res.send({
-                    success:false,
-                    errors:[['Incorrect Password']]
+                    success: false,
+                    errors: [['Incorrect Password']]
                 })
             }
 
@@ -146,11 +150,15 @@ app.post('/login', async (req, res) => {
 
 
 app.get('/login', (req, res) => {
-    if(req.session.user) {
-        res.send({loggedIn: true, user: req.session.user});
+    if (req.session.user) {
+        res.send({ loggedIn: true, user: req.session.user });
     } else {
-        res.send({loggedIn: false });
+        res.send({ loggedIn: false });
     }
+})
+
+
+app.get('/isUserAuth', verifyJWT, (req, res) => {
 })
 
 app.post('/register', async (req, res) => {

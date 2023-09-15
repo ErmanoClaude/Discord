@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import ErrorModal from '../components/ErrorsModal';
 
-function Home() {
+function Home(props) {
+  const { user } = props;
   const [success, setSuccess] = useState(false); // Change "let" to "const" for best practices
   const [showModal, setShowModal] = useState(false);
   const errors = [
@@ -17,8 +18,7 @@ function Home() {
       errors={errors}
       handleClose={()=> setShowModal(false)}
       />
-
-      <p></p>
+      
     </div>
   );
 };

@@ -1,5 +1,6 @@
 const { getDaysInMonth } = require('date-fns');
 const validator = require('validator');
+const JWT = require('jsonwebtoken');
 
 // Months to check date
 const months = [
@@ -89,7 +90,32 @@ function errorChecker(email, password, displayName, month, year, day) {
     return errors;
 }
 
+// middle ware to verify user
+function verifyJWT ( req, res, next ) {
+    const token = req.headers['x-access-token'];
+
+    if(!token) {
+        res.send({
+            success: false,
+            errors:[["We need a token, please give us the token next time"]]
+        });
+    } else {
+        JWT.verify( token, process.env.JWT_SECRET, (err, decoded) => {
+            if(err) {
+                res.send({
+                    success: false,
+                    errors:[['Failed to authenticate']]
+                })
+            } else {
+                req.userId = decoded.id;
+                next();
+            }
+        });
+    }
+} 
+
 module.exports = {
     errorChecker,
-    isEmail
+    isEmail,
+    verifyJWT,
 };
