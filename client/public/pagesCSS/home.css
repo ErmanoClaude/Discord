@@ -1,0 +1,94 @@
+.home {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+}
+
+.main {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+
+}
+
+.servers {
+    background-color: var(--main-color);
+    width: 85px;
+    padding-top: 10px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.friends-channels {
+    background-color: var(--channel-column-color);
+    width: 240px;
+    padding: 0;
+}
+
+.content {
+    background-color: var(--secondary-color);
+    padding: 0;
+}
+
+.vertical-line {
+    border-left:7px solid white;
+    border-radius: 50%;
+    height: 5px;
+    position:absolute;
+    left: 10px;
+}
+
+
+.nav-link {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    
+    font-size: 18px;
+    background-color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.sideNav {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.linebreak {
+    height: 3px;
+    width: 32px;
+    border-radius: 1px;
+    background-color: var(--secondary-color);
+}
+
+.discord-icon {
+    width: 26px !important;
+}
+
+.nav-row {
+    display: flex;
+    align-items: center;
+}
+
+
+.server-link:hover {
+    background-color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+
+.server-link:hover  .vertical-line {
+    height: 48px;
+}

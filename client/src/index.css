@@ -1,3 +1,11 @@
+:root {
+    --main-color:#1E1F22;
+    --channel-column-color:#2B2D31;
+    --secondary-color: #313338;
+    --highlight: #5662E8;
+    --icon-color: #DBDEE1;
+}
+
 .modal-content {
     text-align: center;
     color: rgba(241, 241, 241, 255);

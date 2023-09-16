@@ -25,6 +25,13 @@ app.use(cors({
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Set cache-control headers to no-store middleware
+// so cant go back to request that is being sent to front end
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+})
+
 app.use(session({
     key: "userId",
     secret: process.env.SESSION_SECRET,
@@ -159,6 +166,10 @@ app.get('/login', (req, res) => {
 
 
 app.get('/isUserAuth', verifyJWT, (req, res) => {
+    console.log("This user is authenticated yessir")
+    res.send({
+        success:true
+    })
 })
 
 app.post('/register', async (req, res) => {
