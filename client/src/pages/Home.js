@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import ErrorModal from '../components/ErrorsModal';
 import LeftNavBar from '../components/LeftNavBar';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 
 function Home(props) {
   const { user } = props;
@@ -16,25 +13,28 @@ function Home(props) {
   ];
 
   return (
-    <Container className="home">
+    <div className="home">
       <ErrorModal
         show={showModal}
         errors={errors}
         handleClose={() => setShowModal(false)}
       />
-      <Row className='main'>
-        <Col className='servers' xs={1}>
-          <LeftNavBar />
-        </Col>
-        <Col className='friends-channels' xs={2}>
-          <h1>Friends</h1>
-        </Col>
-        <Col className='content' >
-          <h1>Main content</h1>
-        </Col>
-      </Row>
+      <div className='row main-content' >
 
-    </Container>
+        <div className='col servers' style={{ flex: '0 0 85px' }}>
+          <LeftNavBar/>
+        </div>
+
+        <div className='col friends-channels' style={{ flex: '0 0 240px' }}>
+          <h1>Friends</h1>
+        </div>
+
+        <div className='col content' style={{ flex: '1' }}>
+          <h1>Main content</h1>
+        </div>
+
+      </div>
+    </div>
   );
 };
 
