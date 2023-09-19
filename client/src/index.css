@@ -4,6 +4,7 @@
     --secondary-color: #313338;
     --highlight: #5662E8;
     --icon-color: #DBDEE1;
+    --scroll-width: 20px;
 }
 
 .modal-content {

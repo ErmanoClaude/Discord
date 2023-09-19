@@ -76,8 +76,7 @@ app.post('/login', async (req, res) => {
     // isEmail returns empty array if valid email
     // else returns ['Not valid email']
     const error = isEmail(email);
-    console.log(email);
-    console.log(error.length, error)
+
     if (error.length > 0) {
         res.send({
             success: false,
@@ -130,17 +129,15 @@ app.post('/login', async (req, res) => {
                     "displayName": data[0]['displayName'],
                     token: token,
                     expiresIn: 300, // <-- 5 min expiration
-                }
+                };
 
-                req.session.user = user
-
-                console.log(req.session.user);
+                req.session.user = user;
 
                 res.send({
                     success: true,
                     token: token
                 });
-                console.log(`${email} You are logged in`)
+
 
             } else {
                 res.send({
@@ -168,7 +165,7 @@ app.get('/login', (req, res) => {
 app.get('/isUserAuth', verifyJWT, (req, res) => {
     console.log("This user is authenticated yessir")
     res.send({
-        success:true
+        success: true
     })
 })
 
@@ -212,16 +209,34 @@ app.post('/register', async (req, res) => {
                     errors: [errors]
                 })
             } else {
+                // Create the new user in the database
                 const user = db.query(`
-                INSERT INTO users 
+                INSERT INTO users
                 (email, displayName, password, dateOfBirth, timeOfCreation) 
-                VALUES (?, ?, ?, ?, ?, NOW())`,
-                    [email, displayName, hashedPassword, dateOfBirth]
+                VALUES (?, ?, ?, ?, NOW())`,
+                    [email, displayName, hashedPassword, dateOfBirth], (err, result) => {
+                        if (err) {
+                            console.log(err)
+                            res.send({
+                                success:false,
+                                errors:[["Failed to insert User to data base duplicated"]]
+                            })
+                        }
+                    // Make user default home channel
+                    db.query(`INSERT INTO servers (name, ownerId) VALUES ("Home", ${result.insertId})`)
+                    console.log(data);
+                    res.send({
+                        success: true
+                    })
+
+                    }
                 );
+
             }
         }); // Display Name Query
 
     }); // Email Query
+
 
 
 }) // post /register

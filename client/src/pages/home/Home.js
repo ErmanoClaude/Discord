@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import ErrorModal from '../components/ErrorsModal';
-import LeftNavBar from '../components/LeftNavBar';
+import ErrorModal from '../../components/ErrorsModal';
+import LeftNavBar from '../../components/LeftNavBar';
 
 function Home(props) {
   const { user } = props;
@@ -21,15 +21,15 @@ function Home(props) {
       />
       <div className='row main-content' >
 
-        <div className='col servers' style={{ flex: '0 0 85px' }}>
+        <div className='col servers'>
           <LeftNavBar/>
         </div>
 
-        <div className='col friends-channels' style={{ flex: '0 0 240px' }}>
+        <div className='col friends-channels'>
           <h1>Friends</h1>
         </div>
 
-        <div className='col content' style={{ flex: '1' }}>
+        <div className='col content'>
           <h1>Main content</h1>
         </div>
 

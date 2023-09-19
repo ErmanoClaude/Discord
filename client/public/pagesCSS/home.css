@@ -8,24 +8,25 @@
     height: 100%;
 }
 
-
-.row {
-    display: flex;
-    width: 100%;
+.main-content {
+    display: grid;
+    grid-template-columns: 85px 240px 1fr; /* Define your desired column widths */
+    grid-template-rows: 1fr 1fr 1fr 1fr; /* This prevents rows from automatically expanding */
     height: 100%;
-    overflow: hidden;
+}
+.row {
+
 }
 .servers {
     background-color: var(--main-color);
     padding-top: 10px;
     padding-left: 0;
     padding-right: 0;
-    width: 85px;
+    height: 100vh;
 }
 
 .friends-channels {
     background-color: var(--channel-column-color);
-    width: 240px;
     padding: 0;
 }
 
@@ -35,15 +36,11 @@
 }
 
 .vertical-line {
-    border-left: 7px solid white;
-    border-radius: 50%;
-    height: 10px;
-
+    border-left: 8px solid white;
+    border-radius: 0 4px 4px 0;
+    height: 8px;
 }
 
-.nav-row:hover .vertical-line {
-    height: 25px;
-}
 
 .nav-link {
     width: 48px;
@@ -52,17 +49,21 @@
 
     font-size: 18px;
     background-color: var(--secondary-color);
-
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.nav-link:hover {
+    border-radius: 15px;
+    color:white;
+}
 
 .sideNav {
-    justify-content: center;
     align-items: center;
     text-align: center;
+    
 }
 
 .linebreak {
@@ -79,5 +80,9 @@
 .nav-row {
     display: flex;
     align-items: center;
+}
+
+.user-servers {
+    
 }
 

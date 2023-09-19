@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 
 // Routes
-import Home from "./pages/Home";
+import Home from "./pages/home/Home";
 import Login from "./pages/Login";
 import Register from './pages/Register';
 
@@ -50,7 +50,9 @@ const App = () => {
       <Route path="/" element={<RootLayout user={user}/>}>
   
         {/* Protect Routes */}
-        <Route index element={<Home  user = {user}/>}></Route>
+        <Route index element={<Home  user = {user}/>}>
+          
+        </Route>
   
         {/* Public Routes*/}
         <Route path='login' element={<Login />}></Route>

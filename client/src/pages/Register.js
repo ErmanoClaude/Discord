@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getDaysInMonth } from 'date-fns';
 import ErrorModal from '../components/ErrorsModal';
-
+import { useNavigate } from 'react-router-dom'
 
 function Register() {
+    const navigate = useNavigate()
     const [form, setForm] = useState({
         email: '',
         password: '',
@@ -69,6 +70,7 @@ function Register() {
         // If user is logged in success:true else success:false
         if (data.success) {
             // Redirect to Home with logged in person
+            navigate('/login')
         } else {
             setErrors(...data.errors);
             setShowModal(true);
