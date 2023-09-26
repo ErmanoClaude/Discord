@@ -1,41 +1,28 @@
 import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
 import { BsDiscord } from 'react-icons/bs';
-import { useState} from 'react';
+import { FaPlus } from 'react-icons/fa6'
+import { useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import CreateServerModal from './CreateServerModal';
 
-const LeftNavbar = () => {
-  const userServers = {
-    "the ghetto hash": 1,
-    "The chosen ones": 32,
-    "million dollar": 56,
-    "chcink": 32,
-    "unilateral": 3,
-    "unclearing": 12,
-    "altering": 9,
-    "Anotnher": 11,
-    "This beat is sick": 7,
-    "another server": 4,
-    "another one": 99,
-    "theo von": 87,
-    "Kevin hart": 373,
-    "you know what": 98,
-    "thump wrestling": 7
-  }
 
-  const serversArray = Object.keys(userServers);
+const LeftNavbar = (props) => {
+  const { servers, fetchServers } = props;
   const [hoveredServer, setHoveredServer] = useState({});
-  const verticalLineStyles = {
+  const [show, setShow] = useState(false);
+  const handleOpen = () => setShow(true);
+  const handleClose = () => setShow(false);
 
+
+  const verticalLineStyles = {
     "transition": "height 0.2s"
   }
 
   const handleMouseEnter = (event, index) => {
     event.stopPropagation();
     console.log('The mouse has entered this area');
-
-
 
     setHoveredServer(prevState => {
       // Create new object 
@@ -51,7 +38,7 @@ const LeftNavbar = () => {
 
       setHoveredServer(newState);
     });
-  
+
     setHoveredServer({
       ...hoveredServer,
       [index]: true
@@ -68,48 +55,75 @@ const LeftNavbar = () => {
     });
 
   }
+
+
+
   return (
     <Nav className="flex-column sideNav" style={{ gap: '12px' }}>
+      <CreateServerModal show={show} handleClose={handleClose} fetchServers={fetchServers} />
+      {
+        servers.map((server, index) => {
+          return (
+            <>
+              <div className='nav-row' style={{ "margin-bottom": "12px" }}>
+                <div className="vertical-line"
+                  style={{
+                    height: hoveredServer[index] ? '20px' : '8px',
+                    ...verticalLineStyles
+                  }}
+                />
+                <OverlayTrigger
+                  placement='right'
+                  overlay={
+                    <Tooltip id='server-tooltip' style={{ "font-size": "17px", "margin-left": "10px" }}>
+                      {server.name}
+                    </Tooltip>
+                  }
+                >
+                  <Nav.Link
+                    id={index}
+                    onMouseEnter={(event) => handleMouseEnter(event, index)}
+                    onMouseLeave={(event) => { handleMouseLeave(event, index) }}
+                    href="/">
+                    {server.name === 'Home' ? <BsDiscord className='nav-icons' /> : server.name[0]}
+                  </Nav.Link>
+                </OverlayTrigger>
+              </div> {/* nav-row */}
+              {index === 0 &&
+                <div className='linebreak'></div>
+              }
+            </>
+          )
+        })
+      } {/* Servers that users own and are in */} <div className='nav-row' style={{ "margin-bottom": "12px" }}>
+        <div className="vertical-line"
+          style={{
+            height: hoveredServer[servers.length] ? '20px' : '8px',
+            ...verticalLineStyles
+          }}
+        />
+        <OverlayTrigger
+          placement='right'
+          overlay={
+            <Tooltip id='server-tooltip' style={{ "font-size": "17px", "margin-left": "10px" }}>
+              Create a server
+            </Tooltip>
+          }
+        >
+          <Nav.Link
+            id={servers.length}
+            onMouseEnter={(event) => handleMouseEnter(event, servers.length)}
+            onMouseLeave={(event) => { handleMouseLeave(event, servers.length) }}
+            onClick={(e) => {
+              e.preventDefault()
+              handleOpen();
+            }}
+            href="/">
+            <FaPlus className="nav-icons" style={{ "color": "green" }} />
+          </Nav.Link>
+        </OverlayTrigger>
+      </div> {/* nav-row */}
 
-      <div className='nav-row'>
-        <div className='vertical-line' style={verticalLineStyles}></div>
-        <Nav.Link
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          href="/"><BsDiscord /></Nav.Link>
-      </div>
-
-      <div className='linebreak'></div>
-      <div className='user-servers'>
-        {
-          serversArray.map((serverName, index) => {
-            return (
-              <>
-                <div className='nav-row' style={{ "margin-bottom": "12px" }}>
-                  <div className="vertical-line"
-                    style={{ height: hoveredServer[index] ? '20px' : '8px' }}
-                  />
-                  <OverlayTrigger
-                    placement='right'
-                    overlay={
-                      <Tooltip id='server-tooltip' style={{ "font-size": "17px", "margin-left": "10px" }}>
-                        {serverName}
-                      </Tooltip>
-                    }
-                  >
-                    <Nav.Link
-                      id={index}
-                      onMouseEnter={(event) => handleMouseEnter(event, index)}
-                      onMouseLeave={(event) => { handleMouseLeave(event, index) }}
-                      href="/">{serverName[0]}
-                    </Nav.Link>
-                  </OverlayTrigger>
-                </div>
-              </>
-            )
-          })
-        }
-      </div>
 
     </Nav>
   );

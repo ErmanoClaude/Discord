@@ -79,6 +79,25 @@ function validDate(month, year, day) {
     return errors;
 }
 
+// validate serverName
+// only letters, numbers and spaces allowed
+// server name is also trimmed
+function validateServerName(serverName) {
+    let errors = []
+    const allowedChars = /^[a-zA-Z0-9 ]+$/;
+
+
+    if(!serverName  || typeof serverName !== 'string') {
+        return ['Server name must be only letters, numbers and spaces'];
+    }
+
+    if (!allowedChars.test(serverName)){ 
+        return ['Server name must be only letters, numbers and spaces'];
+    }
+
+    return errors;
+}
+
 function errorChecker(email, password, displayName, month, year, day) {
     let errors = [
         ...isEmail(email),
@@ -107,15 +126,17 @@ function verifyJWT ( req, res, next ) {
                     errors:[['Failed to authenticate']]
                 })
             } else {
-                req.userId = decoded.id;
+                req.userId = decoded.userId;
                 next();
             }
         });
     }
 } 
 
+
 module.exports = {
     errorChecker,
     isEmail,
+    validateServerName,
     verifyJWT,
 };

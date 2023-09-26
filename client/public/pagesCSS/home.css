@@ -10,13 +10,15 @@
 
 .main-content {
     display: grid;
-    grid-template-columns: 85px 240px 1fr; /* Define your desired column widths */
-    grid-template-rows: 1fr 1fr 1fr 1fr; /* This prevents rows from automatically expanding */
+    grid-template-columns: 85px 240px 1fr;
+    /* Define your desired column widths */
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    /* This prevents rows from automatically expanding */
     height: 100%;
 }
-.row {
 
-}
+.row {}
+
 .servers {
     background-color: var(--main-color);
     padding-top: 10px;
@@ -57,13 +59,17 @@
 
 .nav-link:hover {
     border-radius: 15px;
-    color:white;
+    color: white;
+}
+
+nav a.active {
+    background-color: blueviolet;
 }
 
 .sideNav {
     align-items: center;
     text-align: center;
-    
+
 }
 
 .linebreak {
@@ -82,7 +88,6 @@
     align-items: center;
 }
 
-.user-servers {
-    
+.nav-icons {
+    size:40px;
 }
-

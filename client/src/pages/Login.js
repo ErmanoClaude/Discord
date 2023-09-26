@@ -31,7 +31,7 @@ function Login() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(form)
-        })
+        });
 
         const data = await response.json();
 
@@ -45,10 +45,14 @@ function Login() {
         }
 
         // If user is logged in success:true else success:false
-        if (data.success) {
+        if (data.success === true) {
             // Store JWT token from server
             // Redirect to Home with logged in persons
+            console.log(data);
+            localStorage.setItem('token', data.token);
+            
             window.location.href = '/';
+            
 
         } else {
             setErrors(...data.errors)
