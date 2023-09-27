@@ -8,7 +8,6 @@
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Web site created using create-react-app" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-  <link rel="stylesheet" href="./pagesCSS/index.css" />
   <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -39,46 +38,6 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-  <!-- page based CSS rendering -->
-  <link rel="stylesheet" href="./pagesCSS/home.css" />
-  <link rel="stylesheet" href="./pagesCSS/login.css" />
-  <link rel="stylesheet" href="./pagesCSS/register.css" />
-
-  <!-- 
-    Choosing which page CSS to load
-    PageCSS is the last CSS file that is running
-   -->
-  <script>
-    // chose which css to load on initial render
-    const sheets = {
-      "/": "/pagesCSS/home.css",
-      "/login": "/pagesCSS/login.css",
-      "/register": "/pagesCSS/register.css"
-    }
-
-    // current page sheet
-    const currentSheet = sheets[window.location.pathname];
-
-    // Find all css style sheets
-    const cssSheets = document.styleSheets;
-
-    // Disable all style sheet except current sheet and bootstrap
-    for (let cssSheet of cssSheets) {
-      cssSheet.disabled = true;
-      if (cssSheet.href) {
-        if (cssSheet.href.includes(currentSheet)) {
-          cssSheet.disabled = false;
-        }
-      }
-    }
-
-    // Enable boostrap always the first sheet
-    // In import css order
-    cssSheets[0].disabled = false;
-
-  </script>
-
-
 </body>
 
 </html>

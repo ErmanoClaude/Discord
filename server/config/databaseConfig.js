@@ -14,7 +14,7 @@ const db = mysql.createConnection({
 const db = mysql.createConnection({
     host: 'localhost',       // The hostname of your MySQL server
     user: 'root',            // Your MySQL username
-    password: '123',         // Your MySQL password
+    password: process.env.LOCAL_DB_PW,         // Your MySQL password
     database: 'discord_database', // The name of your database
   });
 // connect to database first then set server routes.

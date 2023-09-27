@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getDaysInMonth } from 'date-fns';
 import ErrorModal from '../components/ErrorsModal';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import './pagesCSS/register.css';
 
 function Register() {
     const navigate = useNavigate()

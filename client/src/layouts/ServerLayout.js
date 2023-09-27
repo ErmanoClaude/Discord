@@ -1,36 +1,19 @@
-import { useState, useEffect } from 'react';
-import ErrorModal from '../../components/ErrorsModal';
-import LeftNavBar from '../../components/LeftNavBar';
+import { useState  } from 'react';
+import { useRoutes } from 'react-router-dom';
+import ErrorModal from '../components/ErrorsModal';
+import LeftNavBar from '../components/LeftNavBar';
 import Axios from 'axios';
+import ChannelList from '../components/ChannelList';
 Axios.defaults.withCredentials = true;
 
 
-function Home(props) {
-  const { user } = props;
 
+function ServerLayout(props) {
+  const { user, servers, fetchServers } = props;
+  const [errors, setErrors] = useState([])
   const [success, setSuccess] = useState(false); // Change "let" to "const" for best practices
   const [showModal, setShowModal] = useState(false);
-  const [servers, setServers] = useState([]);
-  const errors = [
-    'this is one error',
-    'this is another error',
-    'this is third error'
-  ];
-
-
-  // Get the servers the user is in
-  async function fetchServers() {
-    const response = await fetch('/servers', {
-      method: 'GET',
-      headers: {
-        'x-access-token': localStorage.getItem('token')
-      },
-    });
-    const data = await response.json();
-    setServers(data.servers)
-  }
-
-  fetchServers();
+  
 
 
   return (
@@ -47,6 +30,7 @@ function Home(props) {
         </div>
 
         <div className='col friends-channels'>
+            <ChannelList />
         </div>
 
         <div className='col content'>
@@ -58,4 +42,5 @@ function Home(props) {
   );
 };
 
-export default Home;
+export default ServerLayout;
+

@@ -8,13 +8,14 @@ import {
 } from 'react-router-dom';
 
 // Routes
-import Home from "./pages/home/Home";
+
 import Login from "./pages/Login";
 import Register from './pages/Register';
 
 // Layout
 import RootLayout from './layouts/RootLayout';
-
+import HomeLayout from "./layouts/HomeLayout";
+import ServerLayout from './layouts/ServerLayout';
 // Api request
 import Axios from "axios";
 
@@ -26,6 +27,7 @@ const App = () => {
 
   // Set the logged in user
   const [user, setUser] = useState({});
+  const [servers, setServers] = useState([])
 
   // Checked if user is logged in if not logged in get redirected to login or register
   useEffect(() => {
@@ -62,17 +64,31 @@ const App = () => {
     }
 
     fetchData();
-
   }, [])
+
+  // Get the servers the user is when user is changed
+  async function fetchServers() {
+    const response = await fetch('/servers', {
+      method: 'GET',
+      headers: {
+        'x-access-token': localStorage.getItem('token')
+      },
+    });
+    const data = await response.json();
+    setServers(data.servers)
+  }
+
+  useEffect(() => {
+    fetchServers();
+  }, [user])
 
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<RootLayout user={user} />}>
 
         {/* Protect Routes */}
-        <Route index element={<Home user={user} />}>
-
-        </Route>
+        <Route index element={<HomeLayout user={user} servers={servers} fetchServers={fetchServers} />}></Route>
+        <Route path="servers/:serverId" servers={servers} fetchServers={fetchServers} element={<ServerLayout />} />
 
         {/* Public Routes*/}
         <Route path='login' element={<Login />}></Route>

@@ -15,6 +15,7 @@ const LeftNavbar = (props) => {
   const handleOpen = () => setShow(true);
   const handleClose = () => setShow(false);
 
+  console.log(servers);
 
   const verticalLineStyles = {
     "transition": "height 0.2s"
@@ -84,7 +85,7 @@ const LeftNavbar = (props) => {
                     id={index}
                     onMouseEnter={(event) => handleMouseEnter(event, index)}
                     onMouseLeave={(event) => { handleMouseLeave(event, index) }}
-                    href="/">
+                    href={server.name === 'Home' ? "/" : "/servers/"+ server.id}>
                     {server.name === 'Home' ? <BsDiscord className='nav-icons' /> : server.name[0]}
                   </Nav.Link>
                 </OverlayTrigger>

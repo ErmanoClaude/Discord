@@ -75,7 +75,10 @@ app.listen(5000, function () {
 
     // Connect to the data base
     db.connect(function (err) {
-        if (err) throw err;
+        if (err) {
+            console.log("Failed to connect to database.");
+            throw err;
+        };
         console.log('Database connected')
     });
 
