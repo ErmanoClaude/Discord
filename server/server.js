@@ -1,9 +1,6 @@
 const express = require('express');
-const validator = require('validator');
-const mysql = require('mysql');
 const app = express();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+
 const cors = require('cors');
 
 const bodyParser = require('body-parser');
@@ -11,8 +8,9 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
 // Routes
-const authRoutes = require('./routes/auth')
-const serverChannelRoutes = require('./routes/ServersChannel')
+const authRoutes = require('./routes/auth');
+const serverChannelRoutes = require('./routes/ServersChannel');
+const friendsRoutes = require('./routes/friends')
 
 // json() to parse body
 app.use(express.json());
@@ -48,13 +46,6 @@ app.use(session({
 }));
 
 
-// Salt rounds of password
-const saltRounds = 10;
-
-const { errorChecker, isEmail, verifyJWT } = require('./services/utils');
-
-
-
 
 // connect to DB
 const db = require('./config/databaseConfig');
@@ -68,6 +59,7 @@ const io = require('socket.io');
 // Routes
 app.use('/', authRoutes);
 app.use('/', serverChannelRoutes);
+app.use('/', friendsRoutes);
 
 
 app.listen(5000, function () {

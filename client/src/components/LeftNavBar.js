@@ -2,20 +2,18 @@ import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
 import { BsDiscord } from 'react-icons/bs';
 import { FaPlus } from 'react-icons/fa6'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import CreateServerModal from './CreateServerModal';
 
 
-const LeftNavbar = (props) => {
-  const { servers, fetchServers } = props;
+const LeftNavbar = ({servers = [], fetchServers }) => {
   const [hoveredServer, setHoveredServer] = useState({});
   const [show, setShow] = useState(false);
   const handleOpen = () => setShow(true);
   const handleClose = () => setShow(false);
 
-  console.log(servers);
 
   const verticalLineStyles = {
     "transition": "height 0.2s"
@@ -81,13 +79,14 @@ const LeftNavbar = (props) => {
                     </Tooltip>
                   }
                 >
-                  <Nav.Link
+                  <NavLink
                     id={index}
+                    className='nav-link'
                     onMouseEnter={(event) => handleMouseEnter(event, index)}
                     onMouseLeave={(event) => { handleMouseLeave(event, index) }}
-                    href={server.name === 'Home' ? "/" : "/servers/"+ server.id}>
+                    to={server.name === 'Home' ? "/" : "/servers/"+ server.id}>
                     {server.name === 'Home' ? <BsDiscord className='nav-icons' /> : server.name[0]}
-                  </Nav.Link>
+                  </NavLink>
                 </OverlayTrigger>
               </div> {/* nav-row */}
               {index === 0 &&
@@ -111,8 +110,9 @@ const LeftNavbar = (props) => {
             </Tooltip>
           }
         >
-          <Nav.Link
+          <NavLink
             id={servers.length}
+            className='nav-link'
             onMouseEnter={(event) => handleMouseEnter(event, servers.length)}
             onMouseLeave={(event) => { handleMouseLeave(event, servers.length) }}
             onClick={(e) => {
@@ -121,7 +121,7 @@ const LeftNavbar = (props) => {
             }}
             href="/">
             <FaPlus className="nav-icons" style={{ "color": "green" }} />
-          </Nav.Link>
+          </NavLink>
         </OverlayTrigger>
       </div> {/* nav-row */}
 

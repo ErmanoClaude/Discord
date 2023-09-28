@@ -62,9 +62,7 @@
     color: white;
 }
 
-nav a.active {
-    background-color: blueviolet;
-}
+
 
 .sideNav {
     align-items: center;

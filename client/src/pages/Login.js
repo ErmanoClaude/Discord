@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ErrorModal from '../components/ErrorsModal';
 import '../pages/pagesCSS/login.css'
 
 
 
-function Login() {
+function Login(props) {
+    const { updateServers } = props;
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
+    const navigate = useNavigate();
 
     const [form, setForm] = useState({
         email: '',
@@ -24,7 +27,6 @@ function Login() {
 
     const handleSubmit = async (event) => {
         event.preventDefault() // prevents default submit
-
         // Make api request to sever
         const response = await fetch('/login', {
             method: 'POST',
@@ -51,9 +53,25 @@ function Login() {
             // Redirect to Home with logged in persons
             console.log(data);
             localStorage.setItem('token', data.token);
-            
-            window.location.href = '/';
-            
+
+
+            // Get the servers the user is when user is changed
+            async function fetchServers() {
+                const res = await fetch('/servers', {
+                    method: 'GET',
+                    headers: {
+                        'x-access-token': localStorage.getItem('token')
+                    },
+                });
+                const dat = await res.json();
+                updateServers(dat.servers);
+                navigate('/')
+            }
+
+            fetchServers();
+
+
+
 
         } else {
             setErrors(...data.errors)
