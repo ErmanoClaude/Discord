@@ -8,15 +8,21 @@ const db = require('../config/databaseConfig');
 //=====================//
 
 // Return friends list of user sending request
-// Returns both accepted friends request and pending friends
+// Return friends list of user accepted
 router.get('/friends', verifyJWT, (req, res) => {
-    const sql = `
-    SELECT users.displayName, friends.status 
-    FROM friends
-    JOIN users ON friends.userId2 = users.id
-    WHERE friends.userId1 = ${req.userId}
-  `;
-    db.query(sql, (err, data) => {
+    const query = `
+  SELECT 
+    u1.displayName AS friendName,
+    f.status
+  FROM friends f
+  LEFT JOIN users u1 ON u1.id = f.userId1 
+  LEFT JOIN users u2 ON u2.id = f.userId2
+  WHERE
+    (f.userId1 = ? AND f.status = 'accepted')
+    OR 
+    (f.userId2 = ? AND f.status = 'accepted')
+`;
+    db.query(query, [req.userId, req.userId], (err, data) => {
         if (err) {
             res.send({
                 success: false,
@@ -68,18 +74,11 @@ router.post('/friends', verifyJWT, (req, res) => {
             return;
         } else {
             const insert = `INSERT INTO friends (userId1, userId2, status) VALUES (${req.userId}, ${data[0].id}, 'pending');`
-            const insert2 = `INSERT INTO friends (userId1, userId2, status) VALUES (${data[0].id}, ${req.userId}, 'pending');`
-
             db.query(insert, (err, data) => {
                 if (err){
                     console.log('You already added this user');
                     return;
                 }
-                db.query(insert2, (error, response) => {
-                    if (err){
-                        console.log('They aleady added you');
-                    }
-                })
             })
 
         }
