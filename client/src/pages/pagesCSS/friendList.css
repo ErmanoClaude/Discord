@@ -1,0 +1,22 @@
+.friends-title {
+    color: var(--grey);
+    font-size: 1.4rem;
+}
+
+.friends-link {
+    text-decoration: none;
+    border: 1px solid black;
+}
+
+.friends-icon {
+    margin-right: 16px;
+}
+
+.direct-message {
+    color: var(--grey);
+    font-size: 1.2rem;
+}
+
+.plus-icon {
+    color: var(--grey);
+}

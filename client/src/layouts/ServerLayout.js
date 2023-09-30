@@ -11,7 +11,7 @@ Axios.defaults.withCredentials = true;
 function ServerLayout(props) {
   const { user, servers, fetchServers } = props;
   const [errors, setErrors] = useState([])
-  const [success, setSuccess] = useState(false); // Change "let" to "const" for best practices
+  const [success, setSuccess] = useState(false); 
   const [showModal, setShowModal] = useState(false);
   
 

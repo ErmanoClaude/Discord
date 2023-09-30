@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
 import { BsDiscord } from 'react-icons/bs';
 import { FaPlus } from 'react-icons/fa6'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import CreateServerModal from './CreateServerModal';
@@ -21,7 +21,6 @@ const LeftNavbar = ({servers = [], fetchServers }) => {
 
   const handleMouseEnter = (event, index) => {
     event.stopPropagation();
-    console.log('The mouse has entered this area');
 
     setHoveredServer(prevState => {
       // Create new object 
@@ -46,7 +45,6 @@ const LeftNavbar = ({servers = [], fetchServers }) => {
   }
   const handleMouseLeave = (event, index) => {
     event.stopPropagation();
-    console.log("this mouse has left");
 
     setHoveredServer({
       ...hoveredServer,

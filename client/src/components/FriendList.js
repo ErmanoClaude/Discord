@@ -1,41 +1,46 @@
 import { useEffect, useState } from "react";
-import '../pages/pagesCSS/friendList.css'
+import { NavLink } from "react-router-dom";
+import '../pages/pagesCSS/friendList.css';
+import { BsFillPeopleFill } from 'react-icons/bs';
+import { FaPlus } from 'react-icons/fa';
+import { BsDiscord } from "react-icons/bs";
+import Stack from 'react-bootstrap/Stack';
 
-function FriendList() {
-    // Friends includes friends request that are pending 
-    const [friends, setFriends] = useState([]);
-    const [accepted, setAccepted] = useState([]);
-    const [pending, setPending] = useState([]);
 
-    useEffect(() => {
-        async function fetchFriends() {
-            const res = await fetch('/friends', {
-                method: 'GET',
-                headers: {
-                    'x-access-token': localStorage.getItem('token')
-                },
-            });
-            const data = await res.json();
-            console.log(data.friends);
-            setFriends(data.friends);
-            const accept = [];
-            const pend = [];
-            for(let friend of friends) {
-                if(friend.status === 'pending'){
-                    pend.push(friend)
-                } else {
-                    accept.push(friend)
-                }
-            }
-            setAccepted(accept);
-            setPending(pend);
-        };
-        fetchFriends();
-    }, [])
+function FriendList(props) {
+
+    const { friends } = props;
+
 
     return (
         <>
-            <h1>FriendList</h1>
+            <Stack gap={3}>
+                <NavLink
+                    to='/'
+                    className='friends-link p-2'
+                >
+                    <div class='friends-title'>
+                        <Stack direction="horizontal">
+                            <BsFillPeopleFill className="friends-icon" /><h5>Friends</h5>
+                        </Stack>
+                    </div>
+                </NavLink>
+
+                <Stack direction="horizontal">
+                    <h6 className="direct-message">Direct Messages </h6><FaPlus className="mx-auto plus-icon" />
+                </Stack>
+                {
+                    friends.map((friend) => {
+                        if (friend.status === 'accepted') {
+                            return (
+                                <NavLink>
+                                    <BsDiscord />{friend.displayName}
+                                </NavLink>
+                            )
+                        }
+                    })
+                }
+            </Stack>
         </>
 
     )

@@ -11,7 +11,7 @@ function CreateServerModal(props) {
     const [errors, setErrors] = useState([]);
 
 
-    const handleSubmit = async(event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         // Trim whiteSpaces
         const trimmedName = serverName.trim();
@@ -29,7 +29,7 @@ function CreateServerModal(props) {
                 'Content-Type': 'application/json',
                 'x-access-token': localStorage.getItem("token")
             },
-            body: JSON.stringify({'serverName':trimmedName})
+            body: JSON.stringify({ 'serverName': trimmedName })
         });
 
         const data = await response.json();
@@ -80,7 +80,7 @@ function CreateServerModal(props) {
 
                                 // validation
                                 pattern='[a-zA-Z0-9 ] +$'
-                                title="Server name can onlu contain letters, numbers and spaces"
+                                title="Server name can only contain letters, numbers and spaces"
                                 required
                             />
                         </Form.Group>

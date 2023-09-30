@@ -54,8 +54,6 @@ const db = require('./config/databaseConfig');
 const io = require('socket.io');
 
 
-
-
 // Routes
 app.use('/', authRoutes);
 app.use('/', serverChannelRoutes);

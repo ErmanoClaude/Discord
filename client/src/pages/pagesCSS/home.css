@@ -29,12 +29,12 @@
 
 .friends-channels {
     background-color: var(--channel-column-color);
-    padding: 0;
+    padding: 10px 10px 0;
 }
 
 .content {
     background-color: var(--secondary-color);
-    padding: 0;
+    padding: 10px 10px 0;
 }
 
 .vertical-line {
@@ -88,4 +88,9 @@
 
 .nav-icons {
     size:40px;
+}
+
+#displayName:focus {
+    border-color: lightblue;
+    
 }

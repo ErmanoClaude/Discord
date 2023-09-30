@@ -10,6 +10,7 @@ import {
 // Routes
 import Login from "./pages/Login";
 import Register from './pages/Register';
+import Home from './pages/Home';
 
 // Layout
 import RootLayout from './layouts/RootLayout';
@@ -75,8 +76,10 @@ const App = () => {
     createRoutesFromElements(
       <Route path="/" element={<RootLayout user={user} />}>
 
-        {/* Protect Routes */}
-        <Route index element={<HomeLayout user={user} servers={servers} fetchServers={fetchServers} />}></Route>
+        {/* Protected Routes */}
+        <Route path='/' element={<HomeLayout user={user} servers={servers} fetchServers={fetchServers} />}>
+          <Route index element={<Home />}></Route>
+        </Route>
         <Route path="servers/:serverId" element={<ServerLayout servers={servers} fetchServers={fetchServers} />} />
 
         {/* Public Routes*/}

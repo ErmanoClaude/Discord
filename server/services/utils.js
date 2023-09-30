@@ -47,7 +47,7 @@ function isValidDisplayName(displayName) {
         errors.push('Display name must be alphanumeric characters only');
     }
     return errors;
-}
+};
 
 function validatePassword(value) {
     let errors = []
@@ -139,4 +139,5 @@ module.exports = {
     isEmail,
     validateServerName,
     verifyJWT,
+    isValidDisplayName,
 };
