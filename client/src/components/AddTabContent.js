@@ -26,6 +26,8 @@ function AddTabContent() {
         if(!data.success){
             setErrors([data.errors]);
             setShowModal(!data.success)
+        } else {
+            
         }
 
 
