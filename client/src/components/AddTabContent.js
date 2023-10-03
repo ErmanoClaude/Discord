@@ -10,6 +10,8 @@ function AddTabContent() {
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
     const [displayName, setDisplayName] = useState('');
+    const [borderColor, setBorderColor] = useState('');
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         const response = await fetch('/friends', {
@@ -27,9 +29,9 @@ function AddTabContent() {
             setErrors([data.errors]);
             setShowModal(!data.success)
         } else {
-            
+            setDisplayName('');
+            setBorderColor('lightgreen');
         }
-
 
     }
     return (
@@ -41,7 +43,7 @@ function AddTabContent() {
             />
             <Stack className=''>
                 <h6 style={{ "color": "white" }}>ADD FRIEND</h6>
-                <p>You can add friends with their Discord username.</p>
+                <p className='add-text'>You can add friends with their Discord username.</p>
                 <Form onSubmit={handleSubmit} autoComplete='off'>
                     <Form.Group className="mb-3" controlId="displayName" style={{ "width": "75%" }}>
                         <Stack direction='horizontal'>
@@ -51,7 +53,7 @@ function AddTabContent() {
                                 value={displayName}
                                 onChange={e => setDisplayName(e.target.value)}
                                 autoFocus
-
+                                style={{borderColor: borderColor}}
                                 // validation
                                 pattern='[a-zA-Z0-9]+$'
                                 title="User name may only contain letters and numbers"

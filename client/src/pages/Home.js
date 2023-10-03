@@ -12,17 +12,18 @@ function Home() {
     return (
         <div>
 
-            <Stack gap={5} direction='horizontal' className="tab-buttons">
+            <Stack gap={5} direction='horizontal' className="tab-buttons mb-4">
                 <div class='second-friends-title'>
                     <Stack direction="horizontal" gap={3}>
                         <BsFillPeopleFill /><h5 style={{ "color": "white" }}>Friends</h5>
                     </Stack>
                 </div>
+                <div className='vr' style={{'color':'white'}}></div>
                 <h5
                     className={`${activeTab === 'all' ? 'active-tab' : ''} `}
                     onClick={() => setActiveTab('all')}
                 >
-                    All
+                    All Friends
                 </h5>
 
                 <h5

@@ -1,59 +1,46 @@
-import { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
-import ErrorModal from '../components/ErrorsModal';
-import LeftNavBar from '../components/LeftNavBar';
-import Axios from 'axios';
-import FriendList from '../components/FriendList';
-import '../pages/pagesCSS/home.css'
+import { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
+import ErrorModal from "../components/ErrorsModal";
+import LeftNavBar from "../components/LeftNavBar";
+import Axios from "axios";
+import FriendList from "../components/FriendList";
+import "../pages/pagesCSS/home.css";
 Axios.defaults.withCredentials = true;
-
-
 
 function HomeLayout(props) {
   const { user, servers, fetchServers } = props;
-  const [errors, setErrors] = useState([])
+  const [errors, setErrors] = useState([]);
   const [success, setSuccess] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   // Friends includes friends request that are pending
-  // Format of friends 
+  // Format of friends
   // [{displayName: 'displayName', status:'pending'},
   // [{displayName: 'displayName', status:'accepted'},
   const [friends, setFriends] = useState([]);
   useEffect(() => {
     async function fetchFriends() {
-      const res = await fetch('/friends', {
-        method: 'GET',
+      const res = await fetch("/friends", {
+        method: "GET",
         headers: {
-          'x-access-token': localStorage.getItem('token')
+          "x-access-token": localStorage.getItem("token"),
         },
       });
       const data = await res.json();
+      console.log(data);
       setFriends(data.friends);
-      const accept = [];
-      const pend = [];
-      for (let friend of friends) {
-        if (friend.status === 'pending') {
-          pend.push(friend)
-        } else {
-          accept.push(friend)
-        }
-      }
-    };
+    }
     fetchFriends();
-  }, [])
-
-
+  }, []);
 
   return (
-    <div className="home">
+    <div className='home'>
       <ErrorModal
         show={showModal}
         errors={errors}
         handleClose={() => setShowModal(false)}
       />
-      <div className='row main-content' >
-
+      <div className='row main-content'>
         <div className='col servers'>
           <LeftNavBar servers={servers} fetchServers={fetchServers} />
         </div>
@@ -63,13 +50,11 @@ function HomeLayout(props) {
         </div>
 
         <div className='col content'>
-          <Outlet/>
+          <Outlet />
         </div>
-
       </div>
     </div>
   );
-};
+}
 
 export default HomeLayout;
-
