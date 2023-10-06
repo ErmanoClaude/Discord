@@ -27,7 +27,6 @@ function HomeLayout(props) {
         },
       });
       const data = await res.json();
-      console.log(data);
       setFriends(data.friends);
     }
     fetchFriends();
@@ -42,7 +41,10 @@ function HomeLayout(props) {
       />
       <div className='row main-content'>
         <div className='col servers'>
-          <LeftNavBar servers={servers} fetchServers={fetchServers} />
+          <LeftNavBar
+            servers={servers}
+            fetchServers={fetchServers}
+          />
         </div>
 
         <div className='col friends-channels'>

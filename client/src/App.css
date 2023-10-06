@@ -1,16 +1,16 @@
 .hide-scrollbar {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+  width: 0px;
+  background: transparent;
 }
 
 .hide-scrollbar {
-    -ms-overflow-style: none;
+  -ms-overflow-style: none;
 }
 
 .hide-scrollbar {
-    scrollbar-width: none;
+  scrollbar-width: none;
 }

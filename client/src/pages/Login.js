@@ -38,8 +38,6 @@ function Login(props) {
 
     // If request is successfully send to /login
     if (response.ok) {
-      console.log("Sent email password to /login success");
-      console.log(data);
     } else {
       setErrors(["Unable to send email and password to /login api"]);
       setShowModal(true);
@@ -49,7 +47,6 @@ function Login(props) {
     if (data.success === true) {
       // Store JWT token from server
       // Redirect to Home with logged in persons
-      console.log(data);
       localStorage.setItem("token", data.token);
 
       // Get the servers the user is when user is changed
@@ -62,6 +59,7 @@ function Login(props) {
         });
         const dat = await res.json();
         updateServers(dat.servers);
+        console.log("Login successful");
         navigate("/");
       }
 

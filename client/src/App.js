@@ -17,6 +17,10 @@ import RootLayout from "./layouts/RootLayout";
 import HomeLayout from "./layouts/HomeLayout";
 import ServerLayout from "./layouts/ServerLayout";
 
+import { io } from "socket.io-client";
+
+// Connect to webSocket server backend
+var socket = "";
 const App = () => {
   // Set the logged in user
   const [user, setUser] = useState({});
@@ -44,12 +48,23 @@ const App = () => {
       });
       const data = await response.json();
       if (data.loggedIn === true) {
-        console.log("check user logged in");
         setUser(data.user.userId);
 
         // Set Servers if they logged in
         fetchServers();
+
+        // connect to socket and set token
+        socket = io("http://localhost:5000");
+
+        socket.auth = { token: localStorage.getItem("token") };
+        socket.connect();
+
+        // event handlers
+        socket.on("connect", () => {
+          console.log("We are connected to backend");
+        });
       } else {
+        // Redirect user if not logged in to '/login page or /register
         if (window.location.pathname !== "/login") {
           if (window.location.pathname !== "/register") {
             window.location.href = "/login";

@@ -1,15 +1,15 @@
 :root {
-    --main-color:#1E1F22;
-    --channel-column-color:#2B2D31;
-    --secondary-color: #313338;
-    --highlight: #5662E8;
-    --icon-color: #DBDEE1;
-    --scroll-width: 20px;
-    --grey: #949BA4;
+  --main-color: #1e1f22;
+  --channel-column-color: #2b2d31;
+  --secondary-color: #313338;
+  --highlight: #5662e8;
+  --icon-color: #dbdee1;
+  --scroll-width: 20px;
+  --grey: #949ba4;
 }
 
 .modal-content {
-    text-align: center;
-    color: rgba(241, 241, 241, 255);
-    background: rgba(53, 57, 63, 255);
+  text-align: center;
+  color: rgba(241, 241, 241, 255);
+  background: rgba(53, 57, 63, 255);
 }

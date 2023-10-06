@@ -1,6 +1,6 @@
-import React from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import React from "react";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 function ErrorModal({ errors, handleClose, show }) {
   // Boilerplate from react-bootstrap modal
@@ -10,22 +10,21 @@ function ErrorModal({ errors, handleClose, show }) {
       <Modal
         show={show}
         onHide={handleClose}
-        backdrop="static"
+        backdrop='static'
         keyboard={false}
-        contentClassName='error-modal'
-      >
+        contentClassName='error-modal'>
         <Modal.Header closeButton>
           <Modal.Title>Errors</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {
-            errors.map((error) => {
-              return <p key={error}> {error} </p>
-            })
-          }
+          {errors.map((error) => {
+            return <p key={error}> {error} </p>;
+          })}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button
+            variant='secondary'
+            onClick={handleClose}>
             Close
           </Button>
         </Modal.Footer>
