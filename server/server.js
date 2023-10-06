@@ -1,11 +1,10 @@
 const express = require("express");
 const app = express();
-
 const cors = require("cors");
-
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const JWT = require("jsonwebtoken");
 
 // Routes
 const authRoutes = require("./routes/auth");
@@ -52,15 +51,12 @@ app.use(
 // connect to DB
 const db = require("./config/databaseConfig");
 
-// connect socket
-const io = require("socket.io");
-
 // Routes
 app.use("/", authRoutes);
 app.use("/", serverChannelRoutes);
 app.use("/", friendsRoutes);
 
-app.listen(5000, function () {
+const server = app.listen(5000, function () {
   console.log("Server started on port 5000");
 
   // Connect to the data base
@@ -71,4 +67,30 @@ app.listen(5000, function () {
     }
     console.log("Database connected");
   });
+});
+
+// Connect user to webSocket socket.io
+const io = require("socket.io")(server, {
+  cors: {
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true, // Allows cookie to be enabled
+  },
+});
+
+// Authenticate middle for socket.
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  JWT.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return next(new Error("Authentication Error"));
+    }
+
+    socket.userId = decoded.userId;
+    next();
+  });
+});
+
+io.on("connection", async (socket) => {
+  console.log(`${socket.userId} is connected to the server`);
 });
