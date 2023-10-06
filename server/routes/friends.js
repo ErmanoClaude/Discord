@@ -19,7 +19,7 @@ router.get("/friends", verifyJWT, (req, res) => {
   SELECT
     f.status,
     u.displayName,
-    u.status
+    u.status AS availability
   FROM friends f
   JOIN users u ON f.userId2 = u.id
   WHERE f.userId1 = ? AND f.status = 'accepted';
@@ -30,7 +30,7 @@ router.get("/friends", verifyJWT, (req, res) => {
   SELECT
     f.status,
     u.displayName,
-    u.status
+    u.status AS availability
   FROM friends f
   JOIN users u ON f.userId1 = u.id
   WHERE f.userId2 = ? AND f.status = 'accepted';

@@ -30,7 +30,7 @@ function FriendList(props) {
         {friends.map((friend) => {
           if (friend.status === "accepted") {
             return (
-              <NavLink>
+              <NavLink key={friend.displayName}>
                 <BsDiscord />
                 {friend.displayName}
               </NavLink>

@@ -25,6 +25,11 @@ const App = () => {
   // Set the logged in user
   const [user, setUser] = useState({});
   const [servers, setServers] = useState([]);
+  // Friends includes friends request that are pending
+  // Format of friends
+  // [{displayName: 'displayName', status:'pending', availability: 'offline'},
+  // [{displayName: 'displayName', status:'accepted', availability:'online'},
+  const [friends, setFriends] = useState([]);
   const updateServers = (newServers) => {
     setServers(newServers);
   };
@@ -39,6 +44,16 @@ const App = () => {
     const dat = await res.json();
     setServers(dat.servers);
   }
+  async function fetchFriends() {
+    const res = await fetch("/friends", {
+      method: "GET",
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+      },
+    });
+    const data = await res.json();
+    setFriends(data.friends);
+  }
 
   // Checked if user is logged in if not logged in get redirected to login or register
   useEffect(() => {
@@ -51,7 +66,10 @@ const App = () => {
         setUser(data.user.userId);
 
         // Set Servers if they logged in
-        fetchServers();
+        await fetchServers();
+
+        // Set Friends
+        await fetchFriends();
 
         // connect to socket and set token
         socket = io("http://localhost:5000");
@@ -89,11 +107,12 @@ const App = () => {
               user={user}
               servers={servers}
               fetchServers={fetchServers}
+              friends={friends}
             />
           }>
           <Route
             index
-            element={<Home />}></Route>
+            element={<Home friends={friends} />}></Route>
         </Route>
         <Route
           path='servers/:serverId'

@@ -77,7 +77,7 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
                 overlay={
                   <Tooltip
                     id='server-tooltip'
-                    style={{ "font-size": "17px", marginLeft: "10px" }}>
+                    style={{ fontSize: "17px", marginLeft: "10px" }}>
                     {server.name}
                   </Tooltip>
                 }>

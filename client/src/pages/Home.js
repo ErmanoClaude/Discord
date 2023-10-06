@@ -5,7 +5,8 @@ import AddTabContent from "../components/AddTabContent";
 import { Stack } from "react-bootstrap";
 import { BsFillPeopleFill } from "react-icons/bs";
 
-function Home() {
+function Home(props) {
+  const { friends } = props;
   const [activeTab, setActiveTab] = useState("all");
 
   return (
@@ -45,7 +46,7 @@ function Home() {
       </Stack>
 
       <div className='tab-content'>
-        {activeTab === "all" && <AllTabContent />}
+        {activeTab === "all" && <AllTabContent friends={friends} />}
         {activeTab === "pending" && <PendingTabContent />}
         {activeTab === "add" && <AddTabContent />}
       </div>
