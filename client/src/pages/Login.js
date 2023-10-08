@@ -4,7 +4,7 @@ import ErrorModal from "../components/ErrorsModal";
 import "../pages/pagesCSS/login.css";
 
 function Login(props) {
-  const { updateServers } = props;
+  const { updateServers, connectSocket } = props;
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
@@ -48,18 +48,17 @@ function Login(props) {
       // Store JWT token from server
       // Redirect to Home with logged in persons
       localStorage.setItem("token", data.token);
-
+      localStorage.setItem("displayname", data.displayName);
       // Get the servers the user is when user is changed
       async function fetchServers() {
         const res = await fetch("/servers", {
           method: "GET",
           headers: {
-            "x-access-token": localStorage.getItem("token"),
+            "x-access-token": localStorage.getItem("token") || "",
           },
         });
         const dat = await res.json();
         updateServers(dat.servers);
-        console.log("Login successful");
         navigate("/");
       }
 

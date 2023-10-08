@@ -12,6 +12,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 
+// outlets
+import Chats from "./components/Chats";
+
 // Layout
 import RootLayout from "./layouts/RootLayout";
 import HomeLayout from "./layouts/HomeLayout";
@@ -19,12 +22,14 @@ import ServerLayout from "./layouts/ServerLayout";
 
 import { io } from "socket.io-client";
 
+import jwt_decode from "jwt-decode";
 // Connect to webSocket server backend
-var socket = "";
 const App = () => {
   // Set the logged in user
   const [user, setUser] = useState({});
   const [servers, setServers] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [socket, setSocket] = useState();
   // Friends includes friends request that are pending
   // Format of friends
   // [{displayName: 'displayName', status:'pending', availability: 'offline'},
@@ -45,14 +50,34 @@ const App = () => {
     setServers(dat.servers);
   }
   async function fetchFriends() {
-    const res = await fetch("/friends", {
+    await fetch("/friends", {
       method: "GET",
       headers: {
         "x-access-token": localStorage.getItem("token"),
       },
+    })
+      .then((result) => result.json())
+      .then((data) => {
+        setFriends(data.friends);
+      })
+      .catch((err) => {
+        console.log(err);
+        console.log("Error in fetching friends");
+      });
+  }
+
+  function connectSocket() {
+    const newSocket = io("http://localhost:5000");
+
+    newSocket.auth = { token: localStorage.getItem("token") };
+    newSocket.connect();
+
+    // event handlers
+    newSocket.on("connect", () => {
+      console.log("We are connected to backend");
     });
-    const data = await res.json();
-    setFriends(data.friends);
+
+    setSocket(newSocket); // Set the socket after it's initialized
   }
 
   // Checked if user is logged in if not logged in get redirected to login or register
@@ -64,23 +89,10 @@ const App = () => {
       const data = await response.json();
       if (data.loggedIn === true) {
         setUser(data.user.userId);
+        setIsLoggedIn(true);
 
         // Set Servers if they logged in
-        await fetchServers();
-
-        // Set Friends
-        await fetchFriends();
-
-        // connect to socket and set token
-        socket = io("http://localhost:5000");
-
-        socket.auth = { token: localStorage.getItem("token") };
-        socket.connect();
-
-        // event handlers
-        socket.on("connect", () => {
-          console.log("We are connected to backend");
-        });
+        fetchServers();
       } else {
         // Redirect user if not logged in to '/login page or /register
         if (window.location.pathname !== "/login") {
@@ -90,8 +102,11 @@ const App = () => {
         }
       }
     }
-
     fetchData();
+
+    if (setIsLoggedIn) {
+      connectSocket();
+    }
   }, []);
 
   const router = createBrowserRouter(
@@ -108,11 +123,15 @@ const App = () => {
               servers={servers}
               fetchServers={fetchServers}
               friends={friends}
+              fetchFriends={fetchFriends}
             />
           }>
           <Route
             index
             element={<Home friends={friends} />}></Route>
+          <Route
+            path='message/:displayname'
+            element={<Chats socket={socket} />}></Route>
         </Route>
         <Route
           path='servers/:serverId'
@@ -127,7 +146,12 @@ const App = () => {
         {/* Public Routes*/}
         <Route
           path='login'
-          element={<Login updateServers={updateServers} />}></Route>
+          element={
+            <Login
+              updateServers={updateServers}
+              connectSocket={connectSocket}
+            />
+          }></Route>
         <Route
           path='register'
           element={<Register />}></Route>

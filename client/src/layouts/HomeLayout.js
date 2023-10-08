@@ -3,10 +3,15 @@ import LeftNavBar from "../components/LeftNavBar";
 import Axios from "axios";
 import FriendList from "../components/FriendList";
 import "../pages/pagesCSS/home.css";
+import { useEffect } from "react";
 Axios.defaults.withCredentials = true;
 
 function HomeLayout(props) {
-  const { user, servers, fetchServers, friends } = props;
+  const { user, servers, fetchServers, friends, fetchFriends } = props;
+
+  useEffect(() => {
+    fetchFriends();
+  }, []);
 
   return (
     <div className='home'>
