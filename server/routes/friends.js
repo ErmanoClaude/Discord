@@ -4,7 +4,7 @@ const { verifyJWT, isValidDisplayName } = require("../services/utils");
 const db = require("../config/databaseConfig");
 
 //=====================//
-//    Server Routes    //
+//    FRIEND ROUTES    //
 //=====================//
 
 // Return friends list of user sending request
@@ -114,6 +114,7 @@ router.get("/friendRequests", verifyJWT, (req, res) => {
 // Need to check if Adding a Valid person First
 router.post("/friends", verifyJWT, (req, res) => {
   const { displayName } = req.body;
+
   const errors = isValidDisplayName(displayName);
 
   if (errors.length > 0) {
@@ -148,6 +149,7 @@ router.post("/friends", verifyJWT, (req, res) => {
       });
       return;
     } else {
+      // make sure the person with the smaller Id is first in friends table
       const insert = `INSERT INTO friends (userId1, userId2, status) VALUES (${req.userId}, ${data[0].id}, 'pending');`;
       db.query(insert, (err, data) => {
         if (err) {
@@ -157,7 +159,7 @@ router.post("/friends", verifyJWT, (req, res) => {
               errors: [["Already Added this person"]],
             });
           } else {
-            console.log("errro in post /friends trying to add user.");
+            console.log("error in post /friends trying to add user.");
             res.send({
               success: false,
               errors: [["Error trying to add this user"]],

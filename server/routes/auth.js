@@ -91,6 +91,7 @@ router.post("/login", async (req, res) => {
         res.send({
           success: true,
           token: token,
+          displayName: data[0]["displayName"],
         });
       } else {
         res.send({

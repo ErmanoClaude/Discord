@@ -4,7 +4,7 @@ const { validateServerName, verifyJWT } = require("../services/utils");
 const db = require("../config/databaseConfig");
 
 //=====================//
-//    Server Routes    //
+//    SERVER ROUTES    //
 //=====================//
 
 router.get("/servers", verifyJWT, (req, res) => {
