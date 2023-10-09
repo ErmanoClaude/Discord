@@ -29,7 +29,6 @@ function Chats(props) {
       if (data.success) {
         setSuccess(true);
         // Convert timestamp strings to Date objects
-        console.log(data.chatLogs[28]);
         const formattedMessages = data.chatLogs.map((message) => ({
           ...message,
           timestamp: new Date(message.timestamp),
@@ -55,16 +54,12 @@ function Chats(props) {
     try {
       // Optimistically update the UI
       let currentTimestamp = new Date();
-      let now = currentTimestamp.toISOString();
-
       const newMessageObj = {
         author: localStorage.getItem("displayname"),
         content: newMessage,
         timestamp: currentTimestamp,
-        now,
       };
 
-      setMessages([...messages, newMessageObj]);
       setNewMessage("");
 
       // Emit an event to the server to store the message in the database
@@ -72,6 +67,9 @@ function Chats(props) {
         displayname,
         message: newMessageObj,
       });
+
+      newMessageObj.timestamp = new Date(newMessageObj.timestamp);
+      setMessages([...messages, newMessageObj]);
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -152,7 +150,9 @@ function Chats(props) {
       // set up receive message listener
       socket.on("receive message", (message) => {
         console.log("got message");
+        message.timestamp = new Date(message.timestamp);
         setMessages([...messages, message]);
+        console.log(messages[messages.length]);
       });
     }
 
@@ -177,7 +177,10 @@ function Chats(props) {
       <ErrorModal
         show={showModal}
         errors={errors}
-        handleClose={() => setShowModal(false)}
+        handleClose={() => {
+          setShowModal(false);
+          navigate("/");
+        }}
       />
       <Stack style={{ height: "95%" }}>
         <div className='friend-name mb-1'>

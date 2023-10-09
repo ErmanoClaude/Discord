@@ -14,9 +14,9 @@ router.get("/:displayname", verifyJWT, async (req, res) => {
 
   const sql = `SELECT *
   FROM friends
-  WHERE (userId1 = 39 AND userId2 = (SELECT id FROM users WHERE displayName = 'Nono'))
+  WHERE (userId1 = ${user} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}'))
     OR
-      (userId2 = 39 AND userId1 = (SELECT id FROM users WHERE displayName = 'Nono'))
+      (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}'))
     AND status = 'accepted';`;
 
   const chatLogsQuery = `

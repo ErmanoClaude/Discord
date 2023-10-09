@@ -5,7 +5,10 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const JWT = require("jsonwebtoken");
+const http = require("http");
+const { Server } = require("socket.io");
 
+const server = http.createServer(app);
 // Routes
 const authRoutes = require("./routes/auth");
 const serverChannelRoutes = require("./routes/ServersChannel");
@@ -53,7 +56,7 @@ app.use(
 const db = require("./config/databaseConfig");
 
 // DB queries
-const { getFriendshipId, insertMessage } = require("./services/dbqueries");
+const { getFriendshipId, insertMessage } = require("./services/socketQueries");
 
 // Routes
 app.use("/", authRoutes);
@@ -61,25 +64,12 @@ app.use("/", serverChannelRoutes);
 app.use("/", friendsRoutes);
 app.use("/message", chatsRoutes);
 
-const server = app.listen(5000, function () {
-  console.log("Server started on port 5000");
-
-  // Connect to the data base
-  db.connect(function (err) {
-    if (err) {
-      console.log("Failed to connect to database.");
-      throw err;
-    }
-    console.log("Database connected");
-  });
-});
-
 // Connect user to webSocket socket.io
-const io = require("socket.io")(server, {
+const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
-    credentials: true, // Allows cookie to be enabled
+    credentials: true,
   },
 });
 
@@ -96,10 +86,10 @@ io.use((socket, next) => {
   });
 });
 
-let connectedUsers = 0;
-
 io.on("connection", async (socket) => {
   console.log(`${socket.userId} is connected to the server`);
+  let currentRoom = null;
+
   // change availability to online
   const availability = `UPDATE users SET status = 'online' WHERE id=${socket.userId}`;
   db.query(availability);
@@ -124,17 +114,26 @@ io.on("connection", async (socket) => {
     try {
       const friendshipId = await getFriendshipId(socket.userId, displayname);
       const roomId = `chatroom-${friendshipId}`;
-      console.log(roomId);
-      // join room
-      socket.join("chatroom");
 
       // If already in a room
-      const currentRoom = Object.keys(socket.rooms)[0];
+      if (currentRoom) {
+        if (currentRoom === roomId) {
+          console.log("Already in this room");
+        } else {
+          socket.leave(currentRoom);
+          socket.join(roomid);
+          currentRoom = roomId;
+        }
+      } else {
+        socket.join(roomId);
+        currentRoom = roomId;
+      }
+
+      // join room
+      console.log(`joining room ${roomId}`);
 
       // emit room joined event
       io.to(socket.id).emit("room joined", roomId);
-
-      console.log(currentRoom);
     } catch (error) {
       console.error("Error joining chatoom: ", error);
     }
@@ -146,19 +145,25 @@ io.on("connection", async (socket) => {
       await insertMessage(socket.userId, displayname, message);
 
       // send the message event to other person thats in the room
-
-      socket.to(socket.roomId).emit("receive message", {
+      socket.to(currentRoom).emit("receive message", {
         author: message.author,
         content: message.content,
-        time: message.now,
+        timestamp: message.timestamp,
       });
-
-      // Assume socket is the connected socket
-      const currentRooms = Object.keys(socket.rooms);
-      console.log(currentRooms);
     } catch (error) {
       console.log(error);
       console.log("Error in inserting message");
     }
+  });
+});
+
+server.listen(5000, () => {
+  console.log("Server started on port 5000");
+  db.connect(function (err) {
+    if (err) {
+      console.log("Failed to connect to database.");
+      throw err;
+    }
+    console.log("Database connected");
   });
 });

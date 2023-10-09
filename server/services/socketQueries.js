@@ -26,9 +26,13 @@ async function getFriendshipId(userId, displayname) {
 async function insertMessage(userId, displayname, message) {
   return new Promise((resolve, reject) => {
     // first find the id of the person with that displayname
-    // second query insert the message to databse with the current timestamp sendt
+    // second query insert the message to databse with the current timestamp send
+    const now = new Date(message.timestamp)
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+
     const idQuery = `SELECT id FROM users WHERE displayName='${displayname}'`;
-    console.log(displayname, message);
     db.query(idQuery, (err, user) => {
       if (err) {
         reject(err);
@@ -40,19 +44,17 @@ async function insertMessage(userId, displayname, message) {
             (LEAST(${userId}, ${user[0].id})), 
             (GREATEST(${userId}, ${user[0].id})), 
             ${userId}, 
-            ${message.content}, 
-            ${message.now} 
+            '${message.content}', 
+            '${now}' 
         );`;
 
-        /* db.query(insert, (err, data) => {
+        db.query(insert, (err, data) => {
           if (err) {
             reject(err);
           } else {
             resolve();
           }
         });
-        */
-        resolve();
       }
     });
   });
