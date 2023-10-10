@@ -128,13 +128,18 @@ const App = () => {
           }>
           <Route
             index
-            element={<Home friends={friends} />}></Route>
+            element={
+              <Home
+                friends={friends}
+                fetchFriends={fetchFriends}
+              />
+            }></Route>
           <Route
             path='message/:displayname'
             element={<Chats socket={socket} />}></Route>
         </Route>
         <Route
-          path='servers/:serverId'
+          path='servers/:serverId/:name'
           element={
             <ServerLayout
               servers={servers}

@@ -32,12 +32,10 @@ function CreateServerModal(props) {
     });
 
     const data = await response.json();
-    console.log(data);
 
     // If request is successfully send to /login
     if (response.ok) {
       console.log("Sent serverName");
-      console.log(data);
     } else {
       setErrors(["Unable to send serverName to create server"]);
       setShowModal(true);

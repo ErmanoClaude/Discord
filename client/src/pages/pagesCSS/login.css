@@ -1,13 +1,15 @@
+html,
 body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
   background: url("../../assets/loginBackground.png") no-repeat center center
     fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  overflow: hidden;
 }
-
 .login {
   width: 50vw;
   margin: 10% auto 50% auto;

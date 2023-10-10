@@ -173,4 +173,29 @@ router.post("/friends", verifyJWT, (req, res) => {
   });
 });
 
+// Cancel Request
+// Delete friends request from database has to be 'pending on status'
+router.post("/cancelRequest", verifyJWT, (req, res) => {
+  const { displayname } = req.body;
+  const user = req.userId;
+  console.log(displayname, user);
+
+  const deleteQuery = `DELETE FROM friends WHERE 
+  (userId1 = ${user} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'pending')
+	  OR
+  (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'pending')`;
+
+  db.query(deleteQuery);
+});
+
+router.post("/acceptRequest", verifyJWT, (req, res) => {
+  const { displayname } = req.body;
+  const user = req.userId;
+
+  const acceptRequest = `UPDATE friends SET status = 'accepted'
+  WHERE
+    (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'pending')`;
+  db.query(acceptRequest);
+});
+
 module.exports = router;

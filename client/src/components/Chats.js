@@ -131,7 +131,7 @@ function Chats(props) {
 
   useEffect(() => {
     fetchChatLogs();
-  }, []);
+  }, [displayname]);
 
   useEffect(() => {
     if (success && socket) {

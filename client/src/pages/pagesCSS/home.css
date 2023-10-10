@@ -112,3 +112,8 @@
 .request-button[cancel] {
   color: red;
 }
+
+.server-title {
+  color: var(--grey);
+  font-size: 1.4rem;
+}

@@ -121,7 +121,7 @@ io.on("connection", async (socket) => {
           console.log("Already in this room");
         } else {
           socket.leave(currentRoom);
-          socket.join(roomid);
+          socket.join(roomId);
           currentRoom = roomId;
         }
       } else {

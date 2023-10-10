@@ -12,6 +12,7 @@ router.get("/:displayname", verifyJWT, async (req, res) => {
   const user = req.userId;
   const displayname = req.params.displayname;
 
+  // Query friends tabl to make sure your friends with displayname in params
   const sql = `SELECT *
   FROM friends
   WHERE (userId1 = ${user} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}'))
@@ -19,6 +20,7 @@ router.get("/:displayname", verifyJWT, async (req, res) => {
       (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}'))
     AND status = 'accepted';`;
 
+  // Second Query to get chat logs of friend
   const chatLogsQuery = `
     SELECT
         u.displayName AS author,
@@ -32,6 +34,7 @@ router.get("/:displayname", verifyJWT, async (req, res) => {
         (c.user1Id = (SELECT id FROM users WHERE displayName = '${displayname}') AND c.user2Id = ${user})
     ORDER BY c.timestamp`;
 
+  // Make sure a valid user name is in the params or return the error to client
   let errors = isValidDisplayName(displayname);
   if (errors.length > 0) {
     res.send({

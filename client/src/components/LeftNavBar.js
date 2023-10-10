@@ -88,7 +88,13 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
                   onMouseLeave={(event) => {
                     handleMouseLeave(event, index);
                   }}
-                  to={server.name === "Home" ? "/" : "/servers/" + server.id}>
+                  to={
+                    server.name === "Home"
+                      ? "/"
+                      : `/servers/${server.id}/${encodeURIComponent(
+                          server.name,
+                        )}`
+                  }>
                   {server.name === "Home" ? (
                     <BsDiscord className='nav-icons' />
                   ) : (

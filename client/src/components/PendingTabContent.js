@@ -7,7 +7,8 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { BiCheck } from "react-icons/bi";
 import { IoClose } from "react-icons/io5";
 
-function PendingTabContent() {
+function PendingTabContent(props) {
+  const { fetchFriends } = props;
   const [pendingRequest, setPendingRequest] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -28,6 +29,48 @@ function PendingTabContent() {
     } else {
       setPendingRequest(data.friendRequest);
     }
+  }
+
+  async function acceptFriendRequest(displayname) {
+    fetch("/acceptRequest", {
+      method: "POST",
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ displayname: displayname }),
+    })
+      .then(() => {})
+      .catch((error) => {
+        console.log("Error in accept");
+      });
+    // Delete the accepted request from pendingRequest
+    const newRequest = pendingRequest.filter(
+      (friend) => friend.displayName !== displayname,
+    );
+    setPendingRequest(newRequest);
+    fetchFriends();
+  }
+
+  async function cancelFriendRequest(displayname) {
+    fetch("/cancelRequest", {
+      method: "POST",
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ displayname: displayname }),
+    })
+      .then(() => {})
+      .catch((error) => {
+        console.log("Error in cancel");
+      });
+
+    // Delete the cancelled pendingRequest
+    const newRequest = pendingRequest.filter(
+      (friend) => friend.displayName !== displayname,
+    );
+    setPendingRequest(newRequest);
   }
 
   useEffect(() => {
@@ -92,7 +135,9 @@ function PendingTabContent() {
                         Cancel
                       </Tooltip>
                     }>
-                    <div className='request-button cancel-button'>
+                    <div
+                      onClick={() => cancelFriendRequest(request.displayName)}
+                      className='request-button cancel-button'>
                       <IoClose />
                     </div>
                   </OverlayTrigger>
@@ -106,7 +151,9 @@ function PendingTabContent() {
                         Accept
                       </Tooltip>
                     }>
-                    <div className='request-button accept-button'>
+                    <div
+                      onClick={() => acceptFriendRequest(request.displayName)}
+                      className='request-button accept-button'>
                       <BiCheck />
                     </div>
                   </OverlayTrigger>
@@ -121,6 +168,3 @@ function PendingTabContent() {
 }
 
 export default PendingTabContent;
-
-/*
- */
