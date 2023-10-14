@@ -129,9 +129,6 @@ io.on("connection", async (socket) => {
         currentRoom = roomId;
       }
 
-      // join room
-      console.log(`joining room ${roomId}`);
-
       // emit room joined event
       io.to(socket.id).emit("room joined", roomId);
     } catch (error) {

@@ -130,6 +130,7 @@ function Chats(props) {
   };
 
   useEffect(() => {
+    setMessages([]);
     fetchChatLogs();
   }, [displayname]);
 

@@ -11,6 +11,7 @@ import {
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import Server from "./pages/Server";
 
 // outlets
 import Chats from "./components/Chats";
@@ -22,7 +23,6 @@ import ServerLayout from "./layouts/ServerLayout";
 
 import { io } from "socket.io-client";
 
-import jwt_decode from "jwt-decode";
 // Connect to webSocket server backend
 const App = () => {
   // Set the logged in user
@@ -145,8 +145,11 @@ const App = () => {
               servers={servers}
               fetchServers={fetchServers}
             />
-          }
-        />
+          }>
+          <Route
+            index
+            element={<Server />}></Route>
+        </Route>
 
         {/* Public Routes*/}
         <Route

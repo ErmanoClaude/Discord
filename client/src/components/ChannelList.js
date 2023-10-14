@@ -1,24 +1,189 @@
-import { useParams, NavLink } from "react-router-dom";
+import { useParams, NavLink, useNavigate } from "react-router-dom";
 import { Stack } from "react-bootstrap";
+import Dropdown from "react-bootstrap/Dropdown";
+import { useState, useEffect, useRef, forwardRef } from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import CreateChannelModal from "./CreateChannelModal";
+import ErrorModal from "./ErrorsModal";
+
+// React icons
+import { FaChevronDown } from "react-icons/fa6";
+import {
+  BsFillPersonPlusFill,
+  BsFillArrowLeftCircleFill,
+} from "react-icons/bs";
+import { AiFillPlusCircle } from "react-icons/ai";
+import { BiHash } from "react-icons/bi";
+import { HiSpeakerWave } from "react-icons/hi2";
+import { MdClose } from "react-icons/md";
+import { PiPlusBold } from "react-icons/pi";
+
 function ChannelList() {
   let { serverId, name } = useParams();
+  const [isOwner, setIsOwner] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const toggleRef = useRef(null);
+  const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const handleOpen = () => setShow(true);
+  const handleClose = () => setShow(false);
+
   name = decodeURIComponent(name);
+  // Check if your owner of channnel
+
+  useEffect(() => {
+    fetchChannelList();
+  }, [serverId, name]);
+
+  const CustomToggle = forwardRef(({ onClick, children }, ref) => {
+    function handleToggle(e) {
+      onClick(e);
+    }
+    return (
+      <Stack
+        direction='horizontal'
+        style={{ color: "slategray" }}
+        onClick={handleToggle}>
+        <h5 className='server-name'>{name}</h5>
+        {!dropdownOpen ? (
+          <FaChevronDown className='ms-auto' />
+        ) : (
+          <MdClose className='ms-auto' />
+        )}
+        {children}
+      </Stack>
+    );
+  });
+
+  const fetchChannelList = async () => {
+    const response = await fetch(`/channels/${serverId}`, {
+      method: "GET",
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("Sent Channel name");
+    } else {
+      setErrors([
+        "Unable to send channel name to create channel in this server",
+      ]);
+      setShowModal(true);
+    }
+
+    if (data.success === true) {
+      console.log(data);
+    } else {
+      setErrors(...data.errors);
+      setShowModal(true);
+    }
+  };
 
   return (
     <>
+      <CreateChannelModal
+        show={show}
+        handleClose={handleClose}
+        fetchServers={() => {}}
+      />
+      <ErrorModal
+        show={showModal}
+        errors={errors}
+        handleClose={() => setShowModal(false)}
+      />
       <Stack gap={3}>
-        <NavLink
-          to='/'
-          className='friends-link p-2'>
-          <div className='friends-title'>
-            <Stack direction='horizontal'>
-              <h5>{name}</h5>
-            </Stack>
-          </div>
-        </NavLink>
+        <div className='friends-link p-2 server-main-name'>
+          <Stack direction='horizontal'>
+            <Dropdown
+              style={{ width: "100%", cursor: "pointer" }}
+              onToggle={(showDrop) => {
+                setDropdownOpen(showDrop);
+              }}>
+              <Dropdown.Toggle
+                as={CustomToggle}
+                id='dropdown-basic'
+                ref={toggleRef}></Dropdown.Toggle>
 
-        <Stack direction='horizontal'>
-          <h6 className='direct-message'>Direct Messages </h6>
+              <Dropdown.Menu
+                variant='dark'
+                style={{ minWidth: 200, backgroundColor: "black" }}>
+                <Dropdown.Item>
+                  <Stack
+                    direction='horizontal'
+                    alignitems='flex-start'>
+                    Invite People
+                    <BsFillPersonPlusFill className='ms-auto' />
+                  </Stack>
+                </Dropdown.Item>
+                <Dropdown.Item onClick={handleOpen}>
+                  {" "}
+                  <Stack
+                    direction='horizontal'
+                    alignitems='flex-start'>
+                    Create Channel <AiFillPlusCircle className='ms-auto' />
+                  </Stack>
+                </Dropdown.Item>
+                <Dropdown.Item className='leave-server'>
+                  <Stack
+                    direction='horizontal'
+                    alignitems='flex-start'>
+                    Leave Server{" "}
+                    <BsFillArrowLeftCircleFill className='ms-auto' />
+                  </Stack>
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Stack>
+        </div>
+
+        <Stack
+          direction='horizontal'
+          gap={2}>
+          <BiHash className='direct-message align-self-center channel-text' />
+          <h6 className='direct-message channel-text'>TEXT CHANNELS</h6>
+          <OverlayTrigger
+            placement='top'
+            overlay={
+              <Tooltip
+                id='server-tooltip'
+                style={{ fontSize: "0.8rem" }}>
+                Create Channel
+              </Tooltip>
+            }>
+            <div
+              className='direct-message align-self-center channel-text ms-auto'
+              onClick={handleOpen}
+              style={{ cursor: "pointer" }}>
+              <PiPlusBold />
+            </div>
+          </OverlayTrigger>
+        </Stack>
+        <Stack
+          direction='horizontal'
+          gap={2}>
+          <HiSpeakerWave className='direct-message channel-text' />
+          <h6 className='direct-message channel-text'>VOICE CHANNELS</h6>
+          <OverlayTrigger
+            placement='top'
+            overlay={
+              <Tooltip
+                id='server-tooltip'
+                style={{ fontSize: "0.8rem" }}>
+                Create Channel
+              </Tooltip>
+            }>
+            <div
+              className='direct-message align-self-center channel-text ms-auto'
+              onClick={handleOpen}
+              style={{ cursor: "pointer" }}>
+              <PiPlusBold />
+            </div>
+          </OverlayTrigger>
         </Stack>
       </Stack>
     </>

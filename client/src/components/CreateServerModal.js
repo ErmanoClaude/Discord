@@ -79,6 +79,7 @@ function CreateServerModal(props) {
                 // validation
                 pattern='[a-zA-Z0-9 ] +$'
                 title='Server name can only contain letters, numbers and spaces'
+                autoComplete='off'
                 required
               />
             </Form.Group>
