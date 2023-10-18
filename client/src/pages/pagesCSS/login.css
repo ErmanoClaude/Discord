@@ -21,8 +21,14 @@ body {
   transition: width 2s linear 1s;
 }
 
-.login .form-control {
+.login {
   background: rgba(32, 34, 37, 255);
+  border-color: rgba(32, 34, 37, 255);
+  color: rgba(170, 173, 176, 1);
+}
+
+.form-control {
+  background: rgba(53, 57, 63, 255);
   border-color: rgba(32, 34, 37, 255);
   color: rgba(170, 173, 176, 1);
 }

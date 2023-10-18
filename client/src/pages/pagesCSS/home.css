@@ -107,10 +107,15 @@
   justify-content: center;
   color: var(--grey);
   font-size: 30px;
+  cursor: pointer;
 }
 
 .request-button[cancel] {
   color: red;
+}
+
+.request-button:hover {
+  background-color: var(--hover-highlight);
 }
 
 .server-title {

@@ -74,6 +74,7 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
               />
               <OverlayTrigger
                 placement='right'
+                trigger={["hover"]}
                 overlay={
                   <Tooltip
                     id='server-tooltip'
@@ -121,6 +122,7 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
         />
         <OverlayTrigger
           placement='right'
+          trigger={["hover"]}
           overlay={
             <Tooltip
               id='server-tooltip'

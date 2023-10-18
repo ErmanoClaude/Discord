@@ -56,7 +56,12 @@ app.use(
 const db = require("./config/databaseConfig");
 
 // DB queries
-const { getFriendshipId, insertMessage } = require("./services/socketQueries");
+const {
+  getFriendshipId,
+  insertMessage,
+  getDisplayName,
+  checkServerMember,
+} = require("./services/socketQueries");
 
 // Routes
 app.use("/", authRoutes);
@@ -86,9 +91,13 @@ io.use((socket, next) => {
   });
 });
 
+const serverRooms = {}; // serverId: {voiceRoom}
+
 io.on("connection", async (socket) => {
   console.log(`${socket.userId} is connected to the server`);
   let currentRoom = null;
+  let currrentVoice = null;
+  let currentServer = null;
 
   // change availability to online
   const availability = `UPDATE users SET status = 'online' WHERE id=${socket.userId}`;
@@ -150,6 +159,30 @@ io.on("connection", async (socket) => {
     } catch (error) {
       console.log(error);
       console.log("Error in inserting message");
+    }
+  });
+
+  socket.on("join server", async (serverId) => {
+    const server = `server-${serverid}`;
+    try {
+      if (await checkServerMember(socket.userId, serverId)) {
+        // If already in a server
+        if (currentServer) {
+          if (currentServer === server) {
+            console.log("Already in this server");
+          } else {
+            socket.leave(currentServer);
+            socket.join(server);
+            currentServer = server;
+          }
+        } else {
+          socket.join(server);
+          currentServer = server;
+        }
+        console.log(socket.rooms);
+      }
+    } catch (error) {
+      console.log("error");
     }
   });
 });

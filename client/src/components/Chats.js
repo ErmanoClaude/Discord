@@ -150,10 +150,8 @@ function Chats(props) {
 
       // set up receive message listener
       socket.on("receive message", (message) => {
-        console.log("got message");
         message.timestamp = new Date(message.timestamp);
         setMessages([...messages, message]);
-        console.log(messages[messages.length]);
       });
     }
 
@@ -183,7 +181,7 @@ function Chats(props) {
           navigate("/");
         }}
       />
-      <Stack style={{ height: "95%" }}>
+      <Stack style={{ height: "98%" }}>
         <div className='friend-name mb-1'>
           <Stack
             direction='horizontal'
@@ -207,7 +205,7 @@ function Chats(props) {
         <form
           className='input-group mt-auto'
           onSubmit={sendMessage}
-          style={{ width: "90%" }}>
+          style={{ width: "98%" }}>
           <input
             type='text'
             className='form-control'

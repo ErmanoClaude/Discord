@@ -60,7 +60,42 @@ async function insertMessage(userId, displayname, message) {
   });
 }
 
+async function checkServerMember(user, serverId) {
+  return new Promise((resolve, reject) => {
+    const checkServerSql = `SELECT * FROM members WHERE serverId=${serverId} AND userId=${user};`;
+    db.query(checkServerMember, (error, result) => {
+      if (error) {
+        console.log(error);
+        console.log("Error checking if server member in socketQueries");
+        reject("Error Checking member in socket Queries");
+      }
+      if (result.length === 0) {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
+async function getDisplayName(user) {
+  return new Promise((resolve, reject) => {
+    const getDisplayNameSql = `SELECT displayName FROM users WHERE id=${user}`;
+    db.query(getDisplayNameSql, (err, result) => {
+      if (err) {
+        console.log("Error getting display name");
+        console.log(err);
+        reject(err);
+      } else {
+        resolve(result[0].displayName);
+      }
+    });
+  });
+}
+
 module.exports = {
   getFriendshipId,
   insertMessage,
+  checkServerMember,
+  getDisplayName,
 };

@@ -67,7 +67,7 @@ const App = () => {
   }
 
   function connectSocket() {
-    const newSocket = io("http://localhost:5000");
+    const newSocket = io("ws://localhost:5000");
 
     newSocket.auth = { token: localStorage.getItem("token") };
     newSocket.connect();
@@ -75,6 +75,10 @@ const App = () => {
     // event handlers
     newSocket.on("connect", () => {
       console.log("We are connected to backend");
+    });
+    newSocket.on("error", (error) => {
+      // Handle the error or suppress it
+      console.error("WebSocket error:", error);
     });
 
     setSocket(newSocket); // Set the socket after it's initialized
@@ -132,6 +136,7 @@ const App = () => {
               <Home
                 friends={friends}
                 fetchFriends={fetchFriends}
+                fetchServers={fetchServers}
               />
             }></Route>
           <Route

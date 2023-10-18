@@ -8,7 +8,7 @@ import { HiSpeakerWave } from "react-icons/hi2";
 import ErrorModal from "./ErrorsModal";
 
 function CreateChannelModal(props) {
-  const { show, handleClose } = props;
+  const { show, handleClose, fetchChannelList } = props;
   const { serverId, name } = useParams();
   const [channelName, setChannelName] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -41,7 +41,6 @@ function CreateChannelModal(props) {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("Sent Channel name");
     } else {
       setErrors([
         "Unable to send channel name to create channel in this server",
@@ -50,6 +49,7 @@ function CreateChannelModal(props) {
     }
 
     if (data.success === true) {
+      fetchChannelList();
       handleClose();
     } else {
       setErrors(...data.errors);

@@ -19,3 +19,7 @@
 .plus-icon {
   color: var(--grey);
 }
+
+.friends-button {
+  font-size: 19px !important;
+}

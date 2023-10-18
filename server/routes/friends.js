@@ -198,4 +198,16 @@ router.post("/acceptRequest", verifyJWT, (req, res) => {
   db.query(acceptRequest);
 });
 
+router.get("/delete/:displayname", verifyJWT, (req, res) => {
+  const { displayname } = req.params;
+  const user = req.userId;
+
+  const deleteQuery = `DELETE FROM friends WHERE 
+  (userId1 = ${user} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'accepted')
+	  OR
+  (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'accepted')`;
+
+  db.query(deleteQuery);
+});
+
 module.exports = router;

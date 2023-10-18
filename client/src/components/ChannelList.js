@@ -18,6 +18,7 @@ import { BiHash } from "react-icons/bi";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { MdClose } from "react-icons/md";
 import { PiPlusBold } from "react-icons/pi";
+import InvitePeopleModal from "./InvitePeopleModal";
 
 function ChannelList() {
   let { serverId, name } = useParams();
@@ -25,10 +26,14 @@ function ChannelList() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggleRef = useRef(null);
   const [show, setShow] = useState(false);
+  const [showInvitePeople, setShowInvitePeople] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [channels, setChannels] = useState([]);
   const handleOpen = () => setShow(true);
   const handleClose = () => setShow(false);
+  const handlePeopleModalOpen = () => setShowInvitePeople(true);
+  const handlePeopleModalClose = () => setShowInvitePeople(false);
 
   name = decodeURIComponent(name);
   // Check if your owner of channnel
@@ -68,7 +73,6 @@ function ChannelList() {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("Sent Channel name");
     } else {
       setErrors([
         "Unable to send channel name to create channel in this server",
@@ -77,7 +81,7 @@ function ChannelList() {
     }
 
     if (data.success === true) {
-      console.log(data);
+      setChannels(data.channels);
     } else {
       setErrors(...data.errors);
       setShowModal(true);
@@ -89,13 +93,19 @@ function ChannelList() {
       <CreateChannelModal
         show={show}
         handleClose={handleClose}
-        fetchServers={() => {}}
+        fetchChannelList={fetchChannelList}
       />
       <ErrorModal
         show={showModal}
         errors={errors}
         handleClose={() => setShowModal(false)}
       />
+
+      <InvitePeopleModal
+        show={showInvitePeople}
+        handleClose={handlePeopleModalClose}
+      />
+
       <Stack gap={3}>
         <div className='friends-link p-2 server-main-name'>
           <Stack direction='horizontal'>
@@ -112,7 +122,7 @@ function ChannelList() {
               <Dropdown.Menu
                 variant='dark'
                 style={{ minWidth: 200, backgroundColor: "black" }}>
-                <Dropdown.Item>
+                <Dropdown.Item onClick={handlePeopleModalOpen}>
                   <Stack
                     direction='horizontal'
                     alignitems='flex-start'>
@@ -163,6 +173,20 @@ function ChannelList() {
             </div>
           </OverlayTrigger>
         </Stack>
+        <Stack>
+          {channels.map((channel) => {
+            if (channel.type === "text") {
+              return (
+                <p
+                  key={channel.id}
+                  style={{ color: "lightgrey" }}>
+                  <BiHash />
+                  {channel.name}
+                </p>
+              );
+            }
+          })}
+        </Stack>
         <Stack
           direction='horizontal'
           gap={2}>
@@ -184,6 +208,20 @@ function ChannelList() {
               <PiPlusBold />
             </div>
           </OverlayTrigger>
+        </Stack>
+        <Stack>
+          {channels.map((channel) => {
+            if (channel.type === "voice") {
+              return (
+                <p
+                  key={channel.id}
+                  style={{ color: "lightgrey" }}>
+                  <HiSpeakerWave />
+                  {channel.name}
+                </p>
+              );
+            }
+          })}
         </Stack>
       </Stack>
     </>

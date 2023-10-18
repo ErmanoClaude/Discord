@@ -182,7 +182,7 @@ router.get("/channels/:serverId", verifyJWT, (req, res) => {
       return;
     }
     const channelsQuery = `
-    SELECT name, type FROM channels WHERE serverId = ${results[0].serverId}`;
+    SELECT id, name, type FROM channels WHERE serverId = ${results[0].serverId}`;
 
     db.query(channelsQuery, (err, data) => {
       if (err) {
@@ -202,12 +202,13 @@ router.get("/channels/:serverId", verifyJWT, (req, res) => {
   });
 });
 
-router.post("/serverInvite/:serverId/:receiver", verifyJWT, (req, res) => {
+// Invite person to server
+router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
   const { serverId, receiver } = req.params;
   const user = req.userId;
 
   // Check if the receiver is a valid user
-  const checkReceiverSql = `SELECT * FROM users WHERE displayName = ${receiver}`;
+  const checkReceiverSql = `SELECT * FROM users WHERE displayName = '${receiver}'`;
 
   db.query(checkReceiverSql, (errReceiver, dataReceiver) => {
     if (errReceiver) {
@@ -252,7 +253,6 @@ router.post("/serverInvite/:serverId/:receiver", verifyJWT, (req, res) => {
 
       // Check if the receiver is already a member of the server
       const checkReceiverMembershipSql = `SELECT * FROM members WHERE userId = ${dataReceiver[0].id} AND serverId = ${serverId}`;
-
       db.query(
         checkReceiverMembershipSql,
         (errReceiverMembership, dataReceiverMembership) => {
@@ -274,23 +274,43 @@ router.post("/serverInvite/:serverId/:receiver", verifyJWT, (req, res) => {
             return;
           }
 
-          // At this point, the receiver is a valid user and not a member of the server
+          // Check their being invited to someones Home Server
 
-          const insertInviteSql = `INSERT INTO server_invitations (serverId, receiverId) VALUES
-        (${serverId}, ${dataReceiver[0].id})`;
-
-          db.query(insertInviteSql, (err, dataInvite) => {
-            if (err) {
-              console.log("Error inserting invite to database");
-              console.log(err);
+          const homeServerSql = `SELECT name from servers WHERE id=${serverId}`;
+          db.query(homeServerSql, (homeServerSqlError, homeServer) => {
+            if (homeServerSqlError) {
+              console.log(homeServerSqlError);
               res.send({
                 success: false,
-                errors: [["Error inserting invite to database"]],
+                errors: [["Being invited to home server"]],
               });
               return;
             }
-            res.send({
-              success: true,
+            if (homeServer[0].name === "Home") {
+              res.send({
+                success: false,
+                errors: [["Being invited to Home server"]],
+              });
+              return;
+            }
+
+            // At this point, the receiver is a valid user and not a member of the server
+            const insertInviteSql = `INSERT INTO server_invitations (serverId, receiverId) VALUES
+              (${serverId}, ${dataReceiver[0].id})`;
+
+            db.query(insertInviteSql, (err, dataInvite) => {
+              if (err) {
+                console.log("Error inserting invite to database");
+                console.log(err);
+                res.send({
+                  success: false,
+                  errors: [["Error inserting invite to database"]],
+                });
+                return;
+              }
+              res.send({
+                success: true,
+              });
             });
           });
         },
@@ -300,16 +320,19 @@ router.post("/serverInvite/:serverId/:receiver", verifyJWT, (req, res) => {
 });
 
 // accept server invite
-router.get("/serverInvite/:serverId", verifyJWT, (req, res) => {
+router.get("/serverinvite/:serverId", verifyJWT, (req, res) => {
   const { serverId } = req.params;
   const user = req.userId;
 
   // Check if user has a server_invite to this server
-  const sql = `SELECT serverId FROM server_invitations WHERE receiverId=${req.userId} AND ${serverId}`;
+  const sql = `SELECT serverId FROM server_invitations WHERE receiverId=${user} AND serverId=${serverId}`;
 
   // Add user to the members table of that server then delete the server_invitation row
-  const acceptInviteQuery = `INSERT INTO members (userId, serverid) VALUES (?, ?);
-    DELETE FROM server_invitations WHERE receiverId=${req.userid} AND serverId=${serverId};`;
+  const acceptInviteQuery = `INSERT INTO members (userId, serverId) VALUES (?, ?);
+    DELETE FROM server_invitations WHERE receiverId=${user} AND serverId=${serverId};`;
+
+  console.log(sql);
+  console.log(acceptInviteQuery);
 
   db.query(sql, (err, result) => {
     if (err) {
@@ -320,22 +343,115 @@ router.get("/serverInvite/:serverId", verifyJWT, (req, res) => {
       });
       return;
     }
+    // ...
+
     if (result.length == 1) {
-      db.query(acceptInviteQuery, (error, inviteResult) => {
-        if (err) {
-          console.log("Error inserting user to server");
-          console.log(err);
-          res.send({
-            success: false,
-            errors: [["Couldn't insert you to this server."]],
+      const insertQuery = `INSERT INTO members (userId, serverId) VALUES (?, ?)`;
+      const deleteQuery = `DELETE FROM server_invitations WHERE receiverId=${user} AND serverId=${serverId}`;
+      db.query(
+        insertQuery,
+        [user, result[0].serverId],
+        (error, insertResult) => {
+          if (error) {
+            console.log("Error inserting user to server");
+            console.log(error);
+            res.send({
+              success: false,
+              errors: [["Couldn't insert you to this server."]],
+            });
+            return;
+          }
+
+          db.query(deleteQuery, (deleteError, deleteResult) => {
+            if (deleteError) {
+              console.log("Error deleting server invitation");
+              console.log(deleteError);
+              res.send({
+                success: false,
+                errors: [["Error deleting server invitation"]],
+              });
+              return;
+            }
+            res.send({
+              success: true,
+            });
           });
-          return;
-        }
-        res.send({
-          success: true,
-        });
+        },
+      );
+    } else {
+      res.send({
+        success: false,
+        errors: [["Don't have an invite to this server."]],
       });
     }
+  });
+});
+
+// Decline server a server invite
+router.get("/serverinvites/:serverId", verifyJWT, (req, res) => {
+  const { serverId } = req.params;
+  const sql = `
+    DELETE FROM server_invitations
+    WHERE receiverId = ${req.userId} AND serverId=${serverId};`;
+
+  db.query(sql);
+  res.send({
+    success: true,
+  });
+});
+
+// Return all server invites for a givein user
+router.get("/serverinvite", verifyJWT, (req, res) => {
+  const sql = `
+  SELECT name, serverId 
+  FROM server_invitations 
+  JOIN servers ON server_invitations.serverId = servers.id 
+  WHERE receiverId = ${req.userId};
+  `;
+  db.query(sql, (err, invites) => {
+    if (err) {
+      res.send({
+        success: false,
+        errors: [["Error getting server invites"]],
+      });
+      console.log("Error getting server invites");
+      return;
+    }
+    res.send({
+      success: true,
+      invites: invites,
+    });
+    return;
+  });
+});
+
+// Returns the displaynames of members of a server
+router.get("/members/:serverId", verifyJWT, (req, res) => {
+  const { serverId } = req.params;
+  const sql = `
+    SELECT displayName
+    FROM members JOIN users ON members.userId = users.id
+    WHERE serverId=(
+      SELECT serverId 
+      FROM members 
+      WHERE userId = ${req.userId} AND serverId=${serverId}
+      );`;
+
+  db.query(sql, (err, members) => {
+    if (err) {
+      res.send({
+        success: false,
+        errors: [["Error Retrieveing members of this server"]],
+      });
+      console.log(
+        "Error Retrieveing members of server in /members/:serverId GET route",
+      );
+      return;
+    }
+    res.send({
+      success: true,
+      members: members,
+    });
   });
 });
 
