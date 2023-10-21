@@ -70,10 +70,9 @@ function GroupChat(props) {
 				socket.emit("send group message", {
 					author: displayname,
 					message: newMessageObj,
+					channelId: channelId,
 				});
 			}
-			newMessageObj.timestamp = new Date(newMessageObj.timestamp);
-			setMessages([...messages, newMessageObj]);
 		} catch (error) {
 			console.error("Error sending message:", error);
 		}
@@ -138,7 +137,9 @@ function GroupChat(props) {
 	};
 
 	useEffect(() => {
+		// Clear messages in chat-box
 		setMessages([]);
+
 		const fetchChannel = async () => {
 			let channelType = "text";
 			fetch("/channelcheck", {

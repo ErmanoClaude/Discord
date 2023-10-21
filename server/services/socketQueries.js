@@ -37,24 +37,40 @@ async function insertMessage(userId, displayname, message) {
 			if (err) {
 				reject(err);
 			} else {
-				const insert = `
-        INSERT INTO chats 
-            (user1Id, user2Id, authorId, content, timestamp) 
-        VALUES(
-            (LEAST(${userId}, ${user[0].id})), 
-            (GREATEST(${userId}, ${user[0].id})), 
-            ${userId}, 
-            '${message.content}', 
-            '${now}' 
-        );`;
+				if (user.length === 1) {
+					const insert = `
+					INSERT INTO chats 
+						(user1Id, user2Id, authorId, content, timestamp) 
+					VALUES(
+						(LEAST(${userId}, ${user[0].id})), 
+						(GREATEST(${userId}, ${user[0].id})), 
+						${userId}, 
+						'${message.content}', 
+						NOW() 
+					);`;
 
-				db.query(insert, (err, data) => {
-					if (err) {
-						reject(err);
-					} else {
-						resolve();
-					}
-				});
+					db.query(insert, (err, data) => {
+						if (err) {
+							reject(err);
+						} else {
+							const lastInsertedRow = data.insertId;
+							const lastRowSql = `SELECT * FROM chats WHERE id=${lastInsertedRow}`;
+							db.query(
+								lastRowSql,
+								(lastRowError, lastRowResults) => {
+									if (lastRowError) {
+										console.log(lastRowError);
+										reject(lastRowError);
+									} else {
+										resolve(lastRowResults);
+									}
+								},
+							);
+						}
+					});
+				} else {
+					reject("Couldn't find user");
+				}
 			}
 		});
 	});
@@ -92,6 +108,38 @@ async function getDisplayName(user) {
 	});
 }
 
+async function insertGroupMessage(userId, author, message, channelId) {
+	return new Promise((resolve, reject) => {
+		// first find the id of the person with that displayname
+		// second query insert the message to databse with the current timestamp send
+
+		const idQuery = `SELECT id FROM users WHERE displayName='${displayname}' AND id=${userId}`;
+		db.query(idQuery, (err, user) => {
+			if (err) {
+				reject(err);
+			} else {
+				const insert = `
+        INSERT INTO chats 
+            (user1Id, user2Id, authorId, content, timestamp) 
+        VALUES(
+            (LEAST(${userId}, ${user[0].id})), 
+            (GREATEST(${userId}, ${user[0].id})), 
+            ${userId}, 
+            '${message.content}', 
+            '${now}' 
+        );`;
+
+				db.query(insert, (err, data) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve();
+					}
+				});
+			}
+		});
+	});
+}
 module.exports = {
 	getFriendshipId,
 	insertMessage,

@@ -107,6 +107,7 @@ router.post("/login", async (req, res) => {
 }); // post '/login'
 
 router.get("/login", (req, res) => {
+	console.log("checkedl login");
 	if (req.session.user) {
 		res.send({ loggedIn: true, user: req.session.user });
 	} else {
@@ -196,6 +197,7 @@ router.post("/register", async (req, res) => {
 router.get("/isUserAuth", verifyJWT, (req, res) => {
 	res.send({
 		success: true,
+		user: req.userId,
 	});
 });
 

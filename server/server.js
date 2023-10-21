@@ -61,6 +61,7 @@ const {
 	insertMessage,
 	getDisplayName,
 	checkServerMember,
+	insertGroupMessage,
 } = require("./services/socketQueries");
 
 // Routes
@@ -78,12 +79,22 @@ const io = new Server(server, {
 	},
 });
 
-// Authenticate middle for socket.
+// Authenticate middleware for socket.
 io.use((socket, next) => {
 	const token = socket.handshake.auth.token;
+
+	// If no token is provided, reject the connection
+	if (!token) {
+		return next(new Error("Authentication Error: No token provided"));
+	}
+
 	JWT.verify(token, process.env.JWT_SECRET, (err, decoded) => {
 		if (err) {
-			return next(new Error("Authentication Error"));
+			// Handle JWT verification error
+			console.error("JWT Verification Error:", err);
+
+			// Reject the connection if JWT verification fails
+			return next(new Error("Authentication Error: Invalid token"));
 		}
 
 		socket.userId = decoded.userId;
@@ -117,7 +128,7 @@ io.on("connection", async (socket) => {
 		db.query(availabilityReconnect);
 	});
 
-	// Join 1on 1 chat room
+	// Join 1 on 1 chat room
 	socket.on("join chatroom", async (displayname) => {
 		// lookup friendship id
 		try {
@@ -151,14 +162,20 @@ io.on("connection", async (socket) => {
 	// sending a message
 	socket.on("send message", async ({ displayname, message }) => {
 		try {
-			await insertMessage(socket.userId, displayname, message);
+			const insertedMessage = await insertMessage(
+				socket.userId,
+				displayname,
+				message,
+			);
+
+			const returnMessage = {
+				author: message.author,
+				content: insertedMessage[0].content,
+				timestamp: insertedMessage[0].timestamp,
+			};
 
 			// send the message event to other person thats in the room
-			socket.to(currentRoom).emit("receive message", {
-				author: message.author,
-				content: message.content,
-				timestamp: message.timestamp,
-			});
+			io.to(currentRoom).emit("receive message", returnMessage);
 		} catch (error) {
 			console.log(error);
 			console.log("Error in inserting message");
@@ -191,9 +208,26 @@ io.on("connection", async (socket) => {
 		"join group chat",
 		async ({ serverId, channelId, channelName, name }) => {
 			let roomId = `chatroom-${serverId}-${channelId}`;
-			console.log(serverId, channelId, channelName, name, socket.userId);
+			// If already in a room
+			if (currentRoom) {
+				if (currentRoom === roomId) {
+					console.log("Already in this room");
+				} else {
+					socket.leave(currentRoom);
+					socket.join(roomId);
+					currentRoom = roomId;
+				}
+			} else {
+				socket.join(roomId);
+				currentRoom = roomId;
+			}
 		},
 	);
+
+	socket.on("send group message", async ({ author, message, channelId }) => {
+		console.log(author, message, channelId);
+		await insertGroupMessage(socket.id, author, message);
+	});
 });
 
 server.listen(5000, () => {

@@ -16,6 +16,7 @@ import Server from "./pages/Server";
 // outlets
 import Chats from "./components/Chats";
 import GroupChat from "./components/GroupChat";
+import GroupVoiceChat from "./components/GroupVoiceChat";
 
 // Layout
 import RootLayout from "./layouts/RootLayout";
@@ -57,7 +58,9 @@ const App = () => {
 				"x-access-token": localStorage.getItem("token"),
 			},
 		})
-			.then((result) => result.json())
+			.then((result) => {
+				return result.json();
+			})
 			.then((data) => {
 				setFriends(data.friends);
 			})
@@ -68,6 +71,18 @@ const App = () => {
 	}
 
 	function connectSocket() {
+		const token = localStorage.getItem("token");
+
+		if (!token) {
+			// No token, handle accordingly redirect to login
+			if (window.location.pathname !== "/login") {
+				if (window.location.pathname !== "/register") {
+					window.location.href = "/login";
+				}
+			}
+			return;
+		}
+
 		const newSocket = io("ws://localhost:5000");
 
 		newSocket.auth = { token: localStorage.getItem("token") };
@@ -80,6 +95,15 @@ const App = () => {
 		newSocket.on("error", (error) => {
 			// Handle the error or suppress it
 			console.error("WebSocket error:", error);
+			if (error.message.startsWith("Authentication Error")) {
+				// Redirect user to the login page
+				// Token is invalid, handle accordingly (e.g., redirect to login)
+				if (window.location.pathname !== "/login") {
+					if (window.location.pathname !== "/register") {
+						window.location.href = "/login";
+					}
+				}
+			}
 		});
 
 		setSocket(newSocket); // Set the socket after it's initialized
@@ -88,18 +112,37 @@ const App = () => {
 	// Checked if user is logged in if not logged in get redirected to login or register
 	useEffect(() => {
 		async function fetchData() {
-			const response = await fetch("/login", {
+			const token = localStorage.getItem("token");
+
+			if (!token) {
+				// No token, handle accordingly redirect to login
+				if (window.location.pathname !== "/login") {
+					if (window.location.pathname !== "/register") {
+						window.location.href = "/login";
+					}
+				}
+				return;
+			}
+
+			const response = await fetch("/isUserAuth", {
 				method: "GET",
+				headers: {
+					"x-access-token": token,
+				},
 			});
+
 			const data = await response.json();
-			if (data.loggedIn === true) {
-				setUser(data.user.userId);
+
+			if (data.success === true) {
+				// Token is valid, set the user and proceed
+
+				setUser(data.userId);
 				setIsLoggedIn(true);
 
 				// Set Servers if they logged in
 				fetchServers();
 			} else {
-				// Redirect user if not logged in to '/login page or /register
+				// Token is invalid,  redirect to login
 				if (window.location.pathname !== "/login") {
 					if (window.location.pathname !== "/register") {
 						window.location.href = "/login";
@@ -107,12 +150,12 @@ const App = () => {
 				}
 			}
 		}
-		fetchData();
 
-		if (setIsLoggedIn) {
+		fetchData();
+		if (isLoggedIn) {
 			connectSocket();
 		}
-	}, []);
+	}, [isLoggedIn]);
 
 	const router = createBrowserRouter(
 		createRoutesFromElements(
@@ -158,6 +201,9 @@ const App = () => {
 					<Route
 						path='text/:channelId/:channelName'
 						element={<GroupChat socket={socket} />}></Route>
+					<Route
+						path='voice/:channelId/:channelName'
+						element={<GroupVoiceChat socket={socket} />}></Route>
 				</Route>
 
 				{/* Public Routes*/}

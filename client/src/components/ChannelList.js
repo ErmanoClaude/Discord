@@ -223,14 +223,18 @@ function ChannelList() {
 				<Stack>
 					{channels.map((channel) => {
 						if (channel.type === "voice") {
+							// 'servers/:serverId/:name/voice/:channelId/:channelName'
 							return (
-								<p
+								<NavLink
+									to={`/servers/${serverId}/${name}/voice/${channel.id}/${channel.name}`}
 									key={channel.id}
 									style={{ color: "lightgrey" }}>
 									<HiSpeakerWave />
 									{channel.name}
-								</p>
+								</NavLink>
 							);
+						} else {
+							return <></>;
 						}
 					})}
 				</Stack>

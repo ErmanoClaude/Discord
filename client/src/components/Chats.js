@@ -11,6 +11,7 @@ function Chats(props) {
 	const [success, setSuccess] = useState(false);
 	const [newMessage, setNewMessage] = useState("");
 	const { displayname } = useParams();
+	const [myDisplayname, setMyDisplayname] = useState("");
 	const navigate = useNavigate();
 	let currentDay = null;
 
@@ -25,9 +26,16 @@ function Chats(props) {
 					"x-access-token": localStorage.getItem("token"),
 				},
 			});
+			const displayResponse = await fetch("/displayname", {
+				method: "GET",
+				headers: {
+					"x-access-token": localStorage.getItem("token"),
+				},
+			});
+			const displayData = await displayResponse.json();
+
 			const data = await response.json();
 			if (data.success) {
-				console.log(data.chatLogs);
 				setSuccess(true);
 				// Convert timestamp strings to Date objects
 				const formattedMessages = data.chatLogs.map((message) => ({
@@ -37,6 +45,12 @@ function Chats(props) {
 				setMessages(formattedMessages);
 			} else {
 				setErrors(data.errors);
+				setShowModal(true);
+			}
+			if (displayData.success) {
+				setMyDisplayname(displayData.displayname);
+			} else {
+				setErrors(...data.errors);
 				setShowModal(true);
 			}
 		} catch (error) {
@@ -56,22 +70,23 @@ function Chats(props) {
 			// Optimistically update the UI
 			let currentTimestamp = new Date();
 			const newMessageObj = {
-				author: localStorage.getItem("displayname"),
+				author: myDisplayname,
 				content: newMessage,
 				timestamp: currentTimestamp,
 			};
 
 			setNewMessage("");
 
-			// Emit an event to the server to store the message in the database
-			socket.emit("send message", {
-				displayname,
-				message: newMessageObj,
-			});
-
-			newMessageObj.timestamp = new Date(newMessageObj.timestamp);
-			setMessages([...messages, newMessageObj]);
+			if (socket) {
+				// Emit an event to the server to store the message in the database
+				socket.emit("send message", {
+					displayname,
+					message: newMessageObj,
+				});
+			}
 		} catch (error) {
+			setShowModal(true);
+			setErrors(["Failed to send message"]);
 			console.error("Error sending message:", error);
 		}
 	};
