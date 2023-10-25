@@ -8,13 +8,13 @@ const db = require("../config/databaseConfig");
 //=====================//
 
 router.get("/servers", verifyJWT, (req, res) => {
-	const sql = `SELECT id, name FROM servers WHERE ownerId = ${req.userId}
+	const sql = `SELECT id, name FROM servers WHERE ownerId = ?
     UNION 
     SELECT s.id, s.name FROM servers s
     JOIN members m ON s.id = m.serverId
-    WHERE m.userId = ${req.userId}`;
+    WHERE m.userId = ?`;
 
-	db.query(sql, (err, data) => {
+	db.query(sql, [req.userId, req.userId], (err, data) => {
 		if (err) {
 			console.log(err);
 			res.send({
@@ -31,7 +31,7 @@ router.get("/servers", verifyJWT, (req, res) => {
 // Create new server
 router.post("/servers", verifyJWT, async (req, res) => {
 	const { serverName } = req.body;
-	const sql = `INSERT INTO servers (name, ownerId) VALUES ('${serverName}', ${req.userId})`;
+	const sql = `INSERT INTO servers (name, ownerId) VALUES (?, ?)`;
 	const errors = validateServerName(serverName);
 
 	if (errors.length > 0) {
@@ -50,7 +50,7 @@ router.post("/servers", verifyJWT, async (req, res) => {
 		return;
 	}
 
-	db.query(sql, (err, data) => {
+	db.query(sql, [serverName, req.userId], (err, data) => {
 		if (err) {
 			console.log("error is in post /server");
 			console.log(err);
@@ -63,17 +63,21 @@ router.post("/servers", verifyJWT, async (req, res) => {
 		// insert owner into members of their own channel
 		const insertMemeber = `
       INSERT INTO members (userId, serverId) VALUES
-        (${req.userId}, ${data.insertId})`;
-		db.query(insertMemeber, (insertMemeberError, insertMemeberData) => {
-			if (err) {
-				console.log("Error in inserting owner to memebers");
-				res.send({
-					success: false,
-					errors: [["Error in inserting owner to members"]],
-				});
-				return;
-			}
-		});
+        (?, ?)`;
+		db.query(
+			insertMemeber,
+			[req.userId, data.insertId],
+			(insertMemeberError, insertMemeberData) => {
+				if (err) {
+					console.log("Error in inserting owner to memebers");
+					res.send({
+						success: false,
+						errors: [["Error in inserting owner to members"]],
+					});
+					return;
+				}
+			},
+		);
 
 		// Create general text chat and general voice chat channels
 		const insertGeneral = `
@@ -104,7 +108,7 @@ router.post("/channels", verifyJWT, (req, res) => {
 	const user = req.userId;
 	// find the matching serverName and Id make sure they exist
 	// Got to make sure user is a memmber of that server to do this
-	const sql = `SELECT serverId FROM members WHERE userId=${user} AND serverId=${serverId}`;
+	const sql = `SELECT serverId FROM members WHERE userId=? AND serverId=?`;
 
 	const errors = validateServerName(serverName);
 
@@ -119,7 +123,7 @@ router.post("/channels", verifyJWT, (req, res) => {
 		return;
 	}
 
-	db.query(sql, (err, data) => {
+	db.query(sql, [user, serverId], (err, data) => {
 		if (err) {
 			console.log(err);
 			res.send({
@@ -139,24 +143,28 @@ router.post("/channels", verifyJWT, (req, res) => {
 			// Insert Channel to the server
 			const insertChannel = `
       INSERT INTO channels (serverId, name, type) 
-      VALUES (${data[0].serverId}, '${channelName}', '${channelType}');`;
+      VALUES (?, ?, ?);`;
 
-			db.query(insertChannel, (error, result) => {
-				if (err || result === undefined) {
-					res.send({
-						success: false,
-						errors: [
-							[
-								"Error inserting channel in database in POST channel",
+			db.query(
+				insertChannel,
+				[data[0].serverId, channelName, channelType],
+				(error, result) => {
+					if (err || result === undefined) {
+						res.send({
+							success: false,
+							errors: [
+								[
+									"Error inserting channel in database in POST channel",
+								],
 							],
-						],
-					});
-				} else {
-					res.send({
-						success: true,
-					});
-				}
-			});
+						});
+					} else {
+						res.send({
+							success: true,
+						});
+					}
+				},
+			);
 		}
 	});
 });
@@ -166,9 +174,9 @@ router.get("/channels/:serverId", verifyJWT, (req, res) => {
 	const { serverId } = req.params;
 	const user = req.userId;
 	// make sure their apart of the the server their requesting channels from
-	const sql = `SELECT serverId FROM members WHERE userId=${user} AND serverId=  ${serverId}`;
+	const sql = `SELECT serverId FROM members WHERE userId=? AND serverId=  ?`;
 
-	db.query(sql, (error, results) => {
+	db.query(sql, [user, serverId], (error, results) => {
 		if (error) {
 			console.log(error);
 			res.send({
@@ -186,9 +194,8 @@ router.get("/channels/:serverId", verifyJWT, (req, res) => {
 			return;
 		}
 		const channelsQuery = `
-    SELECT id, name, type FROM channels WHERE serverId = ${results[0].serverId}`;
-
-		db.query(channelsQuery, (err, data) => {
+    SELECT id, name, type FROM channels WHERE serverId = ?`;
+		db.query(channelsQuery, [results[0].serverId], (err, data) => {
 			if (err) {
 				console.log("Error fetching channels");
 				res.send({
@@ -212,9 +219,9 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 	const user = req.userId;
 
 	// Check if the receiver is a valid user
-	const checkReceiverSql = `SELECT * FROM users WHERE displayName = '${receiver}'`;
+	const checkReceiverSql = `SELECT * FROM users WHERE displayName = ?`;
 
-	db.query(checkReceiverSql, (errReceiver, dataReceiver) => {
+	db.query(checkReceiverSql, [receiver], (errReceiver, dataReceiver) => {
 		if (errReceiver) {
 			console.log("Error checking if receiver is a valid user");
 			console.log(errReceiver);
@@ -234,9 +241,9 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 		}
 
 		// Check if the requester is a member of the server
-		const checkMemberSql = `SELECT * FROM members WHERE userId = ${user} AND serverId = ${serverId}`;
+		const checkMemberSql = `SELECT * FROM members WHERE userId = ? AND serverId = ?`;
 
-		db.query(checkMemberSql, (err, data) => {
+		db.query(checkMemberSql, [user, serverId], (err, data) => {
 			if (err) {
 				console.log("Error checking if user is a member of the server");
 				console.log(err);
@@ -258,9 +265,13 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 			}
 
 			// Check if the receiver is already a member of the server
-			const checkReceiverMembershipSql = `SELECT * FROM members WHERE userId = ${dataReceiver[0].id} AND serverId = ${serverId}`;
+			const checkReceiverMembershipSql = `
+			SELECT * 
+			FROM members 
+			WHERE userId =? AND serverId = ?`;
 			db.query(
 				checkReceiverMembershipSql,
+				[dataReceiver[0].id, serverId],
 				(errReceiverMembership, dataReceiverMembership) => {
 					if (errReceiverMembership) {
 						console.log(
@@ -290,9 +301,10 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 
 					// Check their being invited to someones Home Server
 
-					const homeServerSql = `SELECT name from servers WHERE id=${serverId}`;
+					const homeServerSql = `SELECT name from servers WHERE id=?`;
 					db.query(
 						homeServerSql,
+						[serverId],
 						(homeServerSqlError, homeServer) => {
 							if (homeServerSqlError) {
 								console.log(homeServerSqlError);
@@ -311,29 +323,33 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 							}
 
 							// At this point, the receiver is a valid user and not a member of the server
-							const insertInviteSql = `INSERT INTO server_invitations (serverId, receiverId) VALUES
-              (${serverId}, ${dataReceiver[0].id})`;
+							const insertInviteSql = `
+							INSERT INTO server_invitations (serverId, receiverId) VALUES (?, ?)`;
 
-							db.query(insertInviteSql, (err, dataInvite) => {
-								if (err) {
-									console.log(
-										"Error inserting invite to database",
-									);
-									console.log(err);
-									res.send({
-										success: false,
-										errors: [
-											[
-												"Error inserting invite to database",
+							db.query(
+								insertInviteSql,
+								[serverId, dataReceiver[0].id],
+								(err, dataInvite) => {
+									if (err) {
+										console.log(
+											"Error inserting invite to database",
+										);
+										console.log(err);
+										res.send({
+											success: false,
+											errors: [
+												[
+													"Error inserting invite to database",
+												],
 											],
-										],
+										});
+										return;
+									}
+									res.send({
+										success: true,
 									});
-									return;
-								}
-								res.send({
-									success: true,
-								});
-							});
+								},
+							);
 						},
 					);
 				},
@@ -348,16 +364,9 @@ router.get("/serverinvite/:serverId", verifyJWT, (req, res) => {
 	const user = req.userId;
 
 	// Check if user has a server_invite to this server
-	const sql = `SELECT serverId FROM server_invitations WHERE receiverId=${user} AND serverId=${serverId}`;
+	const sql = `SELECT serverId FROM server_invitations WHERE receiverId=? AND serverId=?`;
 
-	// Add user to the members table of that server then delete the server_invitation row
-	const acceptInviteQuery = `INSERT INTO members (userId, serverId) VALUES (?, ?);
-    DELETE FROM server_invitations WHERE receiverId=${user} AND serverId=${serverId};`;
-
-	console.log(sql);
-	console.log(acceptInviteQuery);
-
-	db.query(sql, (err, result) => {
+	db.query(sql, [user, serverId], (err, result) => {
 		if (err) {
 			console.log("Error accepting invite");
 			res.send({
@@ -370,7 +379,7 @@ router.get("/serverinvite/:serverId", verifyJWT, (req, res) => {
 
 		if (result.length == 1) {
 			const insertQuery = `INSERT INTO members (userId, serverId) VALUES (?, ?)`;
-			const deleteQuery = `DELETE FROM server_invitations WHERE receiverId=${user} AND serverId=${serverId}`;
+			const deleteQuery = `DELETE FROM server_invitations WHERE receiverId=? AND serverId=?`;
 			db.query(
 				insertQuery,
 				[user, result[0].serverId],
@@ -385,20 +394,26 @@ router.get("/serverinvite/:serverId", verifyJWT, (req, res) => {
 						return;
 					}
 
-					db.query(deleteQuery, (deleteError, deleteResult) => {
-						if (deleteError) {
-							console.log("Error deleting server invitation");
-							console.log(deleteError);
+					db.query(
+						deleteQuery,
+						[user, serverId],
+						(deleteError, deleteResult) => {
+							if (deleteError) {
+								console.log("Error deleting server invitation");
+								console.log(deleteError);
+								res.send({
+									success: false,
+									errors: [
+										["Error deleting server invitation"],
+									],
+								});
+								return;
+							}
 							res.send({
-								success: false,
-								errors: [["Error deleting server invitation"]],
+								success: true,
 							});
-							return;
-						}
-						res.send({
-							success: true,
-						});
-					});
+						},
+					);
 				},
 			);
 		} else {
@@ -415,9 +430,9 @@ router.get("/serverinvites/:serverId", verifyJWT, (req, res) => {
 	const { serverId } = req.params;
 	const sql = `
     DELETE FROM server_invitations
-    WHERE receiverId = ${req.userId} AND serverId=${serverId};`;
+    WHERE receiverId = ? AND serverId=?;`;
 
-	db.query(sql);
+	db.query(sql, [req.userId, serverId]);
 	res.send({
 		success: true,
 	});
@@ -429,9 +444,9 @@ router.get("/serverinvite", verifyJWT, (req, res) => {
   SELECT name, serverId 
   FROM server_invitations 
   JOIN servers ON server_invitations.serverId = servers.id 
-  WHERE receiverId = ${req.userId};
+  WHERE receiverId = ?;
   `;
-	db.query(sql, (err, invites) => {
+	db.query(sql, [req.userId], (err, invites) => {
 		if (err) {
 			res.send({
 				success: false,
@@ -457,10 +472,10 @@ router.get("/members/:serverId", verifyJWT, (req, res) => {
     WHERE serverId=(
       SELECT serverId 
       FROM members 
-      WHERE userId = ${req.userId} AND serverId=${serverId}
+      WHERE userId = ? AND serverId=?
       );`;
 
-	db.query(sql, (err, members) => {
+	db.query(sql, [req.userId, serverId], (err, members) => {
 		if (err) {
 			res.send({
 				success: false,
@@ -482,9 +497,9 @@ router.get("/members/:serverId", verifyJWT, (req, res) => {
 router.get("/member/:serverId", verifyJWT, (req, res) => {
 	const { serverId } = req.params;
 	const user = req.userId;
-	const checkServerSql = `SELECT * FROM members WHERE serverId=${serverId} AND userId=${user};`;
+	const checkServerSql = `SELECT * FROM members WHERE serverId=? AND userId=?;`;
 
-	db.query(checkServerSql, (error, result) => {
+	db.query(checkServerSql, [serverId, user], (error, result) => {
 		if (error) {
 			console.log("Error checking if server member route");
 			res.send({
@@ -522,13 +537,13 @@ router.post("/channelcheck", verifyJWT, (req, res) => {
 	WHERE servers.id IN (
 		SELECT serverId
 		FROM members
-		WHERE userId = ${user}
+		WHERE userId = ?
 	) 
-	AND (serverId = ${serverId})
-	AND (channels.id = ${channelId})
-	AND (servers.name = '${name}')
-	AND (channels.name = '${channelName}')
-	AND (type = '${channelType}')`;
+	AND (serverId = ?)
+	AND (channels.id = ?)
+	AND (servers.name = ?)
+	AND (channels.name = ?)
+	AND (type = ?)`;
 
 	const groupChatSql = `
 		SELECT 
@@ -537,50 +552,59 @@ router.post("/channelcheck", verifyJWT, (req, res) => {
 			timestamp 
 		FROM messages 
 		JOIN users ON users.id = messages.authorId 
-		WHERE channelId = ${channelId};`;
+		WHERE channelId = ?;`;
 
-	db.query(checkChannelSql, (error, checkChannelResult) => {
-		if (error) {
-			console.log(error);
-			console.log("Error in check channel");
-			res.send({
-				success: false,
-				errors: [["Error checking if channel exist"]],
-			});
-			return;
-		}
-		if (checkChannelResult.length == 1) {
-			if (channelType === "text") {
-				db.query(groupChatSql, (groupChatError, groupChatResults) => {
-					if (groupChatError) {
-						console.log(groupChatError);
-						console.log("Error in fetching group chat");
-						res.send({
-							success: false,
-							errors: [["Error fetching group chat"]],
-						});
-					} else {
-						res.send({
-							success: true,
-							chatLogs: groupChatResults,
-						});
-					}
-				});
-			} else {
+	db.query(
+		checkChannelSql,
+		[user, serverId, channelId, name, channelName, channelType],
+		(error, checkChannelResult) => {
+			if (error) {
+				console.log(error);
+				console.log("Error in check channel");
 				res.send({
-					success: true,
+					success: false,
+					errors: [["Error checking if channel exist"]],
 				});
 				return;
 			}
-		} else {
-			console.log(checkChannelResult);
-			res.send({
-				success: false,
-				errors: [["Error Checking if channel exist"]],
-			});
-			return;
-		}
-	});
+
+			if (checkChannelResult.length == 1) {
+				if (channelType === "text") {
+					db.query(
+						groupChatSql,
+						[channelId],
+						(groupChatError, groupChatResults) => {
+							if (groupChatError) {
+								console.log(groupChatError);
+								console.log("Error in fetching group chat");
+								res.send({
+									success: false,
+									errors: [["Error fetching group chat"]],
+								});
+							} else {
+								res.send({
+									success: true,
+									chatLogs: groupChatResults,
+								});
+							}
+						},
+					);
+				} else {
+					res.send({
+						success: true,
+					});
+					return;
+				}
+			} else {
+				console.log(checkChannelResult);
+				res.send({
+					success: false,
+					errors: [["Error Checking if channel exist"]],
+				});
+				return;
+			}
+		},
+	);
 });
 
 module.exports = router;

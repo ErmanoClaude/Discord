@@ -4,7 +4,6 @@ const db = require("../config/databaseConfig");
 const { errorChecker, isEmail, verifyJWT } = require("../services/utils");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { sq } = require("date-fns/locale");
 const saltRounds = 10;
 
 const months = [
@@ -45,8 +44,8 @@ router.post("/login", async (req, res) => {
 		return;
 	}
 
-	const sqlQuery = `SELECT * FROM users WHERE email='${email}';`;
-	await db.query(sqlQuery, async (err, data) => {
+	const sqlQuery = `SELECT * FROM users WHERE email=?;`;
+	await db.query(sqlQuery, [email], async (err, data) => {
 		if (err) {
 			error.push("Error in /login sqlQuery");
 			error.push(err.sqlMessage);
@@ -57,9 +56,7 @@ router.post("/login", async (req, res) => {
 		} else {
 			// Check user creditals here
 			if (data.length === 0) {
-				error.push(
-					`'${email}' this email doesn't exist in our system.`,
-				);
+				error.push(`This email doesn't exist in our system.`);
 				res.send({
 					success: false,
 					errors: [error],
@@ -86,7 +83,7 @@ router.post("/login", async (req, res) => {
 					...payload,
 					displayName: data[0]["displayName"],
 					token: token,
-					expiresIn: 300, // <-- 5 min expiration
+					expiresIn: 300, // <-- 5 min expiration change during prod
 				};
 
 				req.session.user = user;
@@ -137,7 +134,8 @@ router.post("/register", async (req, res) => {
 
 	// Check if email exist in the database
 	await db.query(
-		`SELECT 1 FROM users WHERE email = "${email}"`,
+		`SELECT 1 FROM users WHERE email = ?;`,
+		[email],
 		(err, emailData) => {
 			if (emailData.length > 0) {
 				errors.push("Email already exists.");
@@ -145,7 +143,8 @@ router.post("/register", async (req, res) => {
 
 			// Check if displayName exist in the database already
 			db.query(
-				`SELECT 1 FROM users WHERE displayName = "${displayName}"`,
+				`SELECT 1 FROM users WHERE displayName = ?`,
+				[displayName],
 				(err, data) => {
 					if (data.length > 0) {
 						errors.push("Display name already exists.");
@@ -203,9 +202,9 @@ router.get("/isUserAuth", verifyJWT, (req, res) => {
 
 // Returns displayname of logged in user
 router.get("/displayname", verifyJWT, (req, res) => {
-	const sql = `SELECT displayName FROM users WHERE id =${req.userId};`;
+	const sql = `SELECT displayName FROM users WHERE id = ?;`;
 
-	db.query(sql, (error, displayname) => {
+	db.query(sql, [req.userId], (error, displayname) => {
 		if (error) {
 			console.log(error);
 			console.log("Error in getting display name route");

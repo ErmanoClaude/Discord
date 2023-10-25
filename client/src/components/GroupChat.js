@@ -35,7 +35,6 @@ function GroupChat(props) {
 			})
 			.then((data) => {
 				if (data.success) {
-					console.log(data);
 					setDisplayname(data.displayname);
 				} else {
 					setErrors(["Error fetching displayname"]);
@@ -68,7 +67,6 @@ function GroupChat(props) {
 			if (socket) {
 				// Emit an event to the server to store the message in the database
 				socket.emit("send group message", {
-					author: displayname,
 					message: newMessageObj,
 					channelId: channelId,
 				});
@@ -139,6 +137,7 @@ function GroupChat(props) {
 	useEffect(() => {
 		// Clear messages in chat-box
 		setMessages([]);
+		fetchDisplay();
 
 		const fetchChannel = async () => {
 			let channelType = "text";
@@ -178,8 +177,8 @@ function GroupChat(props) {
 								timestamp: new Date(message.timestamp),
 							}),
 						);
+
 						setMessages(formattedMessages);
-						fetchDisplay();
 					} else {
 						setErrors(...data.errors);
 						setShowModal(true);
@@ -196,10 +195,28 @@ function GroupChat(props) {
 			// set up receive message listener
 			socket.on("receive group message", (message) => {
 				message.timestamp = new Date(message.timestamp);
-				setMessages([...messages, message]);
+				setMessages((prevMessages) => [...prevMessages, message]);
+			});
+			socket.on("where are you?", () => {
+				fetchChannel();
 			});
 		}
+		return () => {
+			if (socket) {
+				// Remove event listeners off component unmount
+				socket.off("joined group chat");
+				socket.off("receive group message");
+				socket.off("where are you?");
+			}
+		};
 	}, [socket, channelId, channelName, serverId, name]);
+
+	// Use useEffect to scroll the chat-box to the bottom when messages change
+	useEffect(() => {
+		if (chatBoxRef.current) {
+			chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+		}
+	}, [messages]);
 	return (
 		<>
 			<ErrorModal

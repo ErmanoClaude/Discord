@@ -40,7 +40,16 @@ function Server(props) {
 		fetchServer();
 		if (socket) {
 			socket.emit("join server", serverId);
+			socket.on("where are you?", () => {
+				socket.emit("join server", serverId);
+			});
 		}
+		return () => {
+			// remove event listener
+			if (socket) {
+				socket.off("where are you?");
+			}
+		};
 	}, [socket, serverId, name]);
 	return (
 		<>

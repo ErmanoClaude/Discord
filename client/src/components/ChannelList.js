@@ -36,7 +36,6 @@ function ChannelList() {
 	const handlePeopleModalClose = () => setShowInvitePeople(false);
 
 	name = decodeURIComponent(name);
-	// Check if your owner of channnel
 
 	useEffect(() => {
 		fetchChannelList();

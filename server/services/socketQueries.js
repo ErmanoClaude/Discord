@@ -4,22 +4,26 @@ async function getFriendshipId(userId, displayname) {
 	return new Promise((resolve, reject) => {
 		const sql = `SELECT id
   FROM friends
-  WHERE (userId1 = ${userId} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}'))
-    OR (userId2 = ${userId} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}'))
+  WHERE (userId1 = ? AND userId2 = (SELECT id FROM users WHERE displayName = ?))
+    OR (userId2 = ? AND userId1 = (SELECT id FROM users WHERE displayName = ?))
     AND status = 'accepted';`;
 
-		db.query(sql, (err, data) => {
-			if (err) {
-				console.log("error finding friend");
-				reject(err);
-			}
-			if (data.length == 1) {
-				resolve(data[0].id);
-			} else {
-				console.log("Throwing Erro from getFriendshipId");
-				reject(err);
-			}
-		});
+		db.query(
+			sql,
+			[userId, displayname, userId, displayname],
+			(err, data) => {
+				if (err) {
+					console.log("error finding friend");
+					reject(err);
+				}
+				if (data.length == 1) {
+					resolve(data[0].id);
+				} else {
+					console.log("Throwing Erro from getFriendshipId");
+					reject(err);
+				}
+			},
+		);
 	});
 }
 
@@ -32,42 +36,52 @@ async function insertMessage(userId, displayname, message) {
 			.slice(0, 19)
 			.replace("T", " ");
 
-		const idQuery = `SELECT id FROM users WHERE displayName='${displayname}'`;
-		db.query(idQuery, (err, user) => {
+		const idQuery = `SELECT id FROM users WHERE displayName=?`;
+		db.query(idQuery, [displayname], (err, user) => {
 			if (err) {
 				reject(err);
 			} else {
 				if (user.length === 1) {
 					const insert = `
-					INSERT INTO chats 
-						(user1Id, user2Id, authorId, content, timestamp) 
-					VALUES(
-						(LEAST(${userId}, ${user[0].id})), 
-						(GREATEST(${userId}, ${user[0].id})), 
-						${userId}, 
-						'${message.content}', 
+					INSERT INTO chats (user1Id, user2Id, authorId, content, timestamp) 
+					VALUES((LEAST(?, ?)), 
+						(GREATEST(?, ?)), 
+						?, 
+						?, 
 						NOW() 
 					);`;
 
-					db.query(insert, (err, data) => {
-						if (err) {
-							reject(err);
-						} else {
-							const lastInsertedRow = data.insertId;
-							const lastRowSql = `SELECT * FROM chats WHERE id=${lastInsertedRow}`;
-							db.query(
-								lastRowSql,
-								(lastRowError, lastRowResults) => {
-									if (lastRowError) {
-										console.log(lastRowError);
-										reject(lastRowError);
-									} else {
-										resolve(lastRowResults);
-									}
-								},
-							);
-						}
-					});
+					db.query(
+						insert,
+						[
+							userId,
+							user[0].id,
+							userId,
+							user[0].id,
+							userId,
+							message.content,
+						],
+						(err, data) => {
+							if (err) {
+								reject(err);
+							} else {
+								const lastInsertedRow = data.insertId;
+								const lastRowSql = `SELECT * FROM chats WHERE id=?`;
+								db.query(
+									lastRowSql,
+									[lastInsertedRow],
+									(lastRowError, lastRowResults) => {
+										if (lastRowError) {
+											console.log(lastRowError);
+											reject(lastRowError);
+										} else {
+											resolve(lastRowResults);
+										}
+									},
+								);
+							}
+						},
+					);
 				} else {
 					reject("Couldn't find user");
 				}
@@ -78,8 +92,8 @@ async function insertMessage(userId, displayname, message) {
 
 async function checkServerMember(user, serverId) {
 	return new Promise((resolve, reject) => {
-		const checkServerSql = `SELECT * FROM members WHERE serverId=${serverId} AND userId=${user};`;
-		db.query(checkServerSql, (error, result) => {
+		const checkServerSql = `SELECT * FROM members WHERE serverId=? AND userId=?;`;
+		db.query(checkServerSql, [serverId, user], (error, result) => {
 			if (error) {
 				console.error(error);
 				console.error(
@@ -95,8 +109,8 @@ async function checkServerMember(user, serverId) {
 
 async function getDisplayName(user) {
 	return new Promise((resolve, reject) => {
-		const getDisplayNameSql = `SELECT displayName FROM users WHERE id=${user}`;
-		db.query(getDisplayNameSql, (err, result) => {
+		const getDisplayNameSql = `SELECT displayName FROM users WHERE id=?`;
+		db.query(getDisplayNameSql, [user], (err, result) => {
 			if (err) {
 				console.log("Error getting display name");
 				console.log(err);
@@ -108,36 +122,35 @@ async function getDisplayName(user) {
 	});
 }
 
-async function insertGroupMessage(userId, author, message, channelId) {
+async function insertGroupMessage(userId, message, channelId) {
 	return new Promise((resolve, reject) => {
 		// first find the id of the person with that displayname
 		// second query insert the message to databse with the current timestamp send
-
-		const idQuery = `SELECT id FROM users WHERE displayName='${displayname}' AND id=${userId}`;
-		db.query(idQuery, (err, user) => {
-			if (err) {
-				reject(err);
-			} else {
-				const insert = `
-        INSERT INTO chats 
-            (user1Id, user2Id, authorId, content, timestamp) 
-        VALUES(
-            (LEAST(${userId}, ${user[0].id})), 
-            (GREATEST(${userId}, ${user[0].id})), 
-            ${userId}, 
-            '${message.content}', 
-            '${now}' 
-        );`;
-
-				db.query(insert, (err, data) => {
-					if (err) {
-						reject(err);
-					} else {
-						resolve();
-					}
-				});
-			}
-		});
+		const insert = `
+		INSERT INTO messages (channelId, authorId, content, filepath, timestamp)
+		VALUES (?,?,?,"", NOW())`;
+		db.query(
+			insert,
+			[channelId, userId, message.content],
+			(err, insertResult) => {
+				if (err) {
+					console.log("Error in insertGRoupMessage query ");
+					reject(err);
+				} else {
+					const messageInserted = `SELECT * FROM messages WHERE id=${insertResult.insertId};`;
+					db.query(messageInserted, (err, data) => {
+						if (err) {
+							console.log(
+								"Error in insertGroupMessages: messageInserted Query",
+							);
+							reject(err);
+						} else {
+							resolve(data[0]);
+						}
+					});
+				}
+			},
+		);
 	});
 }
 module.exports = {
@@ -145,4 +158,5 @@ module.exports = {
 	insertMessage,
 	checkServerMember,
 	getDisplayName,
+	insertGroupMessage,
 };

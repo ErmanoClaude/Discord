@@ -168,10 +168,15 @@ function Chats(props) {
 				console.log(`joined ${roomId}`);
 			});
 
+			socket.on("where are you?", () => {
+				socket.emit("join chatroom", displayname);
+				fetchChatLogs();
+			});
+
 			// set up receive message listener
 			socket.on("receive message", (message) => {
 				message.timestamp = new Date(message.timestamp);
-				setMessages([...messages, message]);
+				setMessages((prevMessages) => [...prevMessages, message]);
 			});
 		}
 
@@ -180,6 +185,7 @@ function Chats(props) {
 			if (socket) {
 				socket.off("room joined");
 				socket.off("receive message");
+				socket.off("where are you?");
 			}
 		};
 	}, [socket, messages]);

@@ -133,8 +133,8 @@ router.post("/friends", verifyJWT, (req, res) => {
 		return;
 	}
 
-	const sql = `SELECT id FROM users WHERE displayName='${displayName}';`;
-	db.query(sql, (err, data) => {
+	const sql = `SELECT id FROM users WHERE displayName=?;`;
+	db.query(sql, [displayName], (err, data) => {
 		if (err) {
 			console.log(err);
 			res.send({
@@ -158,8 +158,8 @@ router.post("/friends", verifyJWT, (req, res) => {
 			return;
 		} else {
 			// make sure the person with the smaller Id is first in friends table
-			const insert = `INSERT INTO friends (userId1, userId2, status) VALUES (${req.userId}, ${data[0].id}, 'pending');`;
-			db.query(insert, (err, data) => {
+			const insert = `INSERT INTO friends (userId1, userId2, status) VALUES (?, ?, 'pending');`;
+			db.query(insert, [req.userId, data[0].id], (err, data) => {
 				if (err) {
 					if (err.code === "ER_DUP_ENTRY") {
 						res.send({
@@ -191,11 +191,11 @@ router.post("/cancelRequest", verifyJWT, (req, res) => {
 	console.log(displayname, user);
 
 	const deleteQuery = `DELETE FROM friends WHERE 
-  (userId1 = ${user} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'pending')
+  (userId1 = ? AND userId2 = (SELECT id FROM users WHERE displayName = ?) AND status = 'pending')
 	  OR
-  (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'pending')`;
+  (userId2 = ? AND userId1 = (SELECT id FROM users WHERE displayName = ?) AND status = 'pending')`;
 
-	db.query(deleteQuery);
+	db.query(deleteQuery, [user, displayname, user, displayname]);
 });
 
 router.post("/acceptRequest", verifyJWT, (req, res) => {
@@ -203,9 +203,13 @@ router.post("/acceptRequest", verifyJWT, (req, res) => {
 	const user = req.userId;
 
 	const acceptRequest = `UPDATE friends SET status = 'accepted'
-  WHERE
-    (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'pending')`;
-	db.query(acceptRequest);
+	WHERE
+    	(userId2 = ?
+			AND 
+		userId1 = (SELECT id FROM users WHERE displayName = ?) 
+			AND 
+		status = 'pending')`;
+	db.query(acceptRequest, [user, displayname]);
 });
 
 // delete friend
@@ -214,11 +218,11 @@ router.get("/delete/:displayname", verifyJWT, (req, res) => {
 	const user = req.userId;
 
 	const deleteQuery = `DELETE FROM friends WHERE 
-  (userId1 = ${user} AND userId2 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'accepted')
+  (userId1 = ? AND userId2 = (SELECT id FROM users WHERE displayName = ?) AND status = 'accepted')
 	  OR
-  (userId2 = ${user} AND userId1 = (SELECT id FROM users WHERE displayName = '${displayname}') AND status = 'accepted')`;
+  (userId2 = ? AND userId1 = (SELECT id FROM users WHERE displayName = ?) AND status = 'accepted')`;
 
-	db.query(deleteQuery);
+	db.query(deleteQuery, [user, displayname, user, displayname]);
 });
 
 module.exports = router;

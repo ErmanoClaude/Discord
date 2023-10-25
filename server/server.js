@@ -102,13 +102,14 @@ io.use((socket, next) => {
 	});
 });
 
-const serverRooms = {}; // serverId: {voiceRoom}
-
 io.on("connection", async (socket) => {
 	console.log(`${socket.userId} is connected to the server`);
-	let currentRoom = null;
-	let currrentVoice = null;
-	let currentServer = null;
+	let chatRoom = null;
+	let voiceRoom = null;
+	let serverRoom = null;
+
+	// Emit event asking client for context
+	socket.emit("where are you?");
 
 	// change availability to online
 	const availability = `UPDATE users SET status = 'online' WHERE id=${socket.userId}`;
@@ -123,6 +124,8 @@ io.on("connection", async (socket) => {
 
 	// Reconnect
 	socket.on("reconnect", async () => {
+		// Emit event asking client for context
+		socket.emit("where are you?");
 		const availabilityReconnect = `UPDATE users SET status = 'online' WHERE id=${socket.userId}`;
 		console.log(`${socket.userId} is Reconnected to the server`);
 		db.query(availabilityReconnect);
@@ -139,17 +142,17 @@ io.on("connection", async (socket) => {
 			const roomId = `chatroom-${friendshipId}`;
 
 			// If already in a room
-			if (currentRoom) {
-				if (currentRoom === roomId) {
+			if (chatRoom) {
+				if (chatRoom === roomId) {
 					console.log("Already in this room");
 				} else {
-					socket.leave(currentRoom);
+					socket.leave(chatRoom);
 					socket.join(roomId);
-					currentRoom = roomId;
+					chatRoom = roomId;
 				}
 			} else {
 				socket.join(roomId);
-				currentRoom = roomId;
+				chatRoom = roomId;
 			}
 
 			// emit room joined event
@@ -173,9 +176,9 @@ io.on("connection", async (socket) => {
 				content: insertedMessage[0].content,
 				timestamp: insertedMessage[0].timestamp,
 			};
-
+			console.log(returnMessage);
 			// send the message event to other person thats in the room
-			io.to(currentRoom).emit("receive message", returnMessage);
+			io.to(chatRoom).emit("receive message", returnMessage);
 		} catch (error) {
 			console.log(error);
 			console.log("Error in inserting message");
@@ -188,11 +191,11 @@ io.on("connection", async (socket) => {
 			const isMember = await checkServerMember(socket.userId, serverId);
 
 			if (isMember) {
-				if (currentServer && currentServer !== server) {
-					socket.leave(currentServer);
+				if (serverRoom && serverRoom !== server) {
+					socket.leave(serverRoom);
 				}
 				socket.join(server);
-				currentServer = server;
+				serverRoom = server;
 
 				console.log(socket.rooms);
 			} else {
@@ -209,24 +212,41 @@ io.on("connection", async (socket) => {
 		async ({ serverId, channelId, channelName, name }) => {
 			let roomId = `chatroom-${serverId}-${channelId}`;
 			// If already in a room
-			if (currentRoom) {
-				if (currentRoom === roomId) {
+			if (chatRoom) {
+				if (chatRoom === roomId) {
 					console.log("Already in this room");
 				} else {
-					socket.leave(currentRoom);
+					socket.leave(chatRoom);
 					socket.join(roomId);
-					currentRoom = roomId;
+					chatRoom = roomId;
 				}
 			} else {
 				socket.join(roomId);
-				currentRoom = roomId;
+				chatRoom = roomId;
 			}
 		},
 	);
 
-	socket.on("send group message", async ({ author, message, channelId }) => {
-		console.log(author, message, channelId);
-		await insertGroupMessage(socket.id, author, message);
+	socket.on("send group message", async ({ message, channelId }) => {
+		try {
+			const insertedMessage = await insertGroupMessage(
+				socket.userId,
+				message,
+				channelId,
+			);
+			const author = await getDisplayName(socket.userId);
+			console.log(author, insertedMessage);
+			const returnMessage = {
+				author: author,
+				content: insertedMessage.content,
+				timestamp: insertedMessage.timestamp,
+			};
+
+			// Send message to everyone in the room.
+			io.to(chatRoom).emit("receive group message", returnMessage);
+		} catch (error) {
+			console.log(error);
+		}
 	});
 });
 
