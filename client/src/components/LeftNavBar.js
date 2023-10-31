@@ -51,76 +51,110 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 	};
 
 	return (
-		<Nav
-			className='flex-column sideNav'
-			style={{ gap: "12px" }}>
+		<Nav className='flex-column sideNav'>
 			<CreateServerModal
 				show={show}
 				handleClose={handleClose}
 				fetchServers={fetchServers}
 			/>
-			{servers.map((server, index) => {
-				return (
-					<React.Fragment key={index}>
-						<div
-							className='nav-row'
-							style={{ marginBottom: "12px" }}>
-							<div
-								className='vertical-line'
+			{servers[0] && (
+				<div className='nav-row mb-3'>
+					<div
+						className='vertical-line'
+						style={{
+							height: hoveredServer[0] ? "20px" : "8px",
+							...verticalLineStyles,
+						}}
+					/>
+					<OverlayTrigger
+						placement='right'
+						overlay={
+							<Tooltip
+								id='server-tooltip'
 								style={{
-									height: hoveredServer[index]
-										? "20px"
-										: "8px",
-									...verticalLineStyles,
+									fontSize: "17px",
+									marginLeft: "10px",
 								}}
-							/>
-							<OverlayTrigger
-								placement='right'
-								overlay={
-									<Tooltip
-										id='server-tooltip'
+							>
+								{servers[0].name}
+							</Tooltip>
+						}
+					>
+						<NavLink
+							id={0}
+							className='nav-link'
+							onMouseEnter={(event) => handleMouseEnter(event, 0)}
+							onMouseLeave={(event) => {
+								handleMouseLeave(event, 0);
+							}}
+							to='/'
+						>
+							<BsDiscord className='nav-icons' />
+						</NavLink>
+					</OverlayTrigger>
+				</div>
+			)}
+			<div className='linebreak mb-3 mx-auto'></div>
+			<div className='users-servers'>
+				{servers.map((server, index) => {
+					return (
+						<React.Fragment key={index}>
+							{server.name !== "Home" && (
+								<div className='nav-row mb-3'>
+									<div
+										className='vertical-line'
 										style={{
-											fontSize: "17px",
-											marginLeft: "10px",
-										}}>
-										{server.name}
-									</Tooltip>
-								}>
-								<NavLink
-									id={index}
-									className='nav-link'
-									onMouseEnter={(event) =>
-										handleMouseEnter(event, index)
-									}
-									onMouseLeave={(event) => {
-										handleMouseLeave(event, index);
-									}}
-									to={
-										server.name === "Home"
-											? "/"
-											: `/servers/${
-													server.id
-											  }/${encodeURIComponent(
-													server.name,
-											  )}`
-									}>
-									{server.name === "Home" ? (
-										<BsDiscord className='nav-icons' />
-									) : (
-										server.name[0]
-									)}
-								</NavLink>
-							</OverlayTrigger>
-						</div>{" "}
-						{/* nav-row */}
-						{index === 0 && <div className='linebreak'></div>}
-					</React.Fragment>
-				);
-			})}
+											height: hoveredServer[index] ? "20px" : "8px",
+											...verticalLineStyles,
+										}}
+									/>
+									<OverlayTrigger
+										placement='right'
+										overlay={
+											<Tooltip
+												id='server-tooltip'
+												style={{
+													fontSize: "17px",
+													marginLeft: "10px",
+												}}
+											>
+												{server.name}
+											</Tooltip>
+										}
+									>
+										<NavLink
+											id={index}
+											className='nav-link'
+											onMouseEnter={(event) =>
+												handleMouseEnter(event, index)
+											}
+											onMouseLeave={(event) => {
+												handleMouseLeave(event, index);
+											}}
+											to={
+												server.name === "Home"
+													? "/"
+													: `/servers/${
+															server.id
+													  }/${encodeURIComponent(server.name)}`
+											}
+										>
+											{server.name === "Home" ? (
+												<BsDiscord className='nav-icons' />
+											) : (
+												server.name[0]
+											)}
+										</NavLink>
+									</OverlayTrigger>
+								</div>
+							)}
+							{/* nav-row */}
+						</React.Fragment>
+					);
+				})}
+			</div>
 			{/* Servers that users own and are in */}
-			<div
-				className='nav-row'
-				style={{ marginBottom: "12px" }}>
+			<div className='nav-row mt-3'>
 				<div
 					className='vertical-line'
 					style={{
@@ -133,10 +167,12 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 					overlay={
 						<Tooltip
 							id='server-tooltip'
-							style={{ fontSize: "17px", marginLeft: "10px" }}>
+							style={{ fontSize: "17px", marginLeft: "10px" }}
+						>
 							Create a server
 						</Tooltip>
-					}>
+					}
+				>
 					<NavLink
 						id={servers.length}
 						className='nav-link'
@@ -150,13 +186,15 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 							e.preventDefault();
 							handleOpen();
 						}}
-						href='/'>
+						href='/'
+					>
 						<FaPlus
 							className='nav-icons'
 							style={{ color: "green" }}
 						/>
 					</NavLink>
 				</OverlayTrigger>
+				{/* Create Sever */}
 			</div>
 			{/* nav-row */}
 		</Nav>

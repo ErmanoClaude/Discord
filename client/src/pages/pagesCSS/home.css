@@ -1,124 +1,148 @@
 .home {
-  overflow: hidden;
-  top: 0;
-  left: 0;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .main-content {
-  display: grid;
-  grid-template-columns: 85px 240px 1fr;
-  /* Define your desired column widths */
-  grid-template-rows: 1fr 1fr 1fr 1fr;
-  /* This prevents rows from automatically expanding */
-  height: 100%;
+	display: grid;
+	grid-template-columns: 85px 240px 1fr;
+	/* Define your desired column widths */
+	grid-template-rows: 1fr 1fr 1fr 1fr;
+	/* This prevents rows from automatically expanding */
+	height: 100%;
 }
 
 .servers {
-  background-color: var(--main-color);
-  padding-top: 10px;
-  padding-left: 0;
-  padding-right: 0;
-  height: 100vh;
+	background-color: var(--main-color);
+	padding-top: 10px;
+	padding-left: 0;
+	padding-right: 0;
+	height: 100vh;
 }
 
 .friends-channels {
-  background-color: var(--channel-column-color);
-  padding: 10px 10px 0;
+	background-color: var(--channel-column-color);
+	padding: 10px 10px 0;
 }
 
 .content {
-  background-color: var(--secondary-color);
-  padding: 10px;
+	background-color: var(--secondary-color);
+	padding: 10px;
 }
 
 .vertical-line {
-  border-left: 8px solid white;
-  border-radius: 0 4px 4px 0;
-  height: 8px;
+	border-left: 8px solid white;
+	border-radius: 0 4px 4px 0;
+	height: 8px;
 }
 
 .nav-link {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
 
-  font-size: 18px;
-  background-color: var(--secondary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	font-size: 18px;
+	background-color: var(--secondary-color);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .nav-link:hover {
-  border-radius: 15px;
-  color: white;
+	border-radius: 15px;
+	color: white;
 }
 
 .sideNav {
-  align-items: center;
-  text-align: center;
+	align-items: center;
+	text-align: center;
 }
 
 .linebreak {
-  height: 3px;
-  width: 32px;
-  border-radius: 1px;
-  background-color: var(--secondary-color);
+	height: 3px;
+	width: 32px;
+	border-radius: 1px;
+	background-color: var(--secondary-color);
 }
 
 .discord-icon {
-  width: 26px !important;
+	width: 26px !important;
 }
 
 .nav-row {
-  display: flex;
-  align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .nav-icons {
-  size: 40px;
+	size: 40px;
 }
 
 #displayName:focus {
-  border-color: lightblue;
+	border-color: lightblue;
 }
 
 .add-text {
-  color: lightgrey;
+	color: lightgrey;
 }
 
 .friend-request-name {
-  max-width: 50%;
+	max-width: 50%;
 }
 
 .request-button {
-  background-color: var(--channel-column-color);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--grey);
-  font-size: 30px;
-  cursor: pointer;
+	background-color: var(--channel-column-color);
+	border: none;
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--grey);
+	font-size: 30px;
+	cursor: pointer;
 }
 
 .request-button[cancel] {
-  color: red;
+	color: red;
 }
 
 .request-button:hover {
-  background-color: var(--hover-highlight);
+	background-color: var(--hover-highlight);
 }
 
 .server-title {
-  color: var(--grey);
-  font-size: 1.4rem;
+	color: var(--grey);
+	font-size: 1.4rem;
+}
+
+.users-servers {
+	height: 75vh;
+	overflow-y: auto;
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: darkslategrey slategrey; /* Firefox scrollbar color */
+
+	/* Webkit (Chrome, Safari, etc.) scrollbar color */
+	&::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	/* Define the styles for the thumb (the draggable part) */
+	&::-webkit-scrollbar-thumb {
+		background-color: darkslategrey;
+		border-radius: 5px; /* Rounded corners for the thumb */
+	}
+
+	/* Define the styles for the track (the area the thumb moves along) */
+	&::-webkit-scrollbar-track {
+		background-color: slategrey;
+		border-radius: 5px;
+	}
 }

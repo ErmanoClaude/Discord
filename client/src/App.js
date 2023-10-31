@@ -161,7 +161,8 @@ const App = () => {
 		createRoutesFromElements(
 			<Route
 				path='/'
-				element={<RootLayout user={user} />}>
+				element={<RootLayout user={user} />}
+			>
 				{/* Protected Routes */}
 				<Route
 					path='/'
@@ -173,7 +174,8 @@ const App = () => {
 							friends={friends}
 							fetchFriends={fetchFriends}
 						/>
-					}>
+					}
+				>
 					<Route
 						index
 						element={
@@ -182,10 +184,12 @@ const App = () => {
 								fetchFriends={fetchFriends}
 								fetchServers={fetchServers}
 							/>
-						}></Route>
+						}
+					></Route>
 					<Route
 						path='message/:displayname'
-						element={<Chats socket={socket} />}></Route>
+						element={<Chats socket={socket} />}
+					></Route>
 				</Route>
 				<Route
 					path='servers/:serverId/:name'
@@ -193,17 +197,22 @@ const App = () => {
 						<ServerLayout
 							servers={servers}
 							fetchServers={fetchServers}
+							socket={socket}
 						/>
-					}>
+					}
+				>
 					<Route
 						index
-						element={<Server socket={socket} />}></Route>
+						element={<Server socket={socket} />}
+					></Route>
 					<Route
 						path='text/:channelId/:channelName'
-						element={<GroupChat socket={socket} />}></Route>
+						element={<GroupChat socket={socket} />}
+					></Route>
 					<Route
 						path='voice/:channelId/:channelName'
-						element={<GroupVoiceChat socket={socket} />}></Route>
+						element={<GroupVoiceChat socket={socket} />}
+					></Route>
 				</Route>
 
 				{/* Public Routes*/}
@@ -214,10 +223,12 @@ const App = () => {
 							updateServers={updateServers}
 							connectSocket={connectSocket}
 						/>
-					}></Route>
+					}
+				></Route>
 				<Route
 					path='register'
-					element={<Register />}></Route>
+					element={<Register />}
+				></Route>
 			</Route>,
 		),
 	);
