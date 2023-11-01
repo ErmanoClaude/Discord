@@ -162,6 +162,10 @@ io.on("connection", async (socket) => {
 				});
 			}
 		}
+
+		if (voiceRoom) {
+			io.to(voiceRoom).emit("left group voice chat", socket.id);
+		}
 	});
 
 	// Reconnect
@@ -298,62 +302,29 @@ io.on("connection", async (socket) => {
 	});
 
 	// group voice chat events
-	socket.on(
-		"join group voice chat",
-		async ({ serverId, channelId, ...stream }) => {
-			console.log(stream);
-			let roomId = `voiceroom-${serverId}-${channelId}`;
+	socket.on("join group voice chat", async ({ serverId, channelId }) => {
+		let roomId = `voiceroom-${serverId}-${channelId}`;
 
-			// Create the server if it doesn't exist in serverVoiceRooms
-			if (!serverVoiceRooms[serverId]) {
-				serverVoiceRooms[serverId] = {};
-			}
+		// Create the server if it doesn't exist in serverVoiceRooms
+		if (!serverVoiceRooms[serverId]) {
+			serverVoiceRooms[serverId] = {};
+		}
 
-			// Create a Set for the voice room if it doesn't exist
-			if (!serverVoiceRooms[serverId][roomId]) {
-				serverVoiceRooms[serverId][roomId] = new Set();
-			}
+		// Create a Set for the voice room if it doesn't exist
+		if (!serverVoiceRooms[serverId][roomId]) {
+			serverVoiceRooms[serverId][roomId] = new Set();
+		}
 
-			// If already in a room
-			if (voiceRoom) {
-				if (voiceRoom === roomId) {
-					console.log("Already in this room");
-				} else {
-					if (currentVoiceServer) {
-						// Remove the user from the current voice room set
-						serverVoiceRooms[currentVoiceServer][voiceRoom].delete(
-							socket.displayname,
-						);
-
-						// make copy of room change sets to arrays to send
-						let members = {};
-						for (let room in serverVoiceRooms[currentVoiceServer]) {
-							const channelIdMatch = room.match(/voiceroom-(\d+)-(\d+)/);
-							const [, , channelId] = channelIdMatch;
-							members[channelId] = [
-								...serverVoiceRooms[currentVoiceServer][room],
-							];
-						}
-
-						// Send current members of every voice channel of that server
-						if (serverVoiceRooms[currentVoiceServer]) {
-							io.to(`server-${currentVoiceServer}`).emit(
-								"joined voice room",
-								{
-									members,
-								},
-							);
-						}
-					}
-					socket
-						.to(voiceRoom)
-						.emit("left group voice chat", socket.displayname);
-
-					socket.leave(voiceRoom);
-					socket.join(roomId);
-					voiceRoom = roomId;
-					serverVoiceRooms[serverId][voiceRoom].add(socket.displayname);
-					currentVoiceServer = serverId;
+		// If already in a room
+		if (voiceRoom) {
+			if (voiceRoom === roomId) {
+				console.log("Already in this room");
+			} else {
+				if (currentVoiceServer) {
+					// Remove the user from the current voice room set
+					serverVoiceRooms[currentVoiceServer][voiceRoom].delete(
+						socket.displayname,
+					);
 
 					// make copy of room change sets to arrays to send
 					let members = {};
@@ -364,42 +335,91 @@ io.on("connection", async (socket) => {
 							...serverVoiceRooms[currentVoiceServer][room],
 						];
 					}
-					// Send current members of every voice channel of that server
-					if (serverVoiceRooms[serverId]) {
-						io.to(`server-${serverId}`).emit("joined voice room", {
-							members,
-						});
-					}
 
-					io.to(voiceRoom).emit("joined group voice chat");
-					socket.to(voiceRoom).emit("new stream", stream);
+					// Send current members of every voice channel of that server
+					if (serverVoiceRooms[currentVoiceServer]) {
+						io.to(`server-${currentVoiceServer}`).emit(
+							"joined voice room",
+							{
+								members,
+							},
+						);
+					}
 				}
-			} else {
+				socket
+					.to(voiceRoom)
+					.emit("left group voice chat", socket.displayname);
+
+				socket.leave(voiceRoom);
 				socket.join(roomId);
 				voiceRoom = roomId;
 				serverVoiceRooms[serverId][voiceRoom].add(socket.displayname);
 				currentVoiceServer = serverId;
 
 				// make copy of room change sets to arrays to send
-				const members = {};
-				for (let room in serverVoiceRooms[serverId]) {
+				let members = {};
+				for (let room in serverVoiceRooms[currentVoiceServer]) {
 					const channelIdMatch = room.match(/voiceroom-(\d+)-(\d+)/);
 					const [, , channelId] = channelIdMatch;
-					members[channelId] = [...serverVoiceRooms[serverId][room]];
+					members[channelId] = [
+						...serverVoiceRooms[currentVoiceServer][room],
+					];
 				}
-				io.to(voiceRoom).emit("joined group voice chat");
-				socket.to(voiceRoom).emit("new stream", stream);
-				// send current members of every voice channel of that server
+				// Send current members of every voice channel of that server
 				if (serverVoiceRooms[serverId]) {
 					io.to(`server-${serverId}`).emit("joined voice room", {
 						members,
 					});
 				}
-			}
-		},
-	);
 
-	socket.on("new stream", () => {});
+				io.to(voiceRoom).emit("joined group voice chat");
+			}
+		} else {
+			socket.join(roomId);
+			voiceRoom = roomId;
+			serverVoiceRooms[serverId][voiceRoom].add(socket.displayname);
+			currentVoiceServer = serverId;
+
+			// make copy of room change sets to arrays to send
+			const members = {};
+			for (let room in serverVoiceRooms[serverId]) {
+				const channelIdMatch = room.match(/voiceroom-(\d+)-(\d+)/);
+				const [, , channelId] = channelIdMatch;
+				members[channelId] = [...serverVoiceRooms[serverId][room]];
+			}
+			io.to(voiceRoom).emit("joined group voice chat");
+
+			// send current members of every voice channel of that server
+			if (serverVoiceRooms[serverId]) {
+				io.to(`server-${serverId}`).emit("joined voice room", {
+					members,
+				});
+			}
+		}
+		// Currently in a voiceRoom
+		// Get all users in the room
+		const usersInRoom = Array.from(
+			io.sockets.adapter.rooms.get(voiceRoom),
+		).filter((userId) => userId !== socket.id);
+		io.to(socket.id).emit("all users", usersInRoom);
+		console.log(serverVoiceRooms);
+	});
+
+	socket.on("sending signal", (payload) => {
+		console.log(payload.callerId);
+		io.to(payload.userToSignal).emit("user joined", {
+			signal: payload.signal,
+			callerId: payload.callerId,
+		});
+	});
+
+	socket.on("returning signal", (payload) => {
+		console.log("called returning", socket.id);
+		io.to(payload.callerId).emit("receiving returned signal", {
+			signal: payload.signal,
+			id: socket.id,
+		});
+	});
 });
 
 server.listen(5000, () => {
