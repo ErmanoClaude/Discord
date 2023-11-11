@@ -4,47 +4,9 @@ import { useSound } from "use-sound";
 import ErrorModal from "./ErrorsModal";
 import joinSound from "../assets/sounds/discord-join.mp3";
 import leaveSound from "../assets/sounds/discord-leave.mp3";
-import Peer from "simple-peer";
-import styled from "styled-components";
-import { BsSignDeadEnd } from "react-icons/bs";
-
-const Container = styled.div`
-	padding: 20px;
-	display: flex;
-	height: 100vh;
-	width: 90%;
-	margin: auto;
-	flex-wrap: wrap;
-`;
-
-const StyledVideo = styled.video`
-	height: 40%;
-	width: 50%;
-`;
-
-const Video = (props) => {
-	const ref = useRef();
-
-	useEffect(() => {
-		ref.current.srcObject = props.peer.streams[0];
-	}, []);
-
-	return (
-		<StyledVideo
-			playsInline
-			autoPlay
-			ref={ref}
-		/>
-	);
-};
-
-const videoConstraints = {
-	height: "50%",
-	width: "50%",
-};
 
 function GroupVoiceChat(props) {
-	const { socket } = props;
+	const { socket, stream, myPeer, peers, setPeers } = props;
 	const channelType = "voice";
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
@@ -53,46 +15,9 @@ function GroupVoiceChat(props) {
 	const [playLeaveSound] = useSound(leaveSound, { volume: 0.04 });
 	const navigate = useNavigate();
 	const [roomId, setRoomId] = useState("");
-	const [peers, setPeers] = useState([]);
-	const userVideo = useRef();
-	const peersRef = useRef([]);
-	const [stream, setStream] = useState("");
-
-	function createPeer(userToSignal, callerId, stream) {
-		const peer = new Peer({
-			initiator: true,
-			trickle: false,
-			stream,
-		});
-
-		peer.on("signal", (signal) => {
-			socket.emit("sending signal", { userToSignal, callerId, signal });
-		});
-		peer.on("stream", (stream) => {
-			console.log("Stream received from user:", userToSignal);
-		});
-
-		return peer;
-	}
-	function addPeer(incomingSignal, callerId, stream) {
-		console.log("called me", callerId);
-		console.log(stream);
-		const peer = new Peer({
-			initiator: false,
-			trickle: false,
-			stream,
-		});
-		peer.on("signal", (signal) => {
-			socket.emit("returning signal", { signal, callerId });
-		});
-
-		peer.signal(incomingSignal);
-		return peer;
-	}
 
 	useEffect(() => {
 		const fetchChannel = async () => {
-			console.log("fetched");
 			fetch("/channelcheck", {
 				method: "POST",
 				headers: {
@@ -140,6 +65,10 @@ function GroupVoiceChat(props) {
 		}; // fetchChannel()
 		if (socket) {
 			fetchChannel();
+			const videoElement = document.getElementById("video");
+			if (videoElement && stream) {
+				videoElement.srcObject = stream;
+			}
 			socket.on("joined group voice chat", () => {
 				playJoinSound();
 			});
@@ -148,69 +77,34 @@ function GroupVoiceChat(props) {
 				fetchChannel();
 				socket.emit("join server", serverId);
 			});
-			socket.on("left group voice chat", (socketid) => {
-				console.log(socketid);
+			socket.on("left group voice chat", (socketId) => {
 				playLeaveSound();
 			});
-			socket.on("all users", (userIds) => {
-				console.log(userIds);
-				const peers = [];
-				const peersRefs = [];
-				userIds.forEach((userId) => {
-					const peer = createPeer(userId, socket.id, stream);
-					peersRefs.push({
-						peerId: userId,
-						peer,
-					});
-					peers.push(peer);
-				});
-				peersRef.current = [...peersRefs];
-				setPeers(peers);
-			});
-			socket.on("user joined", (payload) => {
-				// Check if the peer with the newUserId already exists
-				const existingPeer = peersRef.current.find(
-					(peer) => peer.peerId === payload.callerId,
-				);
-				console.log(existingPeer);
-				if (!existingPeer) {
-					console.log("hello");
-					const peer = addPeer(payload.signal, payload.callerId, stream);
-					peersRef.current.push({
-						peerId: payload.callerId,
-						peer,
-					});
-					setPeers((users) => [...users, peer]);
-				}
-			});
-			socket.on("receiving returned signal", (payload) => {
-				const item = peersRef.current.find((p) => p.peerId === payload.id);
-				if (item) {
-					item.peer.signal(payload.signal);
-				}
-			});
+			socket.on("user joined", (payload) => {});
 		}
 		return () => {
 			if (socket) {
 				// Remove event listeners off component unmount
 				socket.off("where are you?");
-				socket.off("all users");
+
 				socket.off("user joined");
 			}
 		};
-	}, [socket, channelId, channelName, serverId, name]);
+	}, [socket, channelId, channelName, serverId, name, stream]);
 
 	useEffect(() => {
-		navigator.mediaDevices
-			.getUserMedia({ video: videoConstraints, audio: true })
-			.then((stream) => {
-				setStream(stream);
-				userVideo.current.srcObject = stream;
-			});
-	}, [roomId]);
+		console.log("this is my peer", myPeer);
+		console.log("this is my peers", peers);
+		console.log("this is my peres keys", Object.keys(peers));
 
-	useEffect(() => {
-		console.log(peersRef.current);
+		for (const peerId in peers) {
+			const peer = peers[peerId];
+			const videoElement = document.getElementById(`video-${peerId}`);
+
+			if (videoElement && peer.remoteStream) {
+				videoElement.srcObject = peer.remoteStream;
+			}
+		}
 	}, [peers]);
 
 	// Black background;
@@ -224,30 +118,22 @@ function GroupVoiceChat(props) {
 					navigate("/");
 				}}
 			/>
-			<div
-				style={{
-					width: "100vw",
-					height: "100vh",
-					margin: "-10px",
-					backgroundColor: "black",
-				}}
-			>
-				<Container>
-					<StyledVideo
-						muted
-						ref={userVideo}
+			<div className='black-container'>
+				<video
+					id='video'
+					autoPlay
+					playsInline
+					muted
+				/>
+				{/* Render video elements for remote streams */}
+				{Object.keys(peers).map((peerId) => (
+					<video
+						key={peerId}
+						id={`video-${peerId}`}
 						autoPlay
 						playsInline
 					/>
-					{peers.map((peer, index) => {
-						return (
-							<Video
-								key={index}
-								peer={peer}
-							/>
-						);
-					})}
-				</Container>
+				))}
 			</div>
 		</>
 	);

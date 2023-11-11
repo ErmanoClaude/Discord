@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import {
 	createBrowserRouter,
 	Route,
@@ -24,6 +23,8 @@ import HomeLayout from "./layouts/HomeLayout";
 import ServerLayout from "./layouts/ServerLayout";
 
 import { io } from "socket.io-client";
+import { Peer } from "peerjs";
+import { set } from "date-fns";
 
 // Connect to webSocket server backend
 const App = () => {
@@ -32,11 +33,16 @@ const App = () => {
 	const [servers, setServers] = useState([]);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [socket, setSocket] = useState();
+	const [socketId, setSocketId] = useState(false);
+	const [stream, setStream] = useState(false);
 	// Friends includes friends request that are pending
 	// Format of friends
 	// [{displayName: 'displayName', status:'pending', availability: 'offline'},
 	// [{displayName: 'displayName', status:'accepted', availability:'online'},
 	const [friends, setFriends] = useState([]);
+	const [peers, setPeers] = useState({});
+	const [myPeer, setMyPeer] = useState(false);
+	const [usersToCall, setUsersToCall] = useState(false);
 	const updateServers = (newServers) => {
 		setServers(newServers);
 	};
@@ -70,7 +76,7 @@ const App = () => {
 			});
 	}
 
-	function connectSocket() {
+	async function connectSocket() {
 		const token = localStorage.getItem("token");
 
 		if (!token) {
@@ -91,6 +97,19 @@ const App = () => {
 		// event handlers
 		newSocket.on("connect", () => {
 			console.log("We are connected to backend");
+			if (myPeer !== false) {
+				if (myPeer._disconnected) {
+					myPeer.reconnect();
+				}
+				console.log(myPeer);
+			}
+		});
+
+		newSocket.on("init", (id) => {
+			setSocketId(id);
+		});
+		newSocket.on("all users", (userIds) => {
+			setUsersToCall(userIds);
 		});
 		newSocket.on("error", (error) => {
 			// Handle the error or suppress it
@@ -104,8 +123,19 @@ const App = () => {
 					}
 				}
 			}
+			console.log(error);
 		});
 
+		newSocket.on("left group voice chat", (leaverId) => {
+			if (peers) {
+				setPeers((prevPeers) => {
+					prevPeers[leaverId]?.close();
+					const updatePeers = { ...prevPeers };
+					delete updatePeers[leaverId];
+					return updatePeers;
+				});
+			}
+		});
 		setSocket(newSocket); // Set the socket after it's initialized
 	}
 
@@ -154,8 +184,111 @@ const App = () => {
 		fetchData();
 		if (isLoggedIn) {
 			connectSocket();
+			navigator.mediaDevices
+				.getUserMedia({
+					video: true,
+					audio: true,
+				})
+				.then((mediaStream) => {
+					setStream(mediaStream);
+				})
+				.catch((err) => {
+					console.error("Error accessing media devices:", err);
+				});
 		}
+		return () => {
+			if (socket) {
+				socket.off("all users");
+				socket.off("connect");
+				socket.off("error");
+			}
+		};
 	}, [isLoggedIn]);
+
+	useEffect(() => {
+		if (stream !== false && socketId !== false) {
+			const newPeer = new Peer(socketId);
+			newPeer.on("open", () => {
+				console.log("the peer is open");
+			});
+			newPeer.on("call", (call) => {
+				// Answer the call and send your stream
+				call.answer(stream);
+				console.log("call from", call);
+
+				// Handle call close event
+				call.on("close", () => {
+					console.log("Call closed");
+					setPeers((prevPeers) => {
+						const updatePeers = { ...prevPeers };
+						delete updatePeers[call.peer];
+						return updatePeers;
+					});
+
+					// remove them from connections map.
+					// delete myPeer._connections[call.peer];
+				});
+
+				call.on("stream", (remoteStream) => {
+					setPeers((prevPeers) => {
+						const allPeers = { ...prevPeers };
+						allPeers[call.peer] = call;
+						return allPeers;
+					});
+				});
+			});
+
+			newPeer.on("error", (error) => {
+				console.log(error);
+				console.log(newPeer);
+				if (error.type === "network") {
+					newPeer.reconnect();
+				}
+			});
+
+			setMyPeer(newPeer);
+		}
+	}, [socketId, stream]);
+
+	useEffect(() => {
+		if (
+			usersToCall !== false &&
+			socketId !== false &&
+			stream !== false &&
+			myPeer !== false
+		) {
+			if (usersToCall.length > 0) {
+				usersToCall.forEach((user) => {
+					console.log("making call to", user);
+					const call = myPeer.call(String(user), stream);
+
+					call.on("close", () => {
+						console.log("outgoing call closeed");
+						setPeers((prevPeers) => {
+							const updatePeers = { ...prevPeers };
+							delete updatePeers[String(user)];
+							return updatePeers;
+						});
+
+						// remove them from connections map.
+						//delete myPeer._connections[call.peer];
+					});
+
+					call.on("stream", (remoteStream) => {
+						setPeers((prevPeers) => {
+							const allPeers = { ...prevPeers };
+							allPeers[String(user)] = call;
+							return allPeers;
+						});
+					});
+				});
+			}
+		}
+	}, [myPeer, socketId, stream, usersToCall]);
+
+	useEffect(() => {
+		console.log(myPeer);
+	}, [myPeer]);
 
 	const router = createBrowserRouter(
 		createRoutesFromElements(
@@ -211,7 +344,15 @@ const App = () => {
 					></Route>
 					<Route
 						path='voice/:channelId/:channelName'
-						element={<GroupVoiceChat socket={socket} />}
+						element={
+							<GroupVoiceChat
+								socket={socket}
+								stream={stream}
+								myPeer={myPeer}
+								peers={peers}
+								setPeers={setPeers}
+							/>
+						}
 					></Route>
 				</Route>
 

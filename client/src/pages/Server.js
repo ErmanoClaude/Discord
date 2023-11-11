@@ -61,7 +61,7 @@ function Server(props) {
 					navigate("/");
 				}}
 			/>
-			<h1>Server Content</h1>
+			<h1>Make the carsosel here to check</h1>
 		</>
 	);
 }
