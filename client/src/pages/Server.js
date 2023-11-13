@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Carousel from "react-bootstrap/Carousel";
 import ErrorModal from "../components/ErrorsModal";
 import "./pagesCSS/server.css";
 
 function Server(props) {
-	const { socket } = props;
+	const { socket, stream } = props;
 	const { serverId, name } = useParams();
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
@@ -44,6 +45,7 @@ function Server(props) {
 				socket.emit("join server", serverId);
 			});
 		}
+
 		return () => {
 			// remove event listener
 			if (socket) {
@@ -51,6 +53,16 @@ function Server(props) {
 			}
 		};
 	}, [socket, serverId, name]);
+
+	useEffect(() => {
+		const videoElements = document.getElementsByClassName("video");
+
+		if (stream) {
+			for (const videoElement of videoElements) {
+				videoElement.srcObject = stream;
+			}
+		}
+	}, [stream]);
 	return (
 		<>
 			<ErrorModal
@@ -61,7 +73,58 @@ function Server(props) {
 					navigate("/");
 				}}
 			/>
-			<h1>Make the carsosel here to check</h1>
+			<div className='black-container'>
+				<Carousel
+					interval={null}
+					style={{ width: "100%" }}
+				>
+					<Carousel.Item>
+						<video
+							className='video carousel-videos mx-auto'
+							autoPlay
+							playsInline
+							muted
+							style={{ width: "94%" }}
+						/>
+						<Carousel.Caption>
+							<h3>First slide label</h3>
+							<p>
+								Nulla vitae elit libero, a pharetra augue mollis
+								interdum.
+							</p>
+						</Carousel.Caption>
+					</Carousel.Item>
+					<Carousel.Item>
+						<video
+							className='video'
+							autoPlay
+							playsInline
+							muted
+						/>
+						<Carousel.Caption>
+							<h3>Second slide label</h3>
+							<p>
+								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+							</p>
+						</Carousel.Caption>
+					</Carousel.Item>
+					<Carousel.Item>
+						<video
+							className='video'
+							autoPlay
+							playsInline
+							muted
+						/>
+						<Carousel.Caption>
+							<h3>Third slide label</h3>
+							<p>
+								Praesent commodo cursus magna, vel scelerisque nisl
+								consectetur.
+							</p>
+						</Carousel.Caption>
+					</Carousel.Item>
+				</Carousel>
+			</div>
 		</>
 	);
 }

@@ -207,7 +207,11 @@ const App = () => {
 
 	useEffect(() => {
 		if (stream !== false && socketId !== false) {
-			const newPeer = new Peer(socketId);
+			const newPeer = new Peer(socketId, {
+				host: "localhost",
+				port: 9000,
+				path: "/peerjs",
+			});
 			newPeer.on("open", () => {
 				console.log("the peer is open");
 			});
@@ -241,9 +245,6 @@ const App = () => {
 			newPeer.on("error", (error) => {
 				console.log(error);
 				console.log(newPeer);
-				if (error.type === "network") {
-					newPeer.reconnect();
-				}
 			});
 
 			setMyPeer(newPeer);
@@ -336,7 +337,12 @@ const App = () => {
 				>
 					<Route
 						index
-						element={<Server socket={socket} />}
+						element={
+							<Server
+								socket={socket}
+								stream={stream}
+							/>
+						}
 					></Route>
 					<Route
 						path='text/:channelId/:channelName'
