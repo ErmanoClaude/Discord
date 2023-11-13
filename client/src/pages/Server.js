@@ -84,7 +84,7 @@ function Server(props) {
 							autoPlay
 							playsInline
 							muted
-							style={{ width: "94%" }}
+							style={{ width: "85%" }}
 						/>
 						<Carousel.Caption>
 							<h3>First slide label</h3>
