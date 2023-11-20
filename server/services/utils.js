@@ -98,6 +98,9 @@ function validateServerName(serverName) {
     return ["Server name must be only letters, numbers and spaces"];
   }
 
+  if (serverName.length > 100) {
+    return ["Server name must be up to 100 characters"];
+  }
   return errors;
 }
 

@@ -4,9 +4,10 @@ import PendingTabContent from "../components/PendingTabContent";
 import AddTabContent from "../components/AddTabContent";
 import { Stack } from "react-bootstrap";
 import { BsFillPeopleFill } from "react-icons/bs";
+import PendingServerContent from "../components/PendingServerContent";
 
 function Home(props) {
-  const { friends, fetchFriends } = props;
+  const { friends, fetchFriends, fetchServers } = props;
   const [activeTab, setActiveTab] = useState("all");
 
   return (
@@ -26,18 +27,23 @@ function Home(props) {
         <div
           className='vr'
           style={{ color: "white" }}></div>
-        <h5
+        <div
           className={`${activeTab === "all" ? "active-tab" : ""} `}
+          style={{ cursor: "pointer" }}
           onClick={() => setActiveTab("all")}>
-          All Friends
-        </h5>
-
-        <h5
+          <h5>All Friends</h5>
+        </div>
+        <div
           className={`${activeTab === "pending" ? "active-tab" : ""} `}
+          style={{ cursor: "pointer" }}
           onClick={() => setActiveTab("pending")}>
-          Pending
-        </h5>
-
+          <h5>Pending</h5>
+        </div>
+        <div
+          className={`${activeTab === "invite" ? "active-tab" : ""} `}
+          onClick={() => setActiveTab("invite")}>
+          <h5>Server Invites</h5>
+        </div>
         <h5
           className={`${activeTab === "add" ? "active-tab" : ""} `}
           onClick={() => setActiveTab("add")}>
@@ -49,6 +55,9 @@ function Home(props) {
         {activeTab === "all" && <AllTabContent friends={friends} />}
         {activeTab === "pending" && (
           <PendingTabContent fetchFriends={fetchFriends} />
+        )}
+        {activeTab === "invite" && (
+          <PendingServerContent fetchServers={fetchServers} />
         )}
         {activeTab === "add" && <AddTabContent />}
       </div>

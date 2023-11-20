@@ -1,53 +1,50 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import { BiHash } from "react-icons/bi";
+import { HiSpeakerWave } from "react-icons/hi2";
 import ErrorModal from "./ErrorsModal";
 
-function CreateServerModal(props) {
-  const { show, handleClose, fetchServers } = props;
-  const [serverName, setServerName] = useState("");
+function InvitePeopleModal(props) {
+  const { show, handleClose } = props;
+  const { serverId, name } = useParams();
+  const [displayname, setDisplayname] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [errors, setErrors] = useState([]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     // Trim whiteSpaces
-    const trimmedName = serverName.trim();
-
-    // Check for "Home"
-    if (trimmedName.toLowerCase() === "home") {
-      alert('Cannot create server name "Home"');
+    const trimmedName = displayname.trim();
+    if (displayname === "") {
       return;
     }
 
-    // make api call to create sever in db
-    const response = await fetch("/servers", {
+    // "/serverinvite/:serverId/:receiver"
+    const response = await fetch(`/serverinvite/${serverId}/${displayname}`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "x-access-token": localStorage.getItem("token"),
       },
-      body: JSON.stringify({ serverName: trimmedName }),
     });
 
     const data = await response.json();
 
-    // If request is successfully send to /login
     if (response.ok) {
-      console.log("Sent serverName");
     } else {
-      setErrors(["Unable to send serverName to create server"]);
+      setErrors(["Unable to send server invite to user."]);
       setShowModal(true);
     }
 
-    // If user is logged in success:true else success:false
     if (data.success === true) {
-      fetchServers();
+      setDisplayname("");
       handleClose();
     } else {
       setErrors(...data.errors);
       setShowModal(true);
+      setDisplayname("");
     }
   };
 
@@ -62,23 +59,22 @@ function CreateServerModal(props) {
         show={show}
         onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Create a Server</Modal.Title>
+          <Modal.Title>Invite People</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group
               className='mb-3'
-              controlId='servername'>
-              <Form.Label>Server Name</Form.Label>
+              controlId='channel-name'>
+              <Form.Label></Form.Label>
               <Form.Control
                 type='text'
-                placeholder='Enter Server name'
-                value={serverName}
-                onChange={(e) => setServerName(e.target.value)}
+                placeholder='Enter displayname'
+                value={displayname}
+                onChange={(e) => setDisplayname(e.target.value)}
                 autoFocus
-                // validation
-                pattern='[a-zA-Z0-9 ] +$'
-                title='Server name can only contain letters, numbers and spaces'
+                pattern='[a -zA-Z0-9]{1,20}$'
+                title='Displayname can only contain letters, numbers and up to 20 characters.'
                 autoComplete='off'
                 required
               />
@@ -103,4 +99,4 @@ function CreateServerModal(props) {
   );
 }
 
-export default CreateServerModal;
+export default InvitePeopleModal;

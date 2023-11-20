@@ -1,61 +1,50 @@
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
 import { Stack } from "react-bootstrap";
 import ErrorModal from "./ErrorsModal";
+import { BiHash } from "react-icons/bi";
 
-function Chats(props) {
+function GroupChat(props) {
 	const { socket } = props;
-	const [messages, setMessages] = useState([]);
+	const { channelId, channelName, serverId, name } = useParams();
 	const [showModal, setShowModal] = useState(false);
-	const [errors, setErrors] = useState([]);
-	const [success, setSuccess] = useState(false);
+	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState("");
-	const { displayname } = useParams();
-	const [myDisplayname, setMyDisplayname] = useState("");
+	const [errors, setErrors] = useState([]);
 	const navigate = useNavigate();
 	let currentDay = null;
+	const [displayname, setDisplayname] = useState("");
 
 	// Use useRef to get a reference to the chat-box div
 	const chatBoxRef = useRef(null);
 
-	const fetchChatLogs = async () => {
-		try {
-			const response = await fetch(`/message/${displayname}`, {
-				method: "GET",
-				headers: {
-					"x-access-token": localStorage.getItem("token"),
-				},
-			});
-			const displayResponse = await fetch("/displayname", {
-				method: "GET",
-				headers: {
-					"x-access-token": localStorage.getItem("token"),
-				},
-			});
-			const displayData = await displayResponse.json();
-
-			const data = await response.json();
-			if (data.success) {
-				setSuccess(true);
-				// Convert timestamp strings to Date objects
-				const formattedMessages = data.chatLogs.map((message) => ({
-					...message,
-					timestamp: new Date(message.timestamp),
-				}));
-				setMessages(formattedMessages);
-			} else {
-				setErrors(data.errors);
+	// Gets displayname of user
+	const fetchDisplay = async () => {
+		fetch("/displayname", {
+			method: "GET",
+			headers: {
+				"x-access-token": localStorage.getItem("token"),
+			},
+		})
+			.then((response) => {
+				if (response.ok) {
+					return response.json();
+				} else {
+					throw new Error("Error getting displayname fetch");
+				}
+			})
+			.then((data) => {
+				if (data.success) {
+					setDisplayname(data.displayname);
+				} else {
+					setErrors(["Error fetching displayname"]);
+					setShowModal(true);
+				}
+			})
+			.catch((error) => {
+				setErrors(["Error fetching displayname"]);
 				setShowModal(true);
-			}
-			if (displayData.success) {
-				setMyDisplayname(displayData.displayname);
-			} else {
-				setErrors(...data.errors);
-				setShowModal(true);
-			}
-		} catch (error) {
-			console.error("Error fetching chat logs:", error);
-		}
+			});
 	};
 
 	const sendMessage = async (e) => {
@@ -67,26 +56,22 @@ function Chats(props) {
 		}
 
 		try {
-			// Optimistically update the UI
 			let currentTimestamp = new Date();
 			const newMessageObj = {
-				author: myDisplayname,
+				author: displayname,
 				content: newMessage,
 				timestamp: currentTimestamp,
 			};
 
 			setNewMessage("");
-
 			if (socket) {
 				// Emit an event to the server to store the message in the database
-				socket.emit("send message", {
-					displayname,
+				socket.emit("send group message", {
 					message: newMessageObj,
+					channelId: channelId,
 				});
 			}
 		} catch (error) {
-			setShowModal(true);
-			setErrors(["Failed to send message"]);
 			console.error("Error sending message:", error);
 		}
 	};
@@ -150,45 +135,81 @@ function Chats(props) {
 	};
 
 	useEffect(() => {
+		// Clear messages in chat-box
 		setMessages([]);
-		fetchChatLogs();
-	}, [displayname]);
+		fetchDisplay();
 
-	useEffect(() => {
-		if (success && socket) {
-			socket.emit("join chatroom", displayname);
-		}
-	}, [success, socket, displayname]);
+		const fetchChannel = async () => {
+			let channelType = "text";
+			fetch("/channelcheck", {
+				method: "POST",
+				headers: {
+					"content-type": "application/json",
+					"x-access-token": localStorage.getItem("token"),
+				},
+				body: JSON.stringify({
+					channelId,
+					channelName,
+					serverId,
+					name,
+					channelType,
+				}),
+			})
+				.then((response) => {
+					if (response.ok) {
+						return response.json();
+					} else {
+						throw new Error("Error fetching channel check request");
+					}
+				})
+				.then((data) => {
+					if (data.success) {
+						socket.emit("join group chat", {
+							serverId,
+							channelId,
+							channelName,
+							name,
+							channelType,
+						});
+						const formattedMessages = data.chatLogs.map(
+							(message) => ({
+								...message,
+								timestamp: new Date(message.timestamp),
+							}),
+						);
 
-	useEffect(() => {
+						setMessages(formattedMessages);
+					} else {
+						setErrors(...data.errors);
+						setShowModal(true);
+					}
+				})
+				.catch((error) => {
+					setErrors(["Error sending channel check fetch"]);
+					setShowModal(true);
+				});
+		}; // fetchChannel()
 		if (socket) {
-			// set up room joined listener
-			socket.on("room joined", (roomId) => {
-				// joined room
-				console.log(`joined ${roomId}`);
-			});
-
-			socket.on("where are you?", () => {
-				socket.emit("join chatroom", displayname);
-				fetchChatLogs();
-			});
-
+			fetchChannel();
+			socket.on("joined group chat");
 			// set up receive message listener
-			socket.on("receive message", (message) => {
+			socket.on("receive group message", (message) => {
 				message.timestamp = new Date(message.timestamp);
 				setMessages((prevMessages) => [...prevMessages, message]);
 			});
+			socket.on("where are you?", () => {
+				fetchChannel();
+			});
 		}
-
 		return () => {
-			// removes event listener when componed unmounted
 			if (socket) {
-				socket.off("room joined");
-				socket.off("receive message");
+				// Remove event listeners off component unmount
+				socket.off("joined group chat");
+				socket.off("receive group message");
 				socket.off("where are you?");
 			}
 		};
-	}, [socket, messages]);
+	}, [socket, channelId, channelName, serverId, name]);
 
 	// Use useEffect to scroll the chat-box to the bottom when messages change
 	useEffect(() => {
@@ -196,7 +217,6 @@ function Chats(props) {
 			chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
 		}
 	}, [messages]);
-
 	return (
 		<>
 			<ErrorModal
@@ -212,7 +232,14 @@ function Chats(props) {
 					<Stack
 						direction='horizontal'
 						gap={3}>
-						<h5 style={{ color: "white" }}>{displayname}</h5>
+						<BiHash
+							style={{
+								fontSize: "1.6rem",
+								color: "lightgrey",
+								marginTop: "-4px",
+							}}
+						/>
+						<h5 style={{ color: "white" }}>{channelName}</h5>
 						<div
 							className='vr'
 							style={{ color: "white" }}></div>
@@ -254,4 +281,4 @@ function Chats(props) {
 	);
 }
 
-export default Chats;
+export default GroupChat;

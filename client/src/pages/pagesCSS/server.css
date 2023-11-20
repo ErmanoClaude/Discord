@@ -1,0 +1,203 @@
+.leave-server:hover {
+	background-color: red;
+	color: white;
+}
+
+.leave-server {
+	color: red;
+}
+
+.channel-text {
+	margin: 0;
+}
+
+.server-name {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: 190 px;
+	white-space: nowrap;
+}
+
+.server-name + svg {
+	flex-shrink: 0;
+}
+
+.channel-text {
+	font-size: 0.8rem !important;
+}
+
+.server-main-name {
+	margin: -10px;
+	box-shadow: 1px 1px 5px #000000;
+	padding: 10px;
+}
+.server-main-name:hover {
+	background-color: var(--hover-highlight);
+}
+.radio-channel-type {
+	background-color: rgba(32, 34, 37, 255);
+	border-radius: 5px;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.radio-channel-type:hover {
+	background-color: var(--hover-highlight);
+}
+
+/* Define the styles for the entire scrollbar */
+.chat-box {
+	/* Enable vertical scrollbar */
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: darkslategrey slategrey; /* Firefox scrollbar color */
+
+	/* Webkit (Chrome, Safari, etc.) scrollbar color */
+	&::-webkit-scrollbar {
+		width: 10px;
+	}
+
+	/* Define the styles for the thumb (the draggable part) */
+	&::-webkit-scrollbar-thumb {
+		background-color: darkslategrey;
+		border-radius: 5px; /* Rounded corners for the thumb */
+	}
+
+	/* Define the styles for the track (the area the thumb moves along) */
+	&::-webkit-scrollbar-track {
+		background-color: slategrey;
+		border-radius: 5px;
+	}
+}
+
+.accordion {
+	--bs-accordion-bg: transparent;
+	--bs-accordion-active-bg: none;
+	--bs-accordion-btn-focus-box-shadow: none;
+	--bs-accordion-btn-focus-border-color: none;
+	--bs-accordion-active-color: #708090;
+	--bs-accordion-border-color: transparent;
+	--bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23708090%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e");
+	--bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23708090%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e");
+	--bs-accordion-btn-color: #708090;
+	--bs-accordion-body-padding-y: 0;
+}
+
+.accordions-container {
+	height: 85vh;
+	overflow-y: auto;
+
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: darkslategrey slategrey; /* Firefox scrollbar color */
+
+	/* Webkit (Chrome, Safari, etc.) scrollbar color */
+	&::-webkit-scrollbar {
+		width: 7px;
+	}
+
+	/* Define the styles for the thumb (the draggable part) */
+	&::-webkit-scrollbar-thumb {
+		background-color: darkslategrey;
+		border-radius: 5px; /* Rounded corners for the thumb */
+	}
+
+	/* Define the styles for the track (the area the thumb moves along) */
+	&::-webkit-scrollbar-track {
+		background-color: slategrey;
+		border-radius: 5px;
+	}
+}
+.accordion-button {
+	padding-left: 0;
+	font-size: 0.5rem;
+}
+
+.active-channel {
+	border-radius: 5px;
+	background-color: var(--selected-channel);
+}
+
+.voice-channel-member {
+	color: var(--grey);
+}
+
+.black-container {
+	width: calc(100% + 20px);
+	height: calc(100% + 20px);
+	margin-left: -10px;
+	margin-top: -10px;
+	background-color: black;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding-right: 13px;
+}
+
+/* Carousel css */
+#sync1 .item {
+	background: #0c83e7;
+	margin: 5px;
+	color: #fff;
+	border-radius: 5px;
+	text-align: center;
+	height: 65vh;
+}
+
+#sync2 .item {
+	background: #c9c9c9;
+	margin: 5px;
+	color: #fff;
+	border-radius: 5px;
+	text-align: center;
+	cursor: pointer;
+	height: 20vh;
+}
+
+#sync2 .item h1 {
+	font-size: 18px;
+}
+
+.selected-item {
+	background-color: green !important;
+}
+
+.video {
+	max-width: 100%;
+	max-height: 100%;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 5px;
+}
+
+.my-video::-webkit-media-controls-volume-slider,
+.my-video::-webkit-media-controls-mute-button,
+.my-video::-webkit-media-controls-volume-control-hover-background {
+	display: none;
+}
+
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-pause-button,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display {
+	display: none;
+}
+
+.close-call-button {
+	background-color: red;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 30px;
+	cursor: pointer;
+}
+
+.close-call-button:hover {
+	background-color: hsl(0, 70%, 60%);
+}

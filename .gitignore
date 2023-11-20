@@ -25,3 +25,6 @@
 
 /server/node_modules
 /server/.env
+
+/peerServer/node_modules
+/peerServer/package-lock.json
