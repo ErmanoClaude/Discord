@@ -1,25 +1,29 @@
 .friends-title {
-  color: var(--grey);
-  font-size: 1.4rem;
+	color: var(--grey);
+	font-size: 1.4rem;
 }
 
 .friends-link {
-  text-decoration: none;
+	text-decoration: none;
 }
 
 .friends-icon {
-  margin-right: 1.4rem;
+	margin-right: 1.4rem;
 }
 
 .direct-message {
-  color: var(--grey);
-  font-size: 1.2rem;
+	color: var(--grey);
+	font-size: 1.2rem;
 }
 
 .plus-icon {
-  color: var(--grey);
+	color: var(--grey);
 }
 
 .friends-button {
-  font-size: 19px !important;
+	font-size: 19px !important;
+}
+
+.friend-name:hover {
+	color: white;
 }

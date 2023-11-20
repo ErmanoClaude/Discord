@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Carousel from "react-bootstrap/Carousel";
+
 import ErrorModal from "../components/ErrorsModal";
 import "./pagesCSS/server.css";
+
+import OwlCarousel from "react-owl-carousel";
+import "owl.carousel/dist/assets/owl.carousel.css";
+import "owl.carousel/dist/assets/owl.theme.default.css";
+import { Stack } from "react-bootstrap";
 
 function Server(props) {
 	const { socket, stream } = props;
 	const { serverId, name } = useParams();
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
+	const carouselRef = useRef(null);
+	const currentSlideRef = useRef(null);
+	const [currentSlide, setCurrentSlide] = useState(0);
 	const navigate = useNavigate();
 
 	const fetchServer = async () => {
@@ -37,6 +45,18 @@ function Server(props) {
 			});
 	};
 
+	const handleClick = (slide) => {
+		carouselRef.current.to(slide, 300);
+	};
+
+	const handleVideoClick = (event) => {
+		event.preventDefault();
+	};
+
+	const handleChanged = (event) => {
+		currentSlideRef.current = event.item.index;
+	};
+
 	useEffect(() => {
 		fetchServer();
 		if (socket) {
@@ -63,6 +83,7 @@ function Server(props) {
 			}
 		}
 	}, [stream]);
+
 	return (
 		<>
 			<ErrorModal
@@ -73,57 +94,118 @@ function Server(props) {
 					navigate("/");
 				}}
 			/>
+
 			<div className='black-container'>
-				<Carousel
-					interval={null}
-					style={{ width: "100%" }}
-				>
-					<Carousel.Item>
-						<video
-							className='video carousel-videos mx-auto'
-							autoPlay
-							playsInline
-							muted
-							style={{ width: "85%" }}
-						/>
-						<Carousel.Caption>
-							<h3>First slide label</h3>
-							<p>
-								Nulla vitae elit libero, a pharetra augue mollis
-								interdum.
-							</p>
-						</Carousel.Caption>
-					</Carousel.Item>
-					<Carousel.Item>
-						<video
-							className='video'
-							autoPlay
-							playsInline
-							muted
-						/>
-						<Carousel.Caption>
-							<h3>Second slide label</h3>
-							<p>
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-							</p>
-						</Carousel.Caption>
-					</Carousel.Item>
-					<Carousel.Item>
-						<video
-							className='video'
-							autoPlay
-							playsInline
-							muted
-						/>
-						<Carousel.Caption>
-							<h3>Third slide label</h3>
-							<p>
-								Praesent commodo cursus magna, vel scelerisque nisl
-								consectetur.
-							</p>
-						</Carousel.Caption>
-					</Carousel.Item>
-				</Carousel>
+				<Stack style={{ width: "100px" }}>
+					<div>
+						<OwlCarousel
+							ref={carouselRef}
+							id='sync1'
+							className='owl-theme'
+							items={1}
+							dots={false}
+							onChanged={handleChanged}
+						>
+							<div className='item'>
+								<video
+									id='my-video'
+									className='video top-video my-video'
+									autoPlay
+									playsInline
+									muted
+									controls
+									disablePictureInPicture
+									disableRemotePlayback
+									controlsList='noremoteplayback'
+									onClick={handleVideoClick}
+								/>
+							</div>
+							<div className='item'>
+								<h4>2</h4>
+							</div>
+							<div className='item'>
+								<h4>3</h4>
+							</div>
+							<div className='item'>
+								<h4>4</h4>
+							</div>
+							<div className='item'>
+								<h4>5</h4>
+							</div>
+							<div className='item'>
+								<h4>6</h4>
+							</div>
+							<div className='item'>
+								<h4>7</h4>
+							</div>
+							<div className='item'>
+								<h4>8</h4>
+							</div>
+						</OwlCarousel>
+					</div>
+
+					<div>
+						<OwlCarousel
+							id='sync2'
+							className='owl-theme'
+							items={4}
+						>
+							<div
+								className='item'
+								onClick={() => handleClick(0)}
+							>
+								<video
+									className='video'
+									autoPlay
+									playsInline
+									muted
+								/>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(1)}
+							>
+								<h4>2</h4>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(2)}
+							>
+								<h4>3</h4>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(3)}
+							>
+								<h4>4</h4>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(4)}
+							>
+								<h4>5</h4>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(5)}
+							>
+								<h4>6</h4>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(6)}
+							>
+								<h4>7</h4>
+							</div>
+							<div
+								className='item'
+								onClick={() => handleClick(7)}
+							>
+								<h4>8</h4>
+							</div>
+						</OwlCarousel>
+					</div>
+				</Stack>
 			</div>
 		</>
 	);

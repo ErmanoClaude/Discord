@@ -148,12 +148,6 @@ io.on("connection", async (socket) => {
 			serverVoiceRoomsIds[currentVoiceServer][voiceRoom].delete(
 				socket.userId,
 			);
-			// Send current members of every voice channel of that server
-			if (serverVoiceRooms[currentVoiceServer]) {
-				io.to(`server-${currentVoiceServer}`).emit("joined voice room", {
-					members: serverVoiceRooms[currentVoiceServer],
-				});
-			}
 
 			// make copy of room change sets to arrays to send
 			let members = {};
