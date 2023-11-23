@@ -12,12 +12,26 @@ import { Stack } from "react-bootstrap";
 
 //icons
 import { HiPhoneXMark } from "react-icons/hi2";
+import { FaMicrophone } from "react-icons/fa6";
+import { FaMicrophoneSlash } from "react-icons/fa6";
+import { HiVideoCamera } from "react-icons/hi2";
+import { HiVideoCameraSlash } from "react-icons/hi2";
 
 function GroupVoiceChat(props) {
-	const { socket, stream, myPeer, peers, setPeers } = props;
+	const {
+		socket,
+		stream,
+		myPeer,
+		peers,
+		audioTrack,
+		setAudioTrack,
+		videoTrack,
+		setVideoTrack,
+	} = props;
 	const channelType = "voice";
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
+	const API_URL = process.env.REACT_APP_API_URL;
 	const { channelId, channelName, serverId, name } = useParams();
 	const [playJoinSound] = useSound(joinSound, { volume: 0.04 });
 	const [playLeaveSound] = useSound(leaveSound, { volume: 0.04 });
@@ -25,6 +39,8 @@ function GroupVoiceChat(props) {
 	const carouselRef = useRef(null);
 	const currentSlideRef = useRef(null);
 	const [roomId, setRoomId] = useState("");
+	const [audio, setAudio] = useState(true);
+	const [videoCam, setVideoCam] = useState(true);
 
 	const handleClick = (slide) => {
 		carouselRef.current.to(slide, 300);
@@ -40,15 +56,33 @@ function GroupVoiceChat(props) {
 
 	const hangUpCall = () => {
 		Object.keys(peers).forEach((peer) => {
+			peers[peer].close();
 			console.log(peers[peer]);
 		});
-		navigate("../");
+
 		socket.emit("hang up");
+		navigate("../");
 	};
 
+	const changeMic = () => {
+		setAudioTrack((prev) => {
+			prev.enabled = !prev.enabled;
+			setAudio(prev.enabled);
+			return prev;
+		});
+		console.log(audioTrack);
+	};
+	const changeVideo = () => {
+		setVideoTrack((prev) => {
+			prev.enabled = !prev.enabled;
+			setVideoCam(prev.enabled);
+			return prev;
+		});
+		console.log(videoTrack);
+	};
 	useEffect(() => {
 		const fetchChannel = async () => {
-			fetch("/channelcheck", {
+			fetch(API_URL + "/channelcheck", {
 				method: "POST",
 				headers: {
 					"content-type": "application/json",
@@ -104,6 +138,8 @@ function GroupVoiceChat(props) {
 				for (const videoElement of videoElements) {
 					videoElement.srcObject = stream;
 				}
+				setAudio(audioTrack.enabled);
+				setVideoCam(videoTrack.enabled);
 			}
 			socket.on("joined group voice chat", () => {
 				playJoinSound();
@@ -175,14 +211,6 @@ function GroupVoiceChat(props) {
 			<div className='black-container'>
 				<Stack style={{ width: "100px" }}>
 					{/* Render video elements for remote streams */}
-					{/*Object.keys(peers).map((peerId) => (
-						<video
-							key={peerId}
-							id={`video-${peerId}`}
-							autoPlay
-							playsInline
-						/>
-					)) */}
 
 					<div>
 						<OwlCarousel
@@ -205,7 +233,27 @@ function GroupVoiceChat(props) {
 									disableRemotePlayback
 									controlsList='noremoteplayback'
 									onClick={handleVideoClick}
+									style={{
+										border: "1px solid grey", // Grey border
+									}}
 								/>
+								<div
+									style={{
+										position: "absolute",
+										top: 10,
+										right: 10,
+										backgroundColor: "rgba(255, 255, 255, 0.3)",
+										color: "black",
+										padding: "5px",
+										maxWidth: "50%",
+										overflow: "hidden",
+										textOverflow: "ellipsis",
+										whiteSpace: "nowrap",
+										borderRadius: "3px",
+									}}
+								>
+									Me
+								</div>
 							</div>
 
 							{Object.keys(peers).map((peerId) => {
@@ -224,7 +272,27 @@ function GroupVoiceChat(props) {
 											controlsList='noremoteplayback'
 											onClick={handleVideoClick}
 											muted
+											style={{
+												border: "1px solid grey", // Grey border
+											}}
 										/>
+										<div
+											style={{
+												position: "absolute",
+												top: 10,
+												right: 10,
+												backgroundColor: "rgba(255, 255, 255, 0.3)",
+												color: "black",
+												padding: "5px",
+												maxWidth: "50%",
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												whiteSpace: "nowrap",
+												borderRadius: "3px",
+											}}
+										>
+											{peers[peerId].metadata.displayname}
+										</div>
 									</div>
 								);
 							})}
@@ -240,14 +308,34 @@ function GroupVoiceChat(props) {
 						>
 							<div
 								className='item'
-								onClick={() => handleClick(0)}
+								on-Click={() => handleClick(0)}
 							>
 								<video
 									className='video my-video'
 									autoPlay
 									playsInline
 									muted
+									style={{
+										border: "1px solid grey", // Grey border
+									}}
 								/>
+								<div
+									style={{
+										position: "absolute",
+										top: 10,
+										right: 10,
+										backgroundColor: "rgba(255, 255, 255, 0.3)",
+										color: "black",
+										padding: "5px",
+										maxWidth: "50%",
+										overflow: "hidden",
+										textOverflow: "ellipsis",
+										whiteSpace: "nowrap",
+										borderRadius: "3px",
+									}}
+								>
+									Me
+								</div>
 							</div>
 
 							{Object.keys(peers).map((peerId, index) => {
@@ -262,13 +350,68 @@ function GroupVoiceChat(props) {
 											autoPlay
 											playsInline
 											muted
+											style={{
+												border: "1px solid grey", // Grey border
+											}}
 										/>
+										<div
+											style={{
+												position: "absolute",
+												top: 10,
+												right: 10,
+												backgroundColor: "rgba(255, 255, 255, 0.3)",
+												color: "black",
+												padding: "5px",
+												maxWidth: "50%",
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												whiteSpace: "nowrap",
+												borderRadius: "3px",
+											}}
+										>
+											{peers[peerId].metadata.displayname}
+										</div>
 									</div>
 								);
 							})}
 						</OwlCarousel>
 					</div>
-					<Stack direction='horizontal'>
+					<Stack
+						direction='horizontal'
+						style={{ alignSelf: "center" }}
+					>
+						<div
+							className={`control-buttons mx-auto mt-3 call-buttons ${videoTrack.enabled}`}
+							onClick={() => changeVideo()}
+						>
+							{videoCam ? (
+								<HiVideoCamera
+									size={30}
+									style={{ color: "white" }}
+								/>
+							) : (
+								<HiVideoCameraSlash
+									size={30}
+									style={{ color: "white" }}
+								/>
+							)}
+						</div>
+						<div
+							className='control-buttons mx-4 mt-3 call-buttons'
+							onClick={() => changeMic()}
+						>
+							{audio ? (
+								<FaMicrophone
+									size={30}
+									style={{ color: "white" }}
+								/>
+							) : (
+								<FaMicrophoneSlash
+									size={30}
+									style={{ color: "white" }}
+								/>
+							)}
+						</div>
 						<div
 							className='control-buttons mx-auto mt-3 close-call-button'
 							onClick={() => hangUpCall()}

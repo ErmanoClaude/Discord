@@ -9,10 +9,11 @@ function AddTabContent() {
 	const [errors, setErrors] = useState([]);
 	const [displayName, setDisplayName] = useState("");
 	const [borderColor, setBorderColor] = useState("");
+	const API_URL = process.env.REACT_APP_API_URL;
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		const response = await fetch("/friends", {
+		const response = await fetch(API_URL + "/friends", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -45,11 +46,13 @@ function AddTabContent() {
 				</p>
 				<Form
 					onSubmit={handleSubmit}
-					autoComplete='off'>
+					autoComplete='off'
+				>
 					<Form.Group
 						className='mb-3'
 						controlId='displayName'
-						style={{ width: "75%" }}>
+						style={{ width: "75%" }}
+					>
 						<Stack direction='horizontal'>
 							<Form.Control
 								type='text'
@@ -68,7 +71,8 @@ function AddTabContent() {
 									whiteSpace: "nowrap",
 								}}
 								variant='primary'
-								type='submit'>
+								type='submit'
+							>
 								Send Friend Request
 							</Button>
 						</Stack>

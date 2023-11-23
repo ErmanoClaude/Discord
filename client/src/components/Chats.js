@@ -13,6 +13,7 @@ function Chats(props) {
 	const { displayname } = useParams();
 	const [myDisplayname, setMyDisplayname] = useState("");
 	const navigate = useNavigate();
+	const API_URL = process.env.REACT_APP_API_URL;
 	let currentDay = null;
 
 	// Use useRef to get a reference to the chat-box div
@@ -20,13 +21,13 @@ function Chats(props) {
 
 	const fetchChatLogs = async () => {
 		try {
-			const response = await fetch(`/message/${displayname}`, {
+			const response = await fetch(API_URL + `/message/${displayname}`, {
 				method: "GET",
 				headers: {
 					"x-access-token": localStorage.getItem("token"),
 				},
 			});
-			const displayResponse = await fetch("/displayname", {
+			const displayResponse = await fetch(API_URL + "/displayname", {
 				method: "GET",
 				headers: {
 					"x-access-token": localStorage.getItem("token"),
@@ -99,7 +100,8 @@ function Chats(props) {
 					color: "white",
 					display: "flex",
 					alignItems: "center",
-				}}>
+				}}
+			>
 				<hr style={{ flexGrow: 1 }} />
 				<p style={{ margin: "0 1rem" }}>{day}</p>
 				<hr style={{ flexGrow: 1 }} />
@@ -115,15 +117,18 @@ function Chats(props) {
 		return (
 			<Stack
 				direction='horizontal'
-				key={index}>
+				key={index}
+			>
 				<p
 					className='mx-2'
-					style={{ color: "white", alignSelf: "flex-start" }}>
+					style={{ color: "white", alignSelf: "flex-start" }}
+				>
 					{message.author}
 				</p>
 				<p
 					className='message'
-					style={{ color: "lightgrey" }}>
+					style={{ color: "lightgrey" }}
+				>
 					{message.content}
 				</p>
 			</Stack>
@@ -211,11 +216,13 @@ function Chats(props) {
 				<div className='friend-name mb-1'>
 					<Stack
 						direction='horizontal'
-						gap={3}>
+						gap={3}
+					>
 						<h5 style={{ color: "white" }}>{displayname}</h5>
 						<div
 							className='vr'
-							style={{ color: "white" }}></div>
+							style={{ color: "white" }}
+						></div>
 					</Stack>
 					<hr
 						className='hr'
@@ -229,13 +236,15 @@ function Chats(props) {
 						minHeight: "75vh",
 						maxHeight: "75vh",
 						overflowY: "auto",
-					}}>
+					}}
+				>
 					{renderMessages()}
 				</div>
 				<form
 					className='input-group mt-auto'
 					onSubmit={sendMessage}
-					style={{ width: "98%" }}>
+					style={{ width: "98%" }}
+				>
 					<input
 						type='text'
 						className='form-control'
@@ -245,7 +254,8 @@ function Chats(props) {
 					/>
 					<button
 						type='submit'
-						className='btn btn-primary'>
+						className='btn btn-primary'
+					>
 						Send
 					</button>
 				</form>

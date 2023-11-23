@@ -5,6 +5,7 @@ import "../pages/pagesCSS/login.css";
 
 function Login(props) {
 	const { updateServers, connectSocket } = props;
+	const API_URL = process.env.REACT_APP_API_URL;
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
 	const navigate = useNavigate();
@@ -26,7 +27,7 @@ function Login(props) {
 	const handleSubmit = async (event) => {
 		event.preventDefault(); // prevents default submit
 		// Make api request to sever
-		const response = await fetch("/login", {
+		const response = await fetch(API_URL + "/login", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -51,7 +52,7 @@ function Login(props) {
 			localStorage.setItem("displayname", data.displayName);
 			// Get the servers the user is when user is changed
 			async function fetchServers() {
-				const res = await fetch("/servers", {
+				const res = await fetch(API_URL + "/servers", {
 					method: "GET",
 					headers: {
 						"x-access-token": localStorage.getItem("token") || "",

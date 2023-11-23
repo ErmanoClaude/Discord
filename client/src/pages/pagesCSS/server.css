@@ -137,7 +137,6 @@
 
 /* Carousel css */
 #sync1 .item {
-	background: #0c83e7;
 	margin: 5px;
 	color: #fff;
 	border-radius: 5px;
@@ -146,7 +145,6 @@
 }
 
 #sync2 .item {
-	background: #c9c9c9;
 	margin: 5px;
 	color: #fff;
 	border-radius: 5px;
@@ -157,10 +155,6 @@
 
 #sync2 .item h1 {
 	font-size: 18px;
-}
-
-.selected-item {
-	background-color: green !important;
 }
 
 .video {
@@ -200,4 +194,21 @@ video::-webkit-media-controls-time-remaining-display {
 
 .close-call-button:hover {
 	background-color: hsl(0, 70%, 60%);
+}
+
+.call-buttons {
+	background-color: darkslategray;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 30px;
+	cursor: pointer;
+}
+
+.call-buttons:hover {
+	background-color: hsl(180, 25%, 20%);
 }

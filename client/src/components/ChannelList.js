@@ -37,6 +37,7 @@ function ChannelList(props) {
 	const handlePeopleModalOpen = () => setShowInvitePeople(true);
 	const handlePeopleModalClose = () => setShowInvitePeople(false);
 	const [channelMemebers, setChannelMemebers] = useState({});
+	const API_URL = process.env.REACT_APP_API_URL;
 
 	name = decodeURIComponent(name);
 
@@ -76,7 +77,7 @@ function ChannelList(props) {
 	});
 
 	const fetchChannelList = async () => {
-		const response = await fetch(`/channels/${serverId}`, {
+		const response = await fetch(API_URL + `/channels/${serverId}`, {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),

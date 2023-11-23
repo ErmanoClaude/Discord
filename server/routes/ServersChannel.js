@@ -89,9 +89,7 @@ router.post("/servers", verifyJWT, async (req, res) => {
 			if (generalErrors) {
 				res.send({
 					success: false,
-					errors: [
-						["Error in inserting general voice and text chat"],
-					],
+					errors: [["Error in inserting general voice and text chat"]],
 				});
 				return;
 			}
@@ -153,9 +151,7 @@ router.post("/channels", verifyJWT, (req, res) => {
 						res.send({
 							success: false,
 							errors: [
-								[
-									"Error inserting channel in database in POST channel",
-								],
+								["Error inserting channel in database in POST channel"],
 							],
 						});
 					} else {
@@ -249,9 +245,7 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 				console.log(err);
 				res.send({
 					success: false,
-					errors: [
-						["Error checking if user is a member of the server"],
-					],
+					errors: [["Error checking if user is a member of the server"]],
 				});
 				return;
 			}
@@ -274,16 +268,12 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 				[dataReceiver[0].id, serverId],
 				(errReceiverMembership, dataReceiverMembership) => {
 					if (errReceiverMembership) {
-						console.log(
-							"Error checking if receiver is already a member",
-						);
+						console.log("Error checking if receiver is already a member");
 						console.log(errReceiverMembership);
 						res.send({
 							success: false,
 							errors: [
-								[
-									"Error checking if receiver is already a member",
-								],
+								["Error checking if receiver is already a member"],
 							],
 						});
 						return;
@@ -292,9 +282,7 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 					if (dataReceiverMembership.length > 0) {
 						res.send({
 							success: false,
-							errors: [
-								["Receiver is already a member of this server"],
-							],
+							errors: [["Receiver is already a member of this server"]],
 						});
 						return;
 					}
@@ -331,16 +319,12 @@ router.post("/serverinvite/:serverId/:receiver", verifyJWT, (req, res) => {
 								[serverId, dataReceiver[0].id],
 								(err, dataInvite) => {
 									if (err) {
-										console.log(
-											"Error inserting invite to database",
-										);
+										console.log("Error inserting invite to database");
 										console.log(err);
 										res.send({
 											success: false,
 											errors: [
-												[
-													"Error inserting invite to database",
-												],
+												["Error inserting invite to database"],
 											],
 										});
 										return;
@@ -403,9 +387,7 @@ router.get("/serverinvite/:serverId", verifyJWT, (req, res) => {
 								console.log(deleteError);
 								res.send({
 									success: false,
-									errors: [
-										["Error deleting server invitation"],
-									],
+									errors: [["Error deleting server invitation"]],
 								});
 								return;
 							}
@@ -607,4 +589,24 @@ router.post("/channelcheck", verifyJWT, (req, res) => {
 	);
 });
 
+router.get("/getname/:id", verifyJWT, (req, res) => {
+	const { id } = req.params;
+	const sql = "SELECT displayName FROM users WHERE id=?";
+
+	db.query(sql, [id], (error, result) => {
+		if (error) {
+			res.send({
+				success: false,
+				errors: [["Error getting displayname"]],
+			});
+			console.log(error);
+		} else {
+			res.send({
+				success: true,
+				displayname: result[0].displayName,
+				id: id,
+			});
+		}
+	});
+});
 module.exports = router;

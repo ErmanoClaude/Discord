@@ -34,7 +34,10 @@ const App = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [socket, setSocket] = useState();
 	const [socketId, setSocketId] = useState(false);
+	const [displayname, setDisplayname] = useState(false);
 	const [stream, setStream] = useState(false);
+	const [audioTrack, setAudioTrack] = useState(false);
+	const [videoTrack, setVideoTrack] = useState(false);
 	// Friends includes friends request that are pending
 	// Format of friends
 	// [{displayName: 'displayName', status:'pending', availability: 'offline'},
@@ -43,12 +46,38 @@ const App = () => {
 	const [peers, setPeers] = useState({});
 	const [myPeer, setMyPeer] = useState(false);
 	const [usersToCall, setUsersToCall] = useState(false);
+	const API_URL = process.env.REACT_APP_API_URL;
 	const updateServers = (newServers) => {
 		setServers(newServers);
 	};
 
+	async function backendHello() {
+		const res = await fetch(`${API_URL}/hello`, {
+			method: "GET",
+		});
+		console.log(res);
+		console.log(API_URL);
+	}
+
+	async function getDisplay(id) {
+		const res = await fetch(`${API_URL}/getname/${id}`, {
+			method: "GET",
+			headers: {
+				"x-access-token": localStorage.getItem("token"),
+			},
+		});
+		const data = await res.json();
+		return new Promise((resolve, reject) => {
+			if (data.success) {
+				resolve(data);
+			} else {
+				reject("Failed to get Display of call");
+			}
+		});
+	}
+
 	async function fetchServers() {
-		const res = await fetch("/servers", {
+		const res = await fetch(API_URL + "/servers", {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
@@ -58,7 +87,7 @@ const App = () => {
 		setServers(dat.servers);
 	}
 	async function fetchFriends() {
-		await fetch("/friends", {
+		await fetch(API_URL + "/friends", {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
@@ -105,8 +134,9 @@ const App = () => {
 			}
 		});
 
-		newSocket.on("init", (id) => {
-			setSocketId(id);
+		newSocket.on("init", (init) => {
+			setSocketId(init.id);
+			setDisplayname(init.displayname);
 		});
 		newSocket.on("all users", (userIds) => {
 			setUsersToCall(userIds);
@@ -154,7 +184,7 @@ const App = () => {
 				return;
 			}
 
-			const response = await fetch("/isUserAuth", {
+			const response = await fetch(API_URL + "/isUserAuth", {
 				method: "GET",
 				headers: {
 					"x-access-token": token,
@@ -181,6 +211,7 @@ const App = () => {
 			}
 		}
 
+		backendHello();
 		fetchData();
 		if (isLoggedIn) {
 			connectSocket();
@@ -191,6 +222,8 @@ const App = () => {
 				})
 				.then((mediaStream) => {
 					setStream(mediaStream);
+					setAudioTrack(mediaStream.getAudioTracks()[0]);
+					setVideoTrack(mediaStream.getVideoTracks()[0]);
 				})
 				.catch((err) => {
 					console.error("Error accessing media devices:", err);
@@ -211,13 +244,16 @@ const App = () => {
 				host: "localhost",
 				port: 9000,
 				path: "/peerjs",
+				metadata: { name: displayname },
 			});
+
 			newPeer.on("open", () => {
 				console.log("the peer is open");
 			});
 			newPeer.on("call", (call) => {
 				// Answer the call and send your stream
 				call.answer(stream);
+
 				console.log("call from", call);
 
 				// Handle call close event
@@ -234,11 +270,18 @@ const App = () => {
 				});
 
 				call.on("stream", (remoteStream) => {
-					setPeers((prevPeers) => {
-						const allPeers = { ...prevPeers };
-						allPeers[call.peer] = call;
-						return allPeers;
-					});
+					getDisplay(call.peer)
+						.then((result) => {
+							call.metadata = { displayname: result.displayname };
+							setPeers((prevPeers) => {
+								const allPeers = { ...prevPeers };
+								allPeers[call.peer] = call;
+								return allPeers;
+							});
+						})
+						.catch((error) => {
+							console.log("error");
+						});
 				});
 			});
 
@@ -272,15 +315,22 @@ const App = () => {
 						});
 
 						// remove them from connections map.
-						//delete myPeer._connections[call.peer];
+						// delete myPeer._connections[call.peer];
 					});
 
 					call.on("stream", (remoteStream) => {
-						setPeers((prevPeers) => {
-							const allPeers = { ...prevPeers };
-							allPeers[String(user)] = call;
-							return allPeers;
-						});
+						getDisplay(call.peer)
+							.then((result) => {
+								call.metadata = { displayname: result.displayname };
+								setPeers((prevPeers) => {
+									const allPeers = { ...prevPeers };
+									allPeers[String(user)] = call;
+									return allPeers;
+								});
+							})
+							.catch((error) => {
+								console.log("error");
+							});
 					});
 				});
 			}
@@ -357,6 +407,10 @@ const App = () => {
 								myPeer={myPeer}
 								peers={peers}
 								setPeers={setPeers}
+								audioTrack={audioTrack}
+								setAudioTrack={setAudioTrack}
+								videoTrack={videoTrack}
+								setVideoTrack={setVideoTrack}
 							/>
 						}
 					></Route>

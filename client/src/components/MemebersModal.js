@@ -14,10 +14,11 @@ function MembersModal(props) {
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
 	const [channelType, setChannelType] = useState("text");
+	const API_URL = process.env.REACT_APP_API_URL;
 
 	const fetchMembers = async () => {
 		// make api call to create sever in db
-		const response = await fetch(`/members/${serverId}`, {
+		const response = await fetch(API_URL + `/members/${serverId}`, {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
@@ -51,7 +52,8 @@ function MembersModal(props) {
 			/>
 			<Modal
 				show={show}
-				onHide={handleClose}>
+				onHide={handleClose}
+			>
 				<Modal.Header closeButton>
 					<Modal.Title>Members</Modal.Title>
 				</Modal.Header>
@@ -59,7 +61,8 @@ function MembersModal(props) {
 				<Modal.Footer>
 					<Button
 						variant='danger'
-						onClick={handleClose}>
+						onClick={handleClose}
+					>
 						Back
 					</Button>
 				</Modal.Footer>

@@ -14,13 +14,14 @@ function GroupChat(props) {
 	const navigate = useNavigate();
 	let currentDay = null;
 	const [displayname, setDisplayname] = useState("");
+	const API_URL = process.env.REACT_APP_API_URL;
 
 	// Use useRef to get a reference to the chat-box div
 	const chatBoxRef = useRef(null);
 
 	// Gets displayname of user
 	const fetchDisplay = async () => {
-		fetch("/displayname", {
+		fetch(API_URL + "/displayname", {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
@@ -84,7 +85,8 @@ function GroupChat(props) {
 					color: "white",
 					display: "flex",
 					alignItems: "center",
-				}}>
+				}}
+			>
 				<hr style={{ flexGrow: 1 }} />
 				<p style={{ margin: "0 1rem" }}>{day}</p>
 				<hr style={{ flexGrow: 1 }} />
@@ -100,15 +102,18 @@ function GroupChat(props) {
 		return (
 			<Stack
 				direction='horizontal'
-				key={index}>
+				key={index}
+			>
 				<p
 					className='mx-2'
-					style={{ color: "white", alignSelf: "flex-start" }}>
+					style={{ color: "white", alignSelf: "flex-start" }}
+				>
 					{message.author}
 				</p>
 				<p
 					className='message'
-					style={{ color: "lightgrey" }}>
+					style={{ color: "lightgrey" }}
+				>
 					{message.content}
 				</p>
 			</Stack>
@@ -141,7 +146,7 @@ function GroupChat(props) {
 
 		const fetchChannel = async () => {
 			let channelType = "text";
-			fetch("/channelcheck", {
+			fetch(API_URL + "/channelcheck", {
 				method: "POST",
 				headers: {
 					"content-type": "application/json",
@@ -171,12 +176,10 @@ function GroupChat(props) {
 							name,
 							channelType,
 						});
-						const formattedMessages = data.chatLogs.map(
-							(message) => ({
-								...message,
-								timestamp: new Date(message.timestamp),
-							}),
-						);
+						const formattedMessages = data.chatLogs.map((message) => ({
+							...message,
+							timestamp: new Date(message.timestamp),
+						}));
 
 						setMessages(formattedMessages);
 					} else {
@@ -231,7 +234,8 @@ function GroupChat(props) {
 				<div className='friend-name mb-1'>
 					<Stack
 						direction='horizontal'
-						gap={3}>
+						gap={3}
+					>
 						<BiHash
 							style={{
 								fontSize: "1.6rem",
@@ -242,7 +246,8 @@ function GroupChat(props) {
 						<h5 style={{ color: "white" }}>{channelName}</h5>
 						<div
 							className='vr'
-							style={{ color: "white" }}></div>
+							style={{ color: "white" }}
+						></div>
 					</Stack>
 					<hr
 						className='hr'
@@ -256,13 +261,15 @@ function GroupChat(props) {
 						minHeight: "75vh",
 						maxHeight: "75vh",
 						overflowY: "auto",
-					}}>
+					}}
+				>
 					{renderMessages()}
 				</div>
 				<form
 					className='input-group mt-auto'
 					onSubmit={sendMessage}
-					style={{ width: "98%" }}>
+					style={{ width: "98%" }}
+				>
 					<input
 						type='text'
 						className='form-control'
@@ -272,7 +279,8 @@ function GroupChat(props) {
 					/>
 					<button
 						type='submit'
-						className='btn btn-primary'>
+						className='btn btn-primary'
+					>
 						Send
 					</button>
 				</form>

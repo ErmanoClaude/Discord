@@ -67,6 +67,11 @@ const {
 	insertGroupMessage,
 } = require("./services/socketQueries");
 
+// check route
+app.get("/hello", (req, res) => {
+	res.send("hi");
+});
+
 // Routes
 app.use("/", authRoutes);
 app.use("/", serverChannelRoutes);
@@ -123,7 +128,7 @@ io.on("connection", async (socket) => {
 	let currentVoiceServer = null;
 
 	// Emit the database id to keep peers synced
-	socket.emit("init", socket.userId);
+	socket.emit("init", { id: socket.userId, displayname: socket.displayname });
 
 	// Emit event asking client for context
 	socket.emit("where are you?");
@@ -433,6 +438,44 @@ io.on("connection", async (socket) => {
 			).filter((id) => id !== socket.userId);
 
 			socket.emit("all users", otherInVoiceRoom);
+		}
+	});
+
+	socket.on("hang up", () => {
+		// Remove the user from the current voice room set
+		if (currentVoiceServer) {
+			// Remove the user from the current voice room set
+			serverVoiceRooms[currentVoiceServer][voiceRoom].delete(
+				socket.displayname,
+			);
+			serverVoiceRoomsIds[currentVoiceServer][voiceRoom].delete(
+				socket.userId,
+			);
+
+			// make copy of room change sets to arrays to send
+			let members = {};
+			for (let room in serverVoiceRooms[currentVoiceServer]) {
+				const channelIdMatch = room.match(/voiceroom-(\d+)-(\d+)/);
+				const [, , channelId] = channelIdMatch;
+				members[channelId] = [
+					...serverVoiceRooms[currentVoiceServer][room],
+				];
+			}
+
+			// Send current members of every voice channel of that server
+			if (serverVoiceRooms[currentVoiceServer]) {
+				io.to(`server-${currentVoiceServer}`).emit("joined voice room", {
+					members,
+				});
+			}
+			currentVoiceServer = null;
+		}
+
+		// leave room
+		if (voiceRoom) {
+			io.to(voiceRoom).emit("left group voice chat", String(socket.userId));
+			socket.leave(voiceRoom);
+			voiceRoom = null;
 		}
 	});
 });
