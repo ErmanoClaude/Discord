@@ -250,6 +250,26 @@ const App = () => {
 			})
 			.catch((err) => {
 				console.error("Error accessing media devices:", err);
+				navigator.mediaDevices
+					.getUserMedia({
+						video: false,
+						audio: true,
+					})
+					.then((mediaStream) => {
+						setStream(mediaStream);
+						setAudioTrack(mediaStream.getAudioTracks()[0]);
+						setVideoTrack({ enabled: true });
+						return mediaStream;
+					})
+					.then((mediaStream) => {
+						connectPeer(mediaStream, id);
+					})
+					.catch((err) => {
+						console.error("Error accessing media devices:", err);
+						throw new Error(
+							"Need to provide at least audio permission for calls. To be able to join discord channels. Change Permissions and refresh.",
+						);
+					});
 			});
 	}
 

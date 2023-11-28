@@ -269,7 +269,6 @@ function GroupVoiceChat(props) {
 											disableRemotePlayback
 											controlsList='noremoteplayback'
 											onClick={handleVideoClick}
-											muted
 											style={{
 												border: "1px solid grey", // Grey border
 											}}
