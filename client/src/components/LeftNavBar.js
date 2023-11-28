@@ -14,10 +14,6 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 	const handleOpen = () => setShow(true);
 	const handleClose = () => setShow(false);
 
-	const verticalLineStyles = {
-		transition: "height 0.2s",
-	};
-
 	const handleMouseEnter = (event, index) => {
 		event.stopPropagation();
 
@@ -59,13 +55,6 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 			/>
 			{servers[0] && (
 				<div className='nav-row mb-3'>
-					<div
-						className='vertical-line'
-						style={{
-							height: hoveredServer[0] ? "20px" : "8px",
-							...verticalLineStyles,
-						}}
-					/>
 					<OverlayTrigger
 						placement='right'
 						overlay={
@@ -82,7 +71,7 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 					>
 						<NavLink
 							id={0}
-							className='nav-link'
+							className='nav-link left-nav'
 							onMouseEnter={(event) => handleMouseEnter(event, 0)}
 							onMouseLeave={(event) => {
 								handleMouseLeave(event, 0);
@@ -101,13 +90,6 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 						<React.Fragment key={index}>
 							{server.name !== "Home" && (
 								<div className='nav-row mb-3'>
-									<div
-										className='vertical-line'
-										style={{
-											height: hoveredServer[index] ? "20px" : "8px",
-											...verticalLineStyles,
-										}}
-									/>
 									<OverlayTrigger
 										placement='right'
 										overlay={
@@ -124,7 +106,7 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 									>
 										<NavLink
 											id={index}
-											className='nav-link'
+											className='nav-link left-nav'
 											onMouseEnter={(event) =>
 												handleMouseEnter(event, index)
 											}
@@ -155,13 +137,6 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 			</div>
 			{/* Servers that users own and are in */}
 			<div className='nav-row mt-3'>
-				<div
-					className='vertical-line'
-					style={{
-						height: hoveredServer[servers.length] ? "20px" : "8px",
-						...verticalLineStyles,
-					}}
-				/>
 				<OverlayTrigger
 					placement='right'
 					overlay={
@@ -175,7 +150,7 @@ const LeftNavbar = ({ servers = [], fetchServers }) => {
 				>
 					<NavLink
 						id={servers.length}
-						className='nav-link'
+						className='nav-link left-nav'
 						onMouseEnter={(event) =>
 							handleMouseEnter(event, servers.length)
 						}

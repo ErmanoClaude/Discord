@@ -31,6 +31,7 @@ function AddTabContent() {
 			setDisplayName("");
 			setBorderColor("lightgreen");
 		}
+		setDisplayName("");
 	};
 	return (
 		<>

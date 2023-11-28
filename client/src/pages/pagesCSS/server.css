@@ -119,6 +119,18 @@
 	background-color: var(--selected-channel);
 }
 
+.member {
+	display: flex;
+	justify-content: center;
+}
+
+.member p {
+	max-width: 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .voice-channel-member {
 	color: var(--grey);
 }

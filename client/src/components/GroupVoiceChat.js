@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, StrictMode } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSound } from "use-sound";
 import ErrorModal from "./ErrorsModal";
@@ -70,7 +70,6 @@ function GroupVoiceChat(props) {
 			setAudio(prev.enabled);
 			return prev;
 		});
-		console.log(audioTrack);
 	};
 	const changeVideo = () => {
 		setVideoTrack((prev) => {
@@ -78,7 +77,6 @@ function GroupVoiceChat(props) {
 			setVideoCam(prev.enabled);
 			return prev;
 		});
-		console.log(videoTrack);
 	};
 	useEffect(() => {
 		const fetchChannel = async () => {
@@ -308,7 +306,7 @@ function GroupVoiceChat(props) {
 						>
 							<div
 								className='item'
-								on-Click={() => handleClick(0)}
+								onClick={() => handleClick(0)}
 							>
 								<video
 									className='video my-video'

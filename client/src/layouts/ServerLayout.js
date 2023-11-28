@@ -7,8 +7,15 @@ import ChannelList from "../components/ChannelList";
 Axios.defaults.withCredentials = true;
 
 function ServerLayout(props) {
-	const { socket } = props;
-	const { user, servers, fetchServers } = props;
+	const {
+		socket,
+		user,
+		servers,
+		fetchServers,
+		displayname,
+		setIsLoggedIn,
+		myPeer,
+	} = props;
 	const [errors, setErrors] = useState([]);
 	const [success, setSuccess] = useState(false);
 	const [showModal, setShowModal] = useState(false);
@@ -29,7 +36,13 @@ function ServerLayout(props) {
 				</div>
 
 				<div className='col friends-channels'>
-					<ChannelList socket={socket} />
+					<ChannelList
+						socket={socket}
+						fetchServers={fetchServers}
+						displayname={displayname}
+						setIsLoggedIn={setIsLoggedIn}
+						myPeer={myPeer}
+					/>
 				</div>
 
 				<div className='col content'>

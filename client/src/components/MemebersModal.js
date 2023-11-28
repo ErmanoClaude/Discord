@@ -1,24 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
-import { BiHash } from "react-icons/bi";
-import { HiSpeakerWave } from "react-icons/hi2";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+
 import ErrorModal from "./ErrorsModal";
+import { Stack } from "react-bootstrap";
+
+import { HiUserRemove } from "react-icons/hi";
 
 function MembersModal(props) {
-	const { show, handleClose, fetchChannelList } = props;
+	const { show, handleClose, owner, members, fetchMembers } = props;
 	const { serverId, name } = useParams();
-	const [members, setMembers] = useState("");
 	const [showModal, setShowModal] = useState(false);
 	const [errors, setErrors] = useState([]);
 	const [channelType, setChannelType] = useState("text");
+
 	const API_URL = process.env.REACT_APP_API_URL;
 
-	const fetchMembers = async () => {
-		// make api call to create sever in db
-		const response = await fetch(API_URL + `/members/${serverId}`, {
+	useEffect(() => {}, []);
+
+	const removeFromServer = async (user) => {
+		const response = await fetch(API_URL + `/remove/${serverId}/${user}`, {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
@@ -27,16 +31,13 @@ function MembersModal(props) {
 
 		const data = await response.json();
 
-		if (response.ok) {
-		} else {
-			setErrors([
-				"Unable to send serverId to create channel in this server",
-			]);
+		if (!response.ok) {
+			setErrors(["Unable to remove member from server"]);
 			setShowModal(true);
 		}
 
-		if (data.success === true) {
-			setMembers(data.members);
+		if (data.success) {
+			fetchMembers();
 		} else {
 			setErrors(...data.errors);
 			setShowModal(true);
@@ -57,7 +58,52 @@ function MembersModal(props) {
 				<Modal.Header closeButton>
 					<Modal.Title>Members</Modal.Title>
 				</Modal.Header>
-				<Modal.Body></Modal.Body>
+				<Modal.Body>
+					<Stack>
+						{members.map((member) => {
+							console.log("POP up count");
+							return (
+								<div
+									key={member.displayName}
+									className='member'
+								>
+									<Stack
+										direction='horizontal'
+										style={{ width: "100%" }}
+									>
+										<p className='mx-auto'>{member.displayName}</p>
+										{owner && (
+											<OverlayTrigger
+												placement='top'
+												overlay={
+													<Tooltip
+														id='remove-tooltip'
+														style={{ fontSize: "1rem" }}
+													>
+														Remove From Server
+													</Tooltip>
+												}
+											>
+												<div style={{ cursor: "pointer" }}>
+													<HiUserRemove
+														style={{
+															color: "red",
+														}}
+														onClick={() => {
+															removeFromServer(
+																member.displayName,
+															);
+														}}
+													/>
+												</div>
+											</OverlayTrigger>
+										)}
+									</Stack>
+								</div>
+							);
+						})}
+					</Stack>
+				</Modal.Body>
 				<Modal.Footer>
 					<Button
 						variant='danger'

@@ -7,32 +7,48 @@ import { useEffect } from "react";
 Axios.defaults.withCredentials = true;
 
 function HomeLayout(props) {
-  const { user, servers, fetchServers, friends, fetchFriends } = props;
+	const {
+		user,
+		servers,
+		fetchServers,
+		friends,
+		fetchFriends,
+		displayname,
+		setIsLoggedIn,
+		myPeer,
+		socket,
+	} = props;
 
-  useEffect(() => {
-    fetchFriends();
-  }, []);
+	useEffect(() => {
+		fetchFriends();
+	}, []);
 
-  return (
-    <div className='home'>
-      <div className='row main-content'>
-        <div className='col servers'>
-          <LeftNavBar
-            servers={servers}
-            fetchServers={fetchServers}
-          />
-        </div>
+	return (
+		<div className='home'>
+			<div className='row main-content'>
+				<div className='col servers'>
+					<LeftNavBar
+						servers={servers}
+						fetchServers={fetchServers}
+					/>
+				</div>
 
-        <div className='col friends-channels'>
-          <FriendList friends={friends} />
-        </div>
+				<div className='col friends-channels'>
+					<FriendList
+						friends={friends}
+						displayname={displayname}
+						setIsLoggedIn={setIsLoggedIn}
+						myPeer={myPeer}
+						socket={socket}
+					/>
+				</div>
 
-        <div className='col content'>
-          <Outlet />
-        </div>
-      </div>
-    </div>
-  );
+				<div className='col content'>
+					<Outlet />
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export default HomeLayout;

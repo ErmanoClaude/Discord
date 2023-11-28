@@ -19,27 +19,53 @@ import { BiHash } from "react-icons/bi";
 import { HiSpeakerWave } from "react-icons/hi2";
 import { MdClose } from "react-icons/md";
 import { PiPlusBold } from "react-icons/pi";
+import { BsFillPeopleFill } from "react-icons/bs";
+import { FaSignOutAlt } from "react-icons/fa";
+
 import InvitePeopleModal from "./InvitePeopleModal";
+import MembersModal from "./MemebersModal";
 
 function ChannelList(props) {
 	let { serverId, name } = useParams();
-	const { socket } = props;
+	const { socket, fetchServers, displayname, myPeer, setIsLoggedIn } = props;
 	const [isOwner, setIsOwner] = useState(false);
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const toggleRef = useRef(null);
 	const [show, setShow] = useState(false);
 	const [showInvitePeople, setShowInvitePeople] = useState(false);
 	const [showModal, setShowModal] = useState(false);
+	const [showMembersModal, setShowMembersModal] = useState(false);
 	const [errors, setErrors] = useState([]);
 	const [channels, setChannels] = useState([]);
+	const [owner, setOwner] = useState(false);
+	const [members, setMembers] = useState([]);
 	const handleOpen = () => setShow(true);
 	const handleClose = () => setShow(false);
 	const handlePeopleModalOpen = () => setShowInvitePeople(true);
 	const handlePeopleModalClose = () => setShowInvitePeople(false);
+	const handleMembersModalOpen = () => setShowMembersModal(true);
+	const handleMembersModalClose = () => setShowMembersModal(false);
 	const [channelMemebers, setChannelMemebers] = useState({});
+	const navigate = useNavigate();
 	const API_URL = process.env.REACT_APP_API_URL;
 
 	name = decodeURIComponent(name);
+
+	const handleLogout = () => {
+		if (socket) {
+			socket.disconnect();
+		}
+		if (myPeer) {
+			myPeer.destroy();
+		}
+
+		localStorage.removeItem("token");
+
+		// Update the state to reflect that the user is logged out
+		setIsLoggedIn(false);
+
+		window.location.href = "/login";
+	};
 
 	useEffect(() => {
 		fetchChannelList();
@@ -55,8 +81,16 @@ function ChannelList(props) {
 		}
 	}, [socket]);
 
+	useEffect(() => {
+		if (dropdownOpen) {
+			console.log("fetching channel members");
+			fetchMembers();
+		}
+	}, [dropdownOpen]);
+
 	const CustomToggle = forwardRef(({ onClick, children }, ref) => {
 		function handleToggle(e) {
+			e.stopPropagation();
 			onClick(e);
 		}
 		return (
@@ -102,6 +136,74 @@ function ChannelList(props) {
 		}
 	};
 
+	const fetchMembers = async () => {
+		// make api call to create sever in db
+		const response = await fetch(API_URL + `/members/${serverId}`, {
+			method: "GET",
+			headers: {
+				"x-access-token": localStorage.getItem("token"),
+			},
+		});
+
+		const ownerResponse = await fetch(API_URL + `/owner/${serverId}`, {
+			method: "GET",
+			headers: {
+				"x-access-token": localStorage.getItem("token"),
+			},
+		});
+
+		const ownerData = await ownerResponse.json();
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			setErrors(["Unable to check members of channel"]);
+			setShowModal(true);
+		}
+
+		if (data.success === true) {
+			setMembers(data.members);
+		} else {
+			setErrors(...data.errors);
+			setShowModal(true);
+		}
+
+		if (!ownerResponse.ok) {
+			setErrors(["Unable to check owner status"]);
+			setShowModal(true);
+		}
+
+		if (ownerData.success) {
+			setOwner(ownerData.owner);
+			console.log(owner);
+		} else {
+			setErrors([["Unable to get owner status"]]);
+			setShowModal(true);
+		}
+	};
+
+	const leaveServer = async () => {
+		if (!owner) {
+			const response = await fetch(API_URL + `/leave/${serverId}`, {
+				method: "GET",
+				headers: {
+					"x-access-token": localStorage.getItem("token"),
+				},
+			});
+			const data = await response.json();
+			console.log(data);
+
+			if (data.success) {
+				console.log(data.message);
+				navigate("/");
+				fetchServers();
+			} else {
+				setErrors([["Unable to leave server. Server Error"]]);
+				setShowModal(true);
+			}
+		}
+	};
+
 	return (
 		<>
 			<CreateChannelModal
@@ -117,6 +219,14 @@ function ChannelList(props) {
 			<InvitePeopleModal
 				show={showInvitePeople}
 				handleClose={handlePeopleModalClose}
+			/>
+			<MembersModal
+				show={showMembersModal}
+				handleClose={handleMembersModalClose}
+				owner={owner}
+				setOwner={setOwner}
+				members={members}
+				fetchMembers={fetchMembers}
 			/>
 
 			<Stack gap={3}>
@@ -160,15 +270,34 @@ function ChannelList(props) {
 										<AiFillPlusCircle className='ms-auto' />
 									</Stack>
 								</Dropdown.Item>
-								<Dropdown.Item className='leave-server'>
+								<Dropdown.Item
+									onClick={(event) => {
+										handleMembersModalOpen();
+									}}
+								>
+									{" "}
 									<Stack
 										direction='horizontal'
 										alignitems='flex-start'
 									>
-										Leave Server{" "}
-										<BsFillArrowLeftCircleFill className='ms-auto' />
+										Server Members{" "}
+										<BsFillPeopleFill className='ms-auto' />
 									</Stack>
 								</Dropdown.Item>
+								{!owner && (
+									<Dropdown.Item
+										className='leave-server'
+										onClick={leaveServer}
+									>
+										<Stack
+											direction='horizontal'
+											alignitems='flex-start'
+										>
+											Leave Server{" "}
+											<BsFillArrowLeftCircleFill className='ms-auto' />
+										</Stack>
+									</Dropdown.Item>
+								)}
 							</Dropdown.Menu>
 						</Dropdown>
 					</Stack>
@@ -372,6 +501,47 @@ function ChannelList(props) {
 						</Accordion.Item>
 					</Accordion>
 				</div>
+				{displayname && (
+					<div>
+						<Stack direction='horizontal'>
+							<div
+								className='display logout'
+								style={{ color: "green" }}
+							>
+								<h6>User:</h6>
+								<h6>{displayname}</h6>
+							</div>
+							<div className='icon-container ms-auto'>
+								<OverlayTrigger
+									placement='top'
+									overlay={
+										<Tooltip
+											id='logout-tooltip'
+											style={{ fontSize: "0.8rem" }}
+										>
+											Logout
+										</Tooltip>
+									}
+								>
+									<div
+										className='direct-message align-self-center channel-text'
+										onClick={(e) => {
+											e.stopPropagation();
+										}}
+										style={{ cursor: "pointer" }}
+									>
+										<div
+											className='logout-button'
+											onClick={handleLogout}
+										>
+											<FaSignOutAlt syle={{ color: "red!" }} />
+										</div>
+									</div>
+								</OverlayTrigger>
+							</div>
+						</Stack>
+					</div>
+				)}
 			</Stack>
 		</>
 	);

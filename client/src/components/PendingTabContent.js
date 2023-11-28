@@ -62,7 +62,12 @@ function PendingTabContent(props) {
 			},
 			body: JSON.stringify({ displayname: displayname }),
 		})
-			.then(() => {})
+			.then((response) => {
+				return response.json();
+			})
+			.then((data) => {
+				console.log(data);
+			})
 			.catch((error) => {
 				console.log("Error in cancel");
 			});
@@ -127,7 +132,12 @@ function PendingTabContent(props) {
 										</Tooltip>
 									}
 								>
-									<div className='request-button'>
+									<div
+										onClick={() =>
+											cancelFriendRequest(request.displayName)
+										}
+										className='request-button'
+									>
 										<IoClose />
 									</div>
 								</OverlayTrigger>

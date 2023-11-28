@@ -589,6 +589,7 @@ router.post("/channelcheck", verifyJWT, (req, res) => {
 	);
 });
 
+// gets displayname of someones id
 router.get("/getname/:id", verifyJWT, (req, res) => {
 	const { id } = req.params;
 	const sql = "SELECT displayName FROM users WHERE id=?";
@@ -609,4 +610,112 @@ router.get("/getname/:id", verifyJWT, (req, res) => {
 		}
 	});
 });
+
+// Channel Owners Permissions
+
+// Check if someone is owner of server
+router.get("/owner/:serverId", verifyJWT, (req, res) => {
+	const { serverId } = req.params;
+	const sql = `SELECT ownerId FROM servers WHERE id=?`;
+
+	db.query(sql, [serverId], (error, results) => {
+		if (error) {
+			res.send({ success: false, errors: [["Error checking owner"]] });
+			console.log(error);
+			return;
+		}
+		if (results.length === 0) {
+			res.send({
+				success: true,
+				owner: false,
+			});
+		} else {
+			res.send({
+				success: true,
+				owner: results[0].ownerId === req.userId,
+			});
+		}
+	});
+});
+
+// Remove someone from server as owner of that server
+router.get("/remove/:serverId/:displayname", verifyJWT, (req, res) => {
+	const { serverId, displayname } = req.params;
+	const userId = req.userId;
+	const deleteMemberQuery = `
+    DELETE FROM members
+    WHERE serverId = ? 
+      AND userId IN (SELECT id FROM users WHERE displayName = ?) 
+      AND userId != ?
+      AND (SELECT ownerId FROM servers WHERE id = ?) = ?;
+  `;
+
+	db.query(
+		deleteMemberQuery,
+		[serverId, displayname, userId, serverId, userId],
+		(error, deleteQueryResults) => {
+			if (error) {
+				console.log(error);
+				res.send({
+					success: false,
+					errors: [["Unable to delete user due to error"]],
+				});
+				return;
+			} else {
+				if (deleteQueryResults.affectedRows > 0) {
+					res.send({
+						success: true,
+						message: "User removed successfully",
+					});
+				} else {
+					res.send({
+						success: true,
+						message: "user not found in server but no errror",
+					});
+				}
+			}
+		},
+	);
+});
+
+// Leave Sever
+router.get("/leave/:serverId", verifyJWT, (req, res) => {
+	// Owners cant leave there own server
+	const { serverId } = req.params;
+	const userId = req.userId;
+
+	// Delete the user from the server if they are not the owner
+	const leaveServerQuery = `
+    DELETE FROM members
+    WHERE serverId = ? 
+      AND userId = ? 
+      AND userId != (SELECT ownerId FROM servers WHERE id = ?);
+  `;
+	db.query(
+		leaveServerQuery,
+		[serverId, userId, serverId],
+		(err, deleteResult) => {
+			if (err) {
+				console.log(err);
+				res.send({
+					success: false,
+					errors: [["Error deleting user from server"]],
+				});
+			} else {
+				if (deleteResult.affectedRows > 0) {
+					res.send({
+						success: true,
+						message: "User has left the server",
+					});
+				} else {
+					res.send({
+						success: true,
+						message: "User wasn't apart of server to leave",
+					});
+				}
+			}
+		},
+	);
+});
+
 module.exports = router;

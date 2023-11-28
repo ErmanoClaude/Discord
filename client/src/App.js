@@ -17,10 +17,13 @@ import Chats from "./components/Chats";
 import GroupChat from "./components/GroupChat";
 import GroupVoiceChat from "./components/GroupVoiceChat";
 
-// Layout
+// Layouts
 import RootLayout from "./layouts/RootLayout";
 import HomeLayout from "./layouts/HomeLayout";
 import ServerLayout from "./layouts/ServerLayout";
+
+// 404 page
+import Error404 from "./pages/Error404";
 
 import { io } from "socket.io-client";
 import { Peer } from "peerjs";
@@ -97,6 +100,7 @@ const App = () => {
 				return result.json();
 			})
 			.then((data) => {
+				console.log(data.friends);
 				setFriends(data.friends);
 			})
 			.catch((err) => {
@@ -126,17 +130,13 @@ const App = () => {
 		// event handlers
 		newSocket.on("connect", () => {
 			console.log("We are connected to backend");
-			if (myPeer !== false) {
-				if (myPeer._disconnected) {
-					myPeer.reconnect();
-				}
-				console.log(myPeer);
-			}
 		});
 
 		newSocket.on("init", (init) => {
+			console.log("socket init", myPeer, stream);
 			setSocketId(init.id);
 			setDisplayname(init.displayname);
+			connectStream(init.id);
 		});
 		newSocket.on("all users", (userIds) => {
 			setUsersToCall(userIds);
@@ -169,76 +169,8 @@ const App = () => {
 		setSocket(newSocket); // Set the socket after it's initialized
 	}
 
-	// Checked if user is logged in if not logged in get redirected to login or register
-	useEffect(() => {
-		async function fetchData() {
-			const token = localStorage.getItem("token");
-
-			if (!token) {
-				// No token, handle accordingly redirect to login
-				if (window.location.pathname !== "/login") {
-					if (window.location.pathname !== "/register") {
-						window.location.href = "/login";
-					}
-				}
-				return;
-			}
-
-			const response = await fetch(API_URL + "/isUserAuth", {
-				method: "GET",
-				headers: {
-					"x-access-token": token,
-				},
-			});
-
-			const data = await response.json();
-
-			if (data.success === true) {
-				// Token is valid, set the user and proceed
-
-				setUser(data.userId);
-				setIsLoggedIn(true);
-
-				// Set Servers if they logged in
-				fetchServers();
-			} else {
-				// Token is invalid,  redirect to login
-				if (window.location.pathname !== "/login") {
-					if (window.location.pathname !== "/register") {
-						window.location.href = "/login";
-					}
-				}
-			}
-		}
-
-		backendHello();
-		fetchData();
-		if (isLoggedIn) {
-			connectSocket();
-			navigator.mediaDevices
-				.getUserMedia({
-					video: true,
-					audio: true,
-				})
-				.then((mediaStream) => {
-					setStream(mediaStream);
-					setAudioTrack(mediaStream.getAudioTracks()[0]);
-					setVideoTrack(mediaStream.getVideoTracks()[0]);
-				})
-				.catch((err) => {
-					console.error("Error accessing media devices:", err);
-				});
-		}
-		return () => {
-			if (socket) {
-				socket.off("all users");
-				socket.off("connect");
-				socket.off("error");
-			}
-		};
-	}, [isLoggedIn]);
-
-	useEffect(() => {
+	function connectPeer(stream, socketId) {
+		console.log("connecting PEer", stream, socketId);
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
 				host: "localhost",
@@ -290,18 +222,95 @@ const App = () => {
 				console.log(newPeer);
 			});
 
+			newPeer.on("close", () => {
+				Object.keys(peers).forEach((peer) => {
+					peers[peer].close();
+				});
+				console.log("Peers after logged out:", peers);
+			});
+
 			setMyPeer(newPeer);
 		}
-	}, [socketId, stream]);
+	}
+
+	function connectStream(id = socketId) {
+		navigator.mediaDevices
+			.getUserMedia({
+				video: true,
+				audio: true,
+			})
+			.then((mediaStream) => {
+				setStream(mediaStream);
+				setAudioTrack(mediaStream.getAudioTracks()[0]);
+				setVideoTrack(mediaStream.getVideoTracks()[0]);
+				return mediaStream;
+			})
+			.then((mediaStream) => {
+				connectPeer(mediaStream, id);
+			})
+			.catch((err) => {
+				console.error("Error accessing media devices:", err);
+			});
+	}
+
+	// Checked if user is logged in if not logged in get redirected to login or register
+	useEffect(() => {
+		async function fetchData() {
+			const token = localStorage.getItem("token");
+
+			if (!token) {
+				// No token, handle accordingly redirect to login
+				if (window.location.pathname !== "/login") {
+					if (window.location.pathname !== "/register") {
+						window.location.href = "/login";
+					}
+				}
+				return;
+			}
+
+			const response = await fetch(API_URL + "/isUserAuth", {
+				method: "GET",
+				headers: {
+					"x-access-token": token,
+				},
+			});
+
+			const data = await response.json();
+
+			if (data.success === true) {
+				// Token is valid, set the user and proceed
+
+				setUser(data.userId);
+				setIsLoggedIn(true);
+
+				// Set Servers if they logged in
+				fetchServers();
+			} else {
+				// Token is invalid,  redirect to login
+				if (window.location.pathname !== "/login") {
+					if (window.location.pathname !== "/register") {
+						window.location.href = "/login";
+					}
+				}
+			}
+		}
+
+		fetchData();
+		if (isLoggedIn) {
+			connectSocket();
+		}
+		return () => {
+			if (socket) {
+				socket.off("all users");
+				socket.off("connect");
+				socket.off("error");
+			}
+		};
+	}, [isLoggedIn]);
 
 	useEffect(() => {
-		if (
-			usersToCall !== false &&
-			socketId !== false &&
-			stream !== false &&
-			myPeer !== false
-		) {
-			if (usersToCall.length > 0) {
+		try {
+			if (usersToCall && socketId && stream && myPeer) {
 				usersToCall.forEach((user) => {
 					console.log("making call to", user);
 					const call = myPeer.call(String(user), stream);
@@ -334,12 +343,10 @@ const App = () => {
 					});
 				});
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	}, [myPeer, socketId, stream, usersToCall]);
-
-	useEffect(() => {
-		console.log(myPeer);
-	}, [myPeer]);
 
 	const router = createBrowserRouter(
 		createRoutesFromElements(
@@ -357,6 +364,11 @@ const App = () => {
 							fetchServers={fetchServers}
 							friends={friends}
 							fetchFriends={fetchFriends}
+							setFriends={setFriends}
+							displayname={displayname}
+							setIsLoggedIn={setIsLoggedIn}
+							myPeer={myPeer}
+							socket={socket}
 						/>
 					}
 				>
@@ -367,6 +379,7 @@ const App = () => {
 								friends={friends}
 								fetchFriends={fetchFriends}
 								fetchServers={fetchServers}
+								setFriends={setFriends}
 							/>
 						}
 					></Route>
@@ -382,6 +395,9 @@ const App = () => {
 							servers={servers}
 							fetchServers={fetchServers}
 							socket={socket}
+							displayname={displayname}
+							setIsLoggedIn={setIsLoggedIn}
+							myPeer={myPeer}
 						/>
 					}
 				>
@@ -430,6 +446,10 @@ const App = () => {
 					path='register'
 					element={<Register />}
 				></Route>
+				<Route
+					path='*'
+					element={<Error404 />}
+				/>
 			</Route>,
 		),
 	);

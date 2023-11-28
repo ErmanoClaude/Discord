@@ -50,9 +50,7 @@ router.get("/friends", verifyJWT, (req, res) => {
 				res.send({
 					success: false,
 					errors: [
-						[
-							"Failed to send request to get friends list in query 2.",
-						],
+						["Failed to send request to get friends list in query 2."],
 					],
 				});
 				return;
@@ -104,9 +102,7 @@ router.get("/friendRequests", verifyJWT, (req, res) => {
 			if (error) {
 				res.send({
 					success: false,
-					errors: [
-						["This is an error getting incoming friend request."],
-					],
+					errors: [["This is an error getting incoming friend request."]],
 				});
 				return;
 			}
@@ -166,17 +162,19 @@ router.post("/friends", verifyJWT, (req, res) => {
 							success: false,
 							errors: [["Already Added this person"]],
 						});
+						return;
 					} else {
-						console.log(
-							"error in post /friends trying to add user.",
-						);
+						console.log("error in post /friends trying to add user.");
 						res.send({
 							success: false,
 							errors: [["Error trying to add this user"]],
 						});
+						return;
 					}
-
-					return;
+				} else {
+					res.send({
+						success: true,
+					});
 				}
 			});
 		}
@@ -222,7 +220,23 @@ router.get("/delete/:displayname", verifyJWT, (req, res) => {
 	  OR
   (userId2 = ? AND userId1 = (SELECT id FROM users WHERE displayName = ?) AND status = 'accepted')`;
 
-	db.query(deleteQuery, [user, displayname, user, displayname]);
+	db.query(
+		deleteQuery,
+		[user, displayname, user, displayname],
+		(error, deleteQueryResults) => {
+			if (error) {
+				console.log(error);
+				res.send({
+					success: false,
+					errors: [["Error deleteing friend from server."]],
+				});
+			} else {
+				res.send({
+					success: true,
+				});
+			}
+		},
+	);
 });
 
 module.exports = router;

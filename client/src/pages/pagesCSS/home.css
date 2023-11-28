@@ -146,3 +146,40 @@
 		border-radius: 5px;
 	}
 }
+
+.home-tabs {
+	color: white;
+	padding: 7px 10px 0px 10px;
+	cursor: pointer;
+}
+
+.active-tab {
+	background-color: var(--grey);
+	border-radius: 3px;
+}
+
+.active-add-friend-tab {
+	background-color: green;
+	border-radius: 3px;
+}
+
+.left-nav {
+	color: white;
+	text-decoration: none;
+}
+
+.left-nav:focus,
+.left-nav:active {
+	outline: none;
+	color: white;
+}
+
+.left-nav:visited {
+	color: white;
+}
+
+.left-nav.active {
+	text-decoration: none;
+	color: white;
+	border-radius: 15px;
+}
