@@ -27,6 +27,8 @@ function Login(props) {
 	const handleSubmit = async (event) => {
 		event.preventDefault(); // prevents default submit
 		// Make api request to sever
+
+		console.log(API_URL + "/login");
 		const response = await fetch(API_URL + "/login", {
 			method: "POST",
 			headers: {
