@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "description": "Server file to discord",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"node server.js\" \"node app.js\"",
-    "peer": "node app.js",
-    "dev": "nodemon server"
-  },
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "concurrently \"node server\" \"node peerServer\"",
+  "dev": "concurrently \"nodemon server\" \"nodemon peerServer peerServer.js\""
+},
   "author": "Ermano Claude",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",

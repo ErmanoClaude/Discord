@@ -27,7 +27,11 @@ require("dotenv").config();
 
 app.use(
 	cors({
+<<<<<<< HEAD
 		origin: ["http://localhost:3000", "http://3.146.152.20"],
+=======
+		origin: "*",
+>>>>>>> completed-project
 		methods: ["GET", "POST"],
 		credentials: true, // Allows cookie to be enabled
 	}),
@@ -98,7 +102,11 @@ app.use("/message", chatsRoutes);
 // Connect user to webSocket socket.io
 const io = new Server(server, {
 	cors: {
-		origin: ["http://localhost:3000", "http://3.146.152.20"],
+<<<<<<< HEAD
+		origin: "*",
+=======
+		origin: "*",
+>>>>>>> completed-project
 		methods: ["GET", "POST"],
 		credentials: true,
 	},
