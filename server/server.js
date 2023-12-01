@@ -102,11 +102,7 @@ app.use("/message", chatsRoutes);
 // Connect user to webSocket socket.io
 const io = new Server(server, {
 	cors: {
-<<<<<<< HEAD
 		origin: "*",
-=======
-		origin: "*",
->>>>>>> completed-project
 		methods: ["GET", "POST"],
 		credentials: true,
 	},
