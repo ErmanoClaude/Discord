@@ -56,22 +56,6 @@ app.use(
 	}),
 );
 
-const _dirname = path.dirname("");
-const buildPath = path.join(_dirname, "../client/build");
-
-app.use(express.static(buildPath));
-
-app.get("/*", function (req, res) {
-	const indexPath = path.resolve(_dirname, "../client/build/index.html");
-
-	res.sendFile(indexPath, function (error) {
-		if (error) {
-			res.status(500).send(error);
-			console.log(error);
-		}
-	});
-});
-
 // connect to DB
 const db = require("./config/databaseConfig");
 
