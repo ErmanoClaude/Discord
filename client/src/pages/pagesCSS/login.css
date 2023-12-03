@@ -1,97 +1,105 @@
 html,
 body {
-  margin: 0;
-  height: 100vh;
-  overflow: hidden;
-  background: url("../../assets/loginBackground.png") no-repeat center center
-    fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+	margin: 0;
+	height: 100vh;
+	overflow: hidden;
+	background: url("../../assets/loginBackground.png") no-repeat center center
+		fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 }
 .login {
-  width: 50vw;
-  margin: 10% auto 50% auto;
-  background: rgba(53, 57, 63, 255);
-  text-align: left;
-  border-radius: 3px;
-  padding: 40px;
+	width: 50vw;
+	margin: 10% auto 50% auto;
+	background: rgba(53, 57, 63, 255);
+	text-align: left;
+	border-radius: 3px;
+	padding: 40px;
 
-  transition: width 2s linear 1s;
+	transition: width 2s linear 1s;
 }
 
 .login {
-  background: rgba(32, 34, 37, 255);
-  border-color: rgba(32, 34, 37, 255);
-  color: rgba(170, 173, 176, 1);
+	background: rgba(32, 34, 37, 255);
+	border-color: rgba(32, 34, 37, 255);
+	color: rgba(170, 173, 176, 1);
 }
 
 .form-control {
-  background: rgba(53, 57, 63, 255);
-  border-color: rgba(32, 34, 37, 255);
-  color: rgba(170, 173, 176, 1);
+	background: rgba(53, 57, 63, 255);
+	border-color: rgba(32, 34, 37, 255);
+	color: rgba(170, 173, 176, 1);
 }
 
 .login-card button {
-  background-color: rgba(87, 101, 242, 255);
-  color: rgba(228, 229, 252, 255);
-  width: 100%;
+	background-color: rgba(87, 101, 242, 255);
+	color: rgba(228, 229, 252, 255);
+	width: 100%;
+}
+
+.login-card input {
+	border: 1px solid white !important;
 }
 
 .login-card button:hover {
-  background-color: rgba(67, 81, 221, 1);
-  color: rgba(228, 229, 252, 255);
+	background-color: rgba(67, 81, 221, 1);
+	color: rgba(228, 229, 252, 255);
 }
 
 .welcome {
-  text-align: center;
-  color: rgba(241, 241, 241, 255);
+	text-align: center;
+	color: rgba(241, 241, 241, 255);
 }
 
 .star {
-  color: rgba(179, 62, 66, 255);
+	color: rgba(179, 62, 66, 255);
 }
 
 .welcome p {
-  color: rgba(170, 173, 176, 1);
+	color: rgba(170, 173, 176, 1);
 }
 
 .form-label {
-  color: rgba(170, 173, 176, 1);
+	color: rgba(170, 173, 176, 1);
 }
 
 .login-card a {
-  color: rgba(17, 150, 207, 255);
-  text-decoration: none;
+	color: rgba(17, 150, 207, 255);
+	text-decoration: none;
 }
 
 .login-card a:hover {
-  text-decoration: underline;
+	text-decoration: underline;
 }
 
 .form-control:focus {
-  outline: none;
-  box-shadow: none;
-  border-color: inherit;
-  background: rgba(32, 34, 37, 255);
-  color: rgba(170, 173, 176, 1);
+	outline: none;
+	box-shadow: none;
+	border-color: inherit;
+	background: rgba(32, 34, 37, 255);
+	color: rgba(170, 173, 176, 1);
 }
 
 .account {
-  color: rgba(170, 173, 176, 1);
+	color: rgba(170, 173, 176, 1);
 }
 
 .secondary {
-  color: rgba(170, 173, 176, 1);
+	color: rgba(170, 173, 176, 1);
 }
 
 .dropdown-toggle::after {
-  color: rgba(170, 173, 176, 1);
+	color: rgba(170, 173, 176, 1);
 }
 
 .form-select {
-  color: rgba(170, 173, 176, 1);
+	color: rgba(170, 173, 176, 1);
+}
+
+.login-card .form-select {
+	border: 1px solid white;
 }
 
 /* Change Autocomplete styles in Chrome*/
@@ -104,8 +112,8 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  border: 1px solid rgba(32, 34, 37, 255);
-  -webkit-text-fill-color: rgba(170, 173, 176, 1);
-  -webkit-box-shadow: 0 0 0px 1000px rgba(32, 34, 37, 255) inset;
-  background: rgba(32, 34, 37, 255);
+	border: 1px solid white !important;
+	-webkit-text-fill-color: rgba(170, 173, 176, 1);
+	-webkit-box-shadow: 0 0 0px 1000px rgba(32, 34, 37, 255) inset;
+	background: rgba(32, 34, 37, 255);
 }
