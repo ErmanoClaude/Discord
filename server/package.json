@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Server file to discord",
   "main": "index.js",
- "scripts": {
+"scripts": {
   "test": "echo \"Error: no test specified\" && exit 1",
   "start": "concurrently \"node server\" \"node peerServer\"",
   "dev": "concurrently \"nodemon server\" \"nodemon peerServer peerServer.js\""
 },
+
   "author": "Ermano Claude",
   "license": "ISC",
   "dependencies": {

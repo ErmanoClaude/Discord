@@ -86,6 +86,7 @@ const io = new Server(server, {
 	},
 });
 
+// Setting the namespace of socket
 const socketNameSpace = io.of("/api/socket");
 
 // Authenticate middleware for socket.
