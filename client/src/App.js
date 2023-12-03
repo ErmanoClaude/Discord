@@ -122,7 +122,7 @@ const App = () => {
 			return;
 		}
 
-		const newSocket = io("ws://localhost:5000");
+		const newSocket = io("ws://localhost:5000/api/socket");
 
 		newSocket.auth = { token: localStorage.getItem("token") };
 		newSocket.connect();
