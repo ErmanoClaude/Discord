@@ -50,6 +50,8 @@ const App = () => {
 	const [myPeer, setMyPeer] = useState(false);
 	const [usersToCall, setUsersToCall] = useState(false);
 	const API_URL = process.env.REACT_APP_API_URL;
+	const URL = process.env.REACT_APP_URL;
+	const PORT = process.env.REACT_APP_PORT;
 	const updateServers = (newServers) => {
 		setServers(newServers);
 	};
@@ -132,7 +134,7 @@ const App = () => {
 			return;
 		}
 
-		const newSocket = io("ws://localhost:5000/api/socket");
+		const newSocket = io(API_URL + "/socket");
 
 		newSocket.auth = { token: localStorage.getItem("token") };
 		newSocket.connect();
@@ -183,9 +185,9 @@ const App = () => {
 		console.log("connecting PEer", stream, socketId);
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
-				host: "localhost",
-				port: 9000,
+				host: URL,
 				path: "/peerjs",
+				port: PORT,
 				metadata: { name: displayname },
 			});
 
