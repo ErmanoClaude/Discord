@@ -67,7 +67,7 @@ const {
 } = require("./services/socketQueries");
 
 // check route
-app.get("/hello", (req, res) => {
+app.get("/api/hello", (req, res) => {
 	res.send("hi");
 });
 

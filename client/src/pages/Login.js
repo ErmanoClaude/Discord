@@ -28,7 +28,14 @@ function Login(props) {
 		event.preventDefault(); // prevents default submit
 		// Make api request to sever
 
-		console.log(API_URL + "/login");
+		console.log(
+			"The url",
+			API_URL + "/login",
+			"Type of API_URL",
+			typeof API_URL,
+			"Type of API URL /login",
+			typeof (API_URL + "/login"),
+		);
 		const response = await fetch(API_URL + "/login", {
 			method: "POST",
 			headers: {

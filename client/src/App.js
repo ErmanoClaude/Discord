@@ -316,6 +316,20 @@ const App = () => {
 		}
 
 		fetchData();
+		fetch(API_URL + "/hello")
+			.then((response) => {
+				console.log(response);
+				if (response.ok) {
+					return response.json();
+				}
+			})
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+
 		if (isLoggedIn) {
 			connectSocket();
 		}
