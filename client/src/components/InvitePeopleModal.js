@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+
 import Modal from "react-bootstrap/Modal";
-import { BiHash } from "react-icons/bi";
-import { HiSpeakerWave } from "react-icons/hi2";
+
 import ErrorModal from "./ErrorsModal";
 
 function InvitePeopleModal(props) {
 	const { show, handleClose } = props;
-	const { serverId, name } = useParams();
+	const { serverId } = useParams();
 	const [displayname, setDisplayname] = useState("");
 	const [showModal, setShowModal] = useState(false);
 	const API_URL = process.env.REACT_APP_API_URL;
@@ -19,7 +18,7 @@ function InvitePeopleModal(props) {
 		event.preventDefault();
 		// Trim whiteSpaces
 		const trimmedName = displayname.trim();
-		if (displayname === "") {
+		if (trimmedName === "") {
 			return;
 		}
 
@@ -64,28 +63,30 @@ function InvitePeopleModal(props) {
 				onHide={handleClose}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>Invite People</Modal.Title>
+					<Modal.Title>Invite People: Enter Displayname</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
-					<Form onSubmit={handleSubmit}>
-						<Form.Group
-							className='mb-3'
-							controlId='channel-name'
-						>
-							<Form.Label></Form.Label>
-							<Form.Control
+					<form onSubmit={handleSubmit}>
+						<div className='mb-3'>
+							<label
+								htmlFor='channel-name'
+								className='form-label'
+							></label>
+							<input
 								type='text'
+								className='form-control'
+								id='channel-name'
 								placeholder='Enter displayname'
 								value={displayname}
 								onChange={(e) => setDisplayname(e.target.value)}
 								autoFocus
-								pattern='[a -zA-Z0-9]{1,20}$'
+								pattern='[a-zA-Z0-9]{1,20}$'
 								title='Displayname can only contain letters, numbers and up to 20 characters.'
 								autoComplete='off'
 								required
 							/>
-						</Form.Group>
-					</Form>
+						</div>
+					</form>
 				</Modal.Body>
 				<Modal.Footer>
 					<Button

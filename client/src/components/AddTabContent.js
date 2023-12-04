@@ -45,18 +45,18 @@ function AddTabContent() {
 				<p className='add-text'>
 					You can add friends with their Discord username.
 				</p>
-				<Form
+				<form
 					onSubmit={handleSubmit}
 					autoComplete='off'
 				>
-					<Form.Group
+					<div
 						className='mb-3'
-						controlId='displayName'
 						style={{ width: "75%" }}
 					>
 						<Stack direction='horizontal'>
-							<Form.Control
+							<input
 								type='text'
+								className='form-control'
 								placeholder='You can add friends with their Discord username.'
 								value={displayName}
 								onChange={(e) => setDisplayName(e.target.value)}
@@ -77,8 +77,8 @@ function AddTabContent() {
 								Send Friend Request
 							</Button>
 						</Stack>
-					</Form.Group>
-				</Form>
+					</div>
+				</form>
 			</Stack>
 		</>
 	);

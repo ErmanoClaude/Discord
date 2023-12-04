@@ -286,7 +286,7 @@ const App = () => {
 	// Checked if user is logged in if not logged in get redirected to login or register
 	useEffect(() => {
 		async function fetchData() {
-			console.log("Fetching Data");
+			console.log("Fetching Data From:", API_URL + "/isUserAuth");
 			const token = localStorage.getItem("token");
 
 			if (!token) {

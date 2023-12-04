@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { BiHash } from "react-icons/bi";
 import { HiSpeakerWave } from "react-icons/hi2";
@@ -73,18 +72,22 @@ function CreateChannelModal(props) {
 					<Modal.Title>Create Channel</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
-					<Form onSubmit={handleSubmit}>
-						<Form.Group>
-							<Form.Label>Channel Type</Form.Label>
+					<form onSubmit={handleSubmit}>
+						<div className='mb-3'>
+							<label
+								htmlFor='channelType'
+								className='form-label'
+							>
+								Channel Type
+							</label>
 							<div
 								className='radio-channel-type mb-2'
 								onClick={() => setChannelType("text")}
 							>
 								<BiHash size={22} />
 								<span className='mx-2'>Text</span>
-								<Form.Check
+								<input
 									type='radio'
-									label=''
 									name='channelType'
 									value='text'
 									checked={channelType === "text"}
@@ -98,9 +101,8 @@ function CreateChannelModal(props) {
 							>
 								<HiSpeakerWave size={22} />
 								<span className='mx-2'>Voice</span>
-								<Form.Check
+								<input
 									type='radio'
-									label=''
 									name='channelType'
 									value='voice'
 									checked={channelType === "voice"}
@@ -108,26 +110,30 @@ function CreateChannelModal(props) {
 									onChange={() => {}}
 								/>
 							</div>
-						</Form.Group>
+						</div>
 
-						<Form.Group
-							className='mb-3'
-							controlId='channel-name'
-						>
-							<Form.Label>Channel Name</Form.Label>
-							<Form.Control
+						<div className='mb-3'>
+							<label
+								htmlFor='channel-name'
+								className='form-label'
+							>
+								Channel Name
+							</label>
+							<input
 								type='text'
+								className='form-control'
+								id='channel-name'
 								placeholder='Enter Channel name'
 								value={channelName}
 								onChange={(e) => setChannelName(e.target.value)}
 								autoFocus
-								pattern='[a -zA-Z0-9 ]{1,100}$'
+								pattern='[a-zA-Z0-9 ]{1,100}$'
 								title='Channel name can only contain letters, numbers, and spaces, up to 100 characters'
 								autoComplete='off'
 								required
 							/>
-						</Form.Group>
-					</Form>
+						</div>
+					</form>
 				</Modal.Body>
 				<Modal.Footer>
 					<Button

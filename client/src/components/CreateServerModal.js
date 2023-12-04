@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+
 import Modal from "react-bootstrap/Modal";
 import ErrorModal from "./ErrorsModal";
 
@@ -67,26 +67,30 @@ function CreateServerModal(props) {
 					<Modal.Title>Create a Server</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
-					<Form onSubmit={handleSubmit}>
-						<Form.Group
-							className='mb-3'
-							controlId='servername'
-						>
-							<Form.Label>Server Name</Form.Label>
-							<Form.Control
+					<form onSubmit={handleSubmit}>
+						<div className='mb-3'>
+							<label
+								htmlFor='servername'
+								className='form-label'
+							>
+								Server Name
+							</label>
+							<input
 								type='text'
+								className='form-control'
+								id='servername'
 								placeholder='Enter Server name'
 								value={serverName}
 								onChange={(e) => setServerName(e.target.value)}
 								autoFocus
 								// validation
-								pattern='[a-zA-Z0-9 ] +$'
-								title='Server name can only contain letters, numbers and spaces'
+								pattern='[a-zA-Z0-9 ]+$'
+								title='Server name can only contain letters, numbers, and spaces'
 								autoComplete='off'
 								required
 							/>
-						</Form.Group>
-					</Form>
+						</div>
+					</form>
 				</Modal.Body>
 				<Modal.Footer>
 					<Button
