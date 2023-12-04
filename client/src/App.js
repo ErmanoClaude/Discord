@@ -315,7 +315,6 @@ const App = () => {
 			}
 		}
 
-		fetchData();
 		fetch(API_URL + "/hello")
 			.then((response) => {
 				console.log(response);
@@ -329,6 +328,7 @@ const App = () => {
 			.catch((error) => {
 				console.log(error);
 			});
+		fetchData();
 
 		if (isLoggedIn) {
 			connectSocket();
