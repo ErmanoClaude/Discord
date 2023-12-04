@@ -68,7 +68,7 @@ const {
 
 // check route
 app.get("/api/hello", (req, res) => {
-	res.send("hi");
+	res.send({ hello: "hi" });
 });
 
 // Routes

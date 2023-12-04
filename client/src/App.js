@@ -57,6 +57,10 @@ const App = () => {
 	async function backendHello() {
 		const res = await fetch(`${API_URL}/hello`, {
 			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
 		});
 		console.log(res);
 		console.log(API_URL);
@@ -67,6 +71,8 @@ const App = () => {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
+				"Content-Type": "application/json",
+				Accept: "application/json",
 			},
 		});
 		const data = await res.json();
@@ -84,6 +90,8 @@ const App = () => {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
+				"Content-Type": "application/json",
+				Accept: "application/json",
 			},
 		});
 		const dat = await res.json();
@@ -94,6 +102,8 @@ const App = () => {
 			method: "GET",
 			headers: {
 				"x-access-token": localStorage.getItem("token"),
+				"Content-Type": "application/json",
+				Accept: "application/json",
 			},
 		})
 			.then((result) => {
@@ -292,6 +302,8 @@ const App = () => {
 				method: "GET",
 				headers: {
 					"x-access-token": token,
+					"Content-Type": "application/json",
+					Accept: "application/json",
 				},
 			});
 
@@ -315,7 +327,13 @@ const App = () => {
 			}
 		}
 
-		fetch(API_URL + "/hello")
+		fetch(API_URL + "/hello", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+		})
 			.then((response) => {
 				console.log(response);
 				if (response.ok) {

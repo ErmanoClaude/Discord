@@ -40,6 +40,7 @@ function Login(props) {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
+				Accept: "application/json",
 			},
 			body: JSON.stringify(form),
 		});
@@ -65,6 +66,8 @@ function Login(props) {
 					method: "GET",
 					headers: {
 						"x-access-token": localStorage.getItem("token") || "",
+						"Content-Type": "application/json",
+						Accept: "application/json",
 					},
 				});
 				const dat = await res.json();
