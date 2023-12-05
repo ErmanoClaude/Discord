@@ -189,7 +189,7 @@ const App = () => {
 				host: HOST,
 				path: "/",
 				port: PORT,
-				secure: true,
+				secure: false,
 				metadata: { name: displayname },
 			});
 
