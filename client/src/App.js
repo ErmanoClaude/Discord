@@ -147,6 +147,7 @@ const App = () => {
 
 		newSocket.on("init", (init) => {
 			console.log("socket init", myPeer, stream);
+			console.log("socket init: ", init);
 			setSocketId(init.id);
 			setDisplayname(init.displayname);
 			connectStream(init.id, init.displayname);
