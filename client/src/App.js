@@ -52,6 +52,7 @@ const App = () => {
 	const API_URL = process.env.REACT_APP_API_URL;
 	const URL = process.env.REACT_APP_URL;
 	const PORT = process.env.REACT_APP_PORT;
+	const HOST = process.env.REACT_APP_HOST;
 	const updateServers = (newServers) => {
 		setServers(newServers);
 	};
@@ -185,7 +186,7 @@ const App = () => {
 		console.log("connecting PEer", stream, socketId);
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
-				host: URL,
+				host: HOST,
 				path: "/",
 				port: PORT,
 				secure: true,
