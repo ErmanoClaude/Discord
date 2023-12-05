@@ -86,11 +86,8 @@ const io = new Server(server, {
 	},
 });
 
-// Setting the namespace of socket
-const socketNameSpace = io.of("/api/socket");
-
 // Authenticate middleware for socket.
-socketNameSpace.use((socket, next) => {
+io.use((socket, next) => {
 	const token = socket.handshake.auth.token;
 
 	// If no token is provided, reject the connection
@@ -120,7 +117,7 @@ socketNameSpace.use((socket, next) => {
 const serverVoiceRooms = {};
 const serverVoiceRoomsIds = {};
 
-socketNameSpace.on("connection", async (socket) => {
+io.on("connection", async (socket) => {
 	console.log(`${socket.userId} is connected to the server`);
 	let chatRoom = null;
 	let voiceRoom = null;
@@ -168,11 +165,9 @@ socketNameSpace.on("connection", async (socket) => {
 
 			// Send current members of every voice channel of that server
 			if (serverVoiceRooms[currentVoiceServer]) {
-				socketNameSpace
-					.to(`server-${currentVoiceServer}`)
-					.emit("joined voice room", {
-						members,
-					});
+				io.to(`server-${currentVoiceServer}`).emit("joined voice room", {
+					members,
+				});
 			}
 		}
 
@@ -221,7 +216,7 @@ socketNameSpace.on("connection", async (socket) => {
 			}
 
 			// emit room joined event
-			socketNameSpace.to(socket.id).emit("room joined", roomId);
+			io.to(socket.id).emit("room joined", roomId);
 		} catch (error) {
 			console.error("Error joining chatoom: ", error);
 		}
@@ -243,7 +238,7 @@ socketNameSpace.on("connection", async (socket) => {
 			};
 			console.log(returnMessage);
 			// send the message event to other person thats in the room
-			socketNameSpace.to(chatRoom).emit("receive message", returnMessage);
+			io.to(chatRoom).emit("receive message", returnMessage);
 		} catch (error) {
 			console.log(error);
 			console.log("Error in inserting message");
@@ -271,7 +266,7 @@ socketNameSpace.on("connection", async (socket) => {
 				}
 				// send current members of every voice channel of that server
 				if (serverVoiceRooms[serverId]) {
-					socketNameSpace.to(server).emit("joined voice room", {
+					io.to(server).emit("joined voice room", {
 						members,
 					});
 				}
@@ -317,9 +312,7 @@ socketNameSpace.on("connection", async (socket) => {
 			};
 
 			// Send message to everyone in the room.
-			socketNameSpace
-				.to(chatRoom)
-				.emit("receive group message", returnMessage);
+			io.to(chatRoom).emit("receive group message", returnMessage);
 		} catch (error) {
 			console.log(error);
 		}
@@ -377,11 +370,12 @@ socketNameSpace.on("connection", async (socket) => {
 
 					// Send current members of every voice channel of that server
 					if (serverVoiceRooms[currentVoiceServer]) {
-						socketNameSpace
-							.to(`server-${currentVoiceServer}`)
-							.emit("joined voice room", {
+						io.to(`server-${currentVoiceServer}`).emit(
+							"joined voice room",
+							{
 								members,
-							});
+							},
+						);
 					}
 				}
 				socket
@@ -408,13 +402,11 @@ socketNameSpace.on("connection", async (socket) => {
 				}
 				// Send current members of every voice channel of that server
 				if (serverVoiceRooms[serverId]) {
-					socketNameSpace
-						.to(`server-${serverId}`)
-						.emit("joined voice room", {
-							members,
-						});
+					io.to(`server-${serverId}`).emit("joined voice room", {
+						members,
+					});
 				}
-				socketNameSpace.to(voiceRoom).emit("joined group voice chat");
+				io.to(voiceRoom).emit("joined group voice chat");
 			}
 		} else {
 			socket.join(roomId);
@@ -430,11 +422,11 @@ socketNameSpace.on("connection", async (socket) => {
 				const [, , channelId] = channelIdMatch;
 				members[channelId] = [...serverVoiceRooms[serverId][room]];
 			}
-			socketNameSpace.to(voiceRoom).emit("joined group voice chat");
+			io.to(voiceRoom).emit("joined group voice chat");
 
 			// send current members of every voice channel of that server
 			if (serverVoiceRooms[serverId]) {
-				socketNameSpace.to(`server-${serverId}`).emit("joined voice room", {
+				io.to(`server-${serverId}`).emit("joined voice room", {
 					members,
 				});
 			}
@@ -471,20 +463,16 @@ socketNameSpace.on("connection", async (socket) => {
 
 			// Send current members of every voice channel of that server
 			if (serverVoiceRooms[currentVoiceServer]) {
-				socketNameSpace
-					.to(`server-${currentVoiceServer}`)
-					.emit("joined voice room", {
-						members,
-					});
+				io.to(`server-${currentVoiceServer}`).emit("joined voice room", {
+					members,
+				});
 			}
 			currentVoiceServer = null;
 		}
 
 		// leave room
 		if (voiceRoom) {
-			socketNameSpace
-				.to(voiceRoom)
-				.emit("left group voice chat", String(socket.userId));
+			io.to(voiceRoom).emit("left group voice chat", String(socket.userId));
 			socket.leave(voiceRoom);
 			voiceRoom = null;
 		}
