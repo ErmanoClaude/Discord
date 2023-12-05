@@ -134,7 +134,7 @@ const App = () => {
 			return;
 		}
 
-		const newSocket = io(URL, { path: "/api/" });
+		const newSocket = io(URL, { path: "/api" });
 
 		newSocket.auth = { token: localStorage.getItem("token") };
 		newSocket.connect();
