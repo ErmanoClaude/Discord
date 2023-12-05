@@ -84,7 +84,7 @@ const io = new Server(server, {
 		methods: ["GET", "POST"],
 		credentials: true,
 	},
-	path: "/",
+	path: "/api/socketio",
 });
 
 // Authenticate middleware for socket.
