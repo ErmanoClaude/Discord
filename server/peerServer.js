@@ -16,6 +16,15 @@ const peerServer = ExpressPeerServer(server, {
 	debug: true, // Set to true to enable debugging
 });
 
+// Redirect invalid PeerJS routes
+app.use("/peerjs", (req, res, next) => {
+	if (req.path === "/peerjs") {
+		next();
+	} else {
+		res.redirect("/error404");
+	}
+});
+
 // Add the ExpressPeerServer middleware
 app.use("/peerjs", peerServer);
 
