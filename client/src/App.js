@@ -134,7 +134,7 @@ const App = () => {
 			return;
 		}
 
-		const newSocket = io(API_URL + "/socket");
+		const newSocket = io(API_URL);
 
 		newSocket.auth = { token: localStorage.getItem("token") };
 		newSocket.connect();
@@ -185,9 +185,10 @@ const App = () => {
 		console.log("connecting PEer", stream, socketId);
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
-				host: URL,
+				host: URL + "/peerjs",
 				path: "/peerjs",
 				port: PORT,
+				proxied: true,
 				metadata: { name: displayname },
 			});
 
