@@ -185,8 +185,8 @@ const App = () => {
 		console.log("connecting PEer", stream, socketId);
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
-				host: URL + "/peerjs",
-				path: "/peerjs",
+				host: URL,
+				path: "/peerjs/peerjs",
 				port: PORT,
 				proxied: true,
 				metadata: { name: displayname },
