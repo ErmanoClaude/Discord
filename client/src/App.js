@@ -187,9 +187,9 @@ const App = () => {
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
 				host: HOST,
-				path: "/",
+				path: "/peerjs",
 				port: PORT,
-				secure: false,
+				secure: true,
 				metadata: { name: displayname },
 			});
 
