@@ -188,7 +188,6 @@ const App = () => {
 				host: URL,
 				path: "/",
 				port: PORT,
-				proxied: true,
 				metadata: { name: displayname },
 			});
 
