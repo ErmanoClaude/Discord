@@ -84,6 +84,7 @@ const io = new Server(server, {
 		methods: ["GET", "POST"],
 		credentials: true,
 	},
+	path: "/api",
 });
 
 // Setting the namespace of socket
