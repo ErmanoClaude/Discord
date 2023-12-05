@@ -149,7 +149,7 @@ const App = () => {
 			console.log("socket init", myPeer, stream);
 			setSocketId(init.id);
 			setDisplayname(init.displayname);
-			connectStream(init.id);
+			connectStream(init.id, init.displayname);
 		});
 		newSocket.on("all users", (userIds) => {
 			setUsersToCall(userIds);
@@ -182,7 +182,7 @@ const App = () => {
 		setSocket(newSocket); // Set the socket after it's initialized
 	}
 
-	function connectPeer(stream, socketId) {
+	function connectPeer(stream, socketId, displayname) {
 		console.log("connecting PEer", stream, socketId);
 		if (stream !== false && socketId !== false) {
 			const newPeer = new Peer(socketId, {
@@ -247,7 +247,7 @@ const App = () => {
 		}
 	}
 
-	function connectStream(id = socketId) {
+	function connectStream(id = socketId, displayname) {
 		navigator.mediaDevices
 			.getUserMedia({
 				video: true,
@@ -276,7 +276,7 @@ const App = () => {
 						return mediaStream;
 					})
 					.then((mediaStream) => {
-						connectPeer(mediaStream, id);
+						connectPeer(mediaStream, id, displayname);
 					})
 					.catch((err) => {
 						console.error("Error accessing media devices:", err);
