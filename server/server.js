@@ -77,6 +77,11 @@ app.use("/api", serverChannelRoutes);
 app.use("/api", friendsRoutes);
 app.use("/api/message", chatsRoutes);
 
+// Catch all routes for unmatched routes
+app.use("/api/*", (req, res) => {
+	res.redirect("/error404");
+});
+
 // Connect user to webSocket socket.io
 const io = new Server(server, {
 	cors: {
