@@ -1,7 +1,7 @@
 # Discord Clone
 
 This project is a web-based Discord clone that replicates some of the key features of the Discord communication platform.
-site link www.discordclone.com
+site link https://www.chatcordclone.com
 
 ## Features
 
@@ -10,7 +10,7 @@ site link www.discordclone.com
 -  Text Chat: Engage in real-time text conversations with fellow members.
 -  Voice Chat: Enjoy voice conversations with friends in dedicated voice channels.
 -  Video Chat: Interact through video chat with other members.
--  [x] Roles and Permissions: Assign roles to users with specific permissions. (Only owner can remove people from server.)
+-  Roles and Permissions: Assign roles to users with specific permissions. (Only owner can remove people from server.)
 -  Responsive Design: User-friendly experience on various devices.
 
 ## Technologies Used
